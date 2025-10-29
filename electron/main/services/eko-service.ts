@@ -86,6 +86,9 @@ export class EkoService {
     const configManager = ConfigManager.getInstance();
     const llms: LLMs = configManager.getLLMsConfig();
 
+    // Get agent configuration
+    const agentConfig = configManager.getAgentConfig();
+
     // Get correct application path
     const appPath = app.isPackaged
       ? path.join(app.getPath('userData'), 'static')  // Packaged path
@@ -97,8 +100,31 @@ export class EkoService {
     const sseUrl = "http://localhost:5173/api/mcp/sse";
     this.mcpClient = new SimpleSseMcpClient(sseUrl);
 
-    // Create agents - can now use FileAgent since we're in Node.js environment
-    this.agents = [new BrowserAgent(this.detailView, this.mcpClient), new FileAgent(this.detailView, appPath)];
+    // Create agents with custom prompts
+    this.agents = [];
+
+    if (agentConfig.browserAgent.enabled) {
+      this.agents.push(
+        new BrowserAgent(
+          this.detailView,
+          this.mcpClient,
+          agentConfig.browserAgent.customPrompt
+        )
+      );
+      Log.info('BrowserAgent enabled with custom prompt:', agentConfig.browserAgent.customPrompt ? 'Yes' : 'No');
+    }
+
+    if (agentConfig.fileAgent.enabled) {
+      this.agents.push(
+        new FileAgent(
+          this.detailView,
+          appPath,
+          this.mcpClient,
+          agentConfig.fileAgent.customPrompt
+        )
+      );
+      Log.info('FileAgent enabled with custom prompt:', agentConfig.fileAgent.customPrompt ? 'Yes' : 'No');
+    }
 
     // Create callback and initialize Eko instance
     const callback = this.createCallback();

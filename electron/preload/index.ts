@@ -48,6 +48,13 @@ const api = {
   getSelectedProvider: () => ipcRenderer.invoke('config:get-selected-provider'),
   setSelectedProvider: (provider: 'deepseek' | 'qwen' | 'google' | 'anthropic' | 'openrouter') => ipcRenderer.invoke('config:set-selected-provider', provider),
 
+  // Agent configuration APIs
+  getAgentConfig: () => ipcRenderer.invoke('agent:get-config'),
+  saveAgentConfig: (config: any) => ipcRenderer.invoke('agent:save-config', config),
+  getMcpTools: () => ipcRenderer.invoke('agent:get-mcp-tools'),
+  setMcpToolEnabled: (toolName: string, enabled: boolean) => ipcRenderer.invoke('agent:set-mcp-tool-enabled', toolName, enabled),
+  reloadAgentConfig: () => ipcRenderer.invoke('agent:reload-config'),
+
   // Detail view control APIs
   setDetailViewVisible: (visible: boolean) => ipcRenderer.invoke('set-detail-view-visible', visible),
   // URL retrieval and monitoring APIs

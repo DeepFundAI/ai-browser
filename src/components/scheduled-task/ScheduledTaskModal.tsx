@@ -115,7 +115,11 @@ export const ScheduledTaskModal: React.FC = () => {
       onCancel={handleCancel}
       onOk={handleSubmit}
       title={isEditMode ? 'Edit scheduled task' : 'Create scheduled task'}
-      width={800}
+      width="85%"
+      style={{ minHeight: '60vh' }}
+      styles={{
+        body: { minHeight: '50vh', maxHeight: '75vh', overflowY: 'auto' }
+      }}
       okText={isEditMode ? 'Save' : 'Create and enable'}
       cancelText="Cancel"
       destroyOnClose

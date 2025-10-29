@@ -48,6 +48,27 @@ export interface UserModelConfigs {
 }
 
 /**
+ * Agent configuration interface
+ */
+export interface AgentConfig {
+  browserAgent: {
+    enabled: boolean;
+    customPrompt: string;
+  };
+  fileAgent: {
+    enabled: boolean;
+    customPrompt: string;
+  };
+  // MCP Tools configuration - dynamically managed
+  mcpTools: {
+    [toolName: string]: {
+      enabled: boolean;
+      config?: Record<string, any>;
+    };
+  };
+}
+
+/**
  * Configuration Manager for handling environment variables in both development and production
  */
 export class ConfigManager {
@@ -395,5 +416,77 @@ export class ConfigManager {
     return {
       default: defaultLLM,
     };
+  }
+
+  /**
+   * Get agent configurations from electron-store
+   * Note: mcpTools will be merged with available tools dynamically
+   */
+  public getAgentConfig(): AgentConfig {
+    const defaultConfig: AgentConfig = {
+      browserAgent: {
+        enabled: true,
+        customPrompt: ''
+      },
+      fileAgent: {
+        enabled: true,
+        customPrompt: ''
+      },
+      mcpTools: {}  // Will be populated dynamically
+    };
+
+    return store.get('agentConfig', defaultConfig) as AgentConfig;
+  }
+
+  /**
+   * Save agent configurations to electron-store
+   */
+  public saveAgentConfig(config: AgentConfig): void {
+    store.set('agentConfig', config);
+    console.log('[ConfigManager] Agent configurations saved');
+  }
+
+  /**
+   * Get MCP tool configuration for a specific tool
+   * If not configured, returns enabled by default
+   */
+  public getMcpToolConfig(toolName: string): { enabled: boolean; config?: Record<string, any> } {
+    const agentConfig = this.getAgentConfig();
+    return agentConfig.mcpTools[toolName] || { enabled: true };  // Default to enabled
+  }
+
+  /**
+   * Set MCP tool configuration
+   */
+  public setMcpToolConfig(toolName: string, config: { enabled: boolean; config?: Record<string, any> }): void {
+    const agentConfig = this.getAgentConfig();
+    agentConfig.mcpTools[toolName] = config;
+    this.saveAgentConfig(agentConfig);
+  }
+
+  /**
+   * Get all MCP tools configuration
+   * Merges with available tools from McpToolManager
+   */
+  public getAllMcpToolsConfig(availableTools: string[]): Record<string, { enabled: boolean; config?: Record<string, any> }> {
+    const agentConfig = this.getAgentConfig();
+    const result: Record<string, { enabled: boolean; config?: Record<string, any> }> = {};
+
+    // For each available tool, get its config (default to enabled if not configured)
+    availableTools.forEach(toolName => {
+      result[toolName] = agentConfig.mcpTools[toolName] || { enabled: true };
+    });
+
+    return result;
+  }
+
+  /**
+   * Get enabled MCP tools list
+   */
+  public getEnabledMcpTools(availableTools: string[]): string[] {
+    const allConfigs = this.getAllMcpToolsConfig(availableTools);
+    return Object.entries(allConfigs)
+      .filter(([_, config]) => config.enabled)
+      .map(([name, _]) => name);
   }
 }

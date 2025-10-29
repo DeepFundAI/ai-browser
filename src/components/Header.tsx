@@ -1,11 +1,9 @@
 import React from 'react'
 import { Button } from 'antd'
-import { HistoryOutlined } from '@ant-design/icons'
+import { HistoryOutlined, ToolOutlined } from '@ant-design/icons'
 import { useRouter } from 'next/router'
 import { HistoryPanel } from '@/components/HistoryPanel'
 import { useHistoryStore } from '@/stores/historyStore'
-import { useScheduledTaskStore } from '@/stores/scheduled-task-store'
-import { ScheduledTaskIcon } from '@/icons/scheduled-task-icons'
 
 export default function Header() {
   const router = useRouter()
@@ -16,7 +14,6 @@ export default function Header() {
 
   // Using Zustand store, as simple as Pinia!
   const { showHistoryPanel, setShowHistoryPanel, selectHistoryTask, terminateCurrentTaskFn } = useHistoryStore()
-  const { setShowListPanel } = useScheduledTaskStore()
 
   const goback = async () => {
     router.push('/home')
@@ -60,17 +57,17 @@ export default function Header() {
         </div>
       )}
       <div className='flex justify-center items-center gap-4'>
-        {/* Create task button - only show in home page */}
+        {/* Toolbox button - only show in home page */}
         {!isTaskDetailMode && (router.pathname === '/home' || router.pathname === '/') && (
           <Button
             type="text"
-            icon={<ScheduledTaskIcon />}
+            icon={<ToolOutlined />}
             size="small"
-            onClick={() => setShowListPanel(true)}
+            onClick={() => router.push('/toolbox')}
             className='!text-text-01-dark hover:!bg-blue-500/10'
             style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
           >
-            Scheduled Tasks
+            Toolbox
           </Button>
         )}
         <Button

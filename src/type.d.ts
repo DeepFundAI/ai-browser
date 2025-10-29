@@ -27,6 +27,36 @@ export interface UserModelConfigs {
   selectedProvider?: ProviderType
 }
 
+// Agent configuration types
+export interface AgentConfig {
+  browserAgent: {
+    enabled: boolean
+    customPrompt: string
+  }
+  fileAgent: {
+    enabled: boolean
+    customPrompt: string
+  }
+  mcpTools: {
+    [toolName: string]: {
+      enabled: boolean
+      config?: Record<string, any>
+    }
+  }
+}
+
+// MCP Tool types
+export interface McpToolSchema {
+  name: string
+  description: string
+  enabled: boolean
+  inputSchema: {
+    type: string
+    properties: Record<string, any>
+    required: string[]
+  }
+}
+
 declare global {
   interface Window {
     api: {
@@ -61,6 +91,13 @@ declare global {
       getApiKeySource: (provider: ProviderType) => Promise<'user' | 'env' | 'none'>
       getSelectedProvider: () => Promise<ProviderType>
       setSelectedProvider: (provider: ProviderType) => Promise<{ success: boolean }>
+
+      // Agent configuration APIs
+      getAgentConfig: () => Promise<{ success: boolean; data: AgentConfig }>
+      saveAgentConfig: (config: AgentConfig) => Promise<{ success: boolean }>
+      getMcpTools: () => Promise<{ success: boolean; data: McpToolSchema[] }>
+      setMcpToolEnabled: (toolName: string, enabled: boolean) => Promise<{ success: boolean }>
+      reloadAgentConfig: () => Promise<{ success: boolean; data: AgentConfig }>
     }
     // PDF.js type declarations
     pdfjsLib?: {

@@ -22,16 +22,70 @@ type ToolHandler = (args: any, extInfo?: any) => Promise<ToolResult>;
 
 class McpToolManager {
   private tools: Map<string, ToolHandler> = new Map();
-  
+  private enabledTools: Set<string> = new Set();
+
   constructor() {
     this.registerDefaultTools();
+    // By default, all registered tools are enabled
+    this.tools.forEach((_, name) => this.enabledTools.add(name));
   }
 
   public registerTool(name: string, handler: ToolHandler) {
     this.tools.set(name, handler);
+    this.enabledTools.add(name); // Auto-enable new tools
     console.log(`Registered tool: ${name}`);
   }
 
+  /**
+   * Get all registered tool names
+   */
+  public getAllToolNames(): string[] {
+    return Array.from(this.tools.keys());
+  }
+
+  /**
+   * Enable a specific tool
+   */
+  public enableTool(name: string): boolean {
+    if (this.tools.has(name)) {
+      this.enabledTools.add(name);
+      console.log(`Enabled tool: ${name}`);
+      return true;
+    }
+    console.warn(`Tool not found: ${name}`);
+    return false;
+  }
+
+  /**
+   * Disable a specific tool
+   */
+  public disableTool(name: string): boolean {
+    if (this.tools.has(name)) {
+      this.enabledTools.delete(name);
+      console.log(`Disabled tool: ${name}`);
+      return true;
+    }
+    console.warn(`Tool not found: ${name}`);
+    return false;
+  }
+
+  /**
+   * Set tool enabled/disabled status
+   */
+  public setToolEnabled(name: string, enabled: boolean): boolean {
+    return enabled ? this.enableTool(name) : this.disableTool(name);
+  }
+
+  /**
+   * Check if a tool is enabled
+   */
+  public isToolEnabled(name: string): boolean {
+    return this.enabledTools.has(name);
+  }
+
+  /**
+   * Get only enabled tools
+   */
   public getTools(): ToolSchema[] {
     const toolSchemas: { [key: string]: ToolSchema } = {
       get_douyin_download_link: {
@@ -103,8 +157,13 @@ class McpToolManager {
     };
 
     const tools: ToolSchema[] = [];
-    
+
+    // Only return enabled tools
     this.tools.forEach((handler, name) => {
+      if (!this.enabledTools.has(name)) {
+        return; // Skip disabled tools
+      }
+
       if (toolSchemas[name]) {
         tools.push(toolSchemas[name]);
       } else {
@@ -119,6 +178,101 @@ class McpToolManager {
           }
         });
       }
+    });
+
+    return tools;
+  }
+
+  /**
+   * Get all tools (including disabled ones) with their metadata
+   */
+  public getAllToolsWithStatus(): Array<ToolSchema & { enabled: boolean }> {
+    const toolSchemas: { [key: string]: ToolSchema } = {
+      get_douyin_download_link: {
+        name: 'get_douyin_download_link',
+        description: 'Get Douyin video watermark-free download link',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            share_link: {
+              type: 'string',
+              description: 'Douyin share link or text containing the link'
+            }
+          },
+          required: ['share_link']
+        }
+      },
+      extract_xiaohongshu_text: {
+        name: 'extract_xiaohongshu_text',
+        description: 'Extract text content from Xiaohongshu video (audio to text). Note: Only works with video posts!',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            video_url: {
+              type: 'string',
+              description: 'Xiaohongshu video URL'
+            },
+            model: {
+              type: 'string',
+              description: 'Speech recognition model, default is sensevoice-v1',
+              default: 'sensevoice-v1'
+            }
+          },
+          required: ['video_url']
+        }
+      },
+      extract_douyin_text: {
+        name: 'extract_douyin_text',
+        description: 'Extract text content from Douyin video (audio to text)',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            share_link: {
+              type: 'string',
+              description: 'Douyin share link or text containing the link'
+            },
+            model: {
+              type: 'string',
+              description: 'Speech recognition model, default is paraformer-v2',
+              default: 'paraformer-v2'
+            }
+          },
+          required: ['share_link']
+        }
+      },
+      parse_douyin_video_info: {
+        name: 'parse_douyin_video_info',
+        description: 'Parse Douyin video basic information (without downloading video file)',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            share_link: {
+              type: 'string',
+              description: 'Douyin share link'
+            }
+          },
+          required: ['share_link']
+        }
+      }
+    };
+
+    const tools: Array<ToolSchema & { enabled: boolean }> = [];
+
+    this.tools.forEach((handler, name) => {
+      const schema = toolSchemas[name] || {
+        name,
+        description: `Tool: ${name}`,
+        inputSchema: {
+          type: 'object',
+          properties: {},
+          required: []
+        }
+      };
+
+      tools.push({
+        ...schema,
+        enabled: this.enabledTools.has(name)
+      });
     });
 
     return tools;
