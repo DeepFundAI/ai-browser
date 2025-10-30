@@ -77,6 +77,8 @@ The built application will include your API configuration, so end users don't ne
 
 - **Multiple AI Providers**: Support for DeepSeek, Qwen, Google Gemini, Anthropic Claude, and OpenRouter
 - **UI Configuration**: Configure AI models and API keys directly in the app, no file editing required
+- **Agent Configuration**: Customize AI agent behavior with custom prompts and manage MCP tools
+- **Toolbox**: Centralized hub for system features including agent configuration, scheduled tasks, and more
 - **AI-Powered Browser**: Intelligent browser with automated task execution
 - **Multi-Modal AI**: Vision and text processing capabilities
 - **Scheduled Tasks**: Create and manage automated recurring tasks
@@ -108,6 +110,16 @@ Create scheduled tasks with custom intervals and execution steps.
 View past tasks with search and playback capabilities.
 
 ![History](./docs/shotscreen/history.png)
+
+### Toolbox
+Centralized hub for accessing all system features and configurations.
+
+![Toolbox](./docs/shotscreen/toolbox.png)
+
+### Agent Configuration
+Customize AI agent behavior with custom prompts and manage MCP tools for enhanced capabilities.
+
+![Agent Configuration](./docs/shotscreen/agent-configuration.png)
 
 ## Supported AI Providers
 

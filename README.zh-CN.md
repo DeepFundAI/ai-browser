@@ -71,6 +71,8 @@ pnpm run build
 
 - **多 AI 提供商支持**: 支持 DeepSeek、Qwen、Google Gemini、Anthropic Claude 和 OpenRouter
 - **UI 配置**: 直接在应用中配置 AI 模型和 API 密钥，无需编辑文件
+- **Agent 配置**: 使用自定义提示词定制 AI Agent 行为，管理 MCP 工具
+- **工具箱**: 系统功能的集中访问中心，包括 Agent 配置、定时任务等
 - **AI 智能浏览器**: 具有自动化任务执行的智能浏览器
 - **多模态 AI**: 视觉和文本处理能力
 - **定时任务**: 创建和管理自动化定期任务
@@ -102,6 +104,16 @@ pnpm run build
 查看过去的任务，支持搜索和回放功能。
 
 ![历史记录](./docs/shotscreen/history.png)
+
+### 工具箱
+集中访问所有系统功能和配置的中心枢纽。
+
+![工具箱](./docs/shotscreen/toolbox.png)
+
+### Agent 配置
+使用自定义提示词定制 AI Agent 行为，管理 MCP 工具以增强能力。
+
+![Agent 配置](./docs/shotscreen/agent-configuration.png)
 
 ## 支持的 AI 提供商
 
