@@ -62,5 +62,13 @@
   "days": "days",
   "execution_rule": "Execution rule:",
   "execute_every_interval": "Execute every {{interval}} {{unit}}",
-  "execute_by_cron": "Execute based on Cron expression"
+  "execute_by_cron": "Execute based on Cron expression",
+  "scheduled_tasks": "Scheduled Tasks",
+  "last": "Last: {{time}}",
+  "history": "History",
+  "save": "Save",
+  "create_and_enable": "Create and enable",
+  "cancel": "Cancel",
+  "delete_failed": "Delete failed",
+  "unknown": "Unknown"
 }

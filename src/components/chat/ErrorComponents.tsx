@@ -1,9 +1,10 @@
 import React from 'react';
-import { 
-  Alert, 
-  Button, 
+import {
+  Alert,
+  Button,
   Typography
 } from "antd";
+import { useTranslation } from 'react-i18next';
 
 const { Text } = Typography;
 
@@ -14,23 +15,25 @@ interface ErrorAlertProps {
   onContinue: () => void;
 }
 
-export const ErrorAlert = ({ 
-  hasError, 
-  errorInfo, 
-  onClose, 
-  onContinue 
+export const ErrorAlert = ({
+  hasError,
+  errorInfo,
+  onClose,
+  onContinue
 }: ErrorAlertProps) => {
+  const { t } = useTranslation('chat');
+
   if (!hasError) return null;
-  
+
   return (
     <Alert
-      message="API Request Error"
+      message={t('error_title')}
       description={
         <div>
           <div>{errorInfo}</div>
           <div style={{ marginTop: 8 }}>
             <Text type="secondary" style={{ fontSize: '12px' }}>
-              💡 Tip: The system will automatically retry and compress context, you can continue using other features
+              {t('error_tip')}
             </Text>
           </div>
         </div>
@@ -41,12 +44,12 @@ export const ErrorAlert = ({
       onClose={onClose}
       style={{ marginBottom: 16 }}
       action={
-        <Button 
-          size="small" 
-          type="primary" 
+        <Button
+          size="small"
+          type="primary"
           onClick={onContinue}
         >
-          Continue
+          {t('continue')}
         </Button>
       }
     />

@@ -3,6 +3,7 @@ import { Button, Input, Modal, List, Space, Card } from 'antd';
 import { DeleteOutlined, HolderOutlined, PlusOutlined } from '@ant-design/icons';
 import { TaskStep, TaskTemplate } from '@/models';
 import { useScheduledTaskStore } from '@/stores/scheduled-task-store';
+import { useTranslation } from 'react-i18next';
 
 interface TaskStepEditorProps {
   value?: TaskStep[];
@@ -14,6 +15,7 @@ interface TaskStepEditorProps {
  * Supports manual step addition and API template import
  */
 export const TaskStepEditor: React.FC<TaskStepEditorProps> = ({ value = [], onChange }) => {
+  const { t } = useTranslation('scheduledTask');
   const [steps, setSteps] = useState<TaskStep[]>(value);
   const [showTemplateModal, setShowTemplateModal] = useState(false);
 
@@ -117,17 +119,17 @@ export const TaskStepEditor: React.FC<TaskStepEditorProps> = ({ value = [], onCh
           icon={<PlusOutlined />}
           onClick={handleAddStep}
         >
-          Manual add step
+          {t('manual_add_step')}
         </Button>
         <Button onClick={() => setShowTemplateModal(true)}>
-          Import from API template
+          {t('import_from_template')}
         </Button>
       </div>
 
       {/* Step list */}
       {steps.length === 0 ? (
         <div className="text-center py-8 text-text-12-dark bg-tool-call rounded border border-border-message">
-          No steps yet, please add task steps
+          {t('no_steps')}
         </div>
       ) : (
         <div className="space-y-3">
@@ -149,7 +151,7 @@ export const TaskStepEditor: React.FC<TaskStepEditorProps> = ({ value = [], onCh
                 {/* Step content */}
                 <div className="flex-1 space-y-2">
                   <Input
-                    placeholder="Step name"
+                    placeholder={t('step_name')}
                     value={step.name}
                     onChange={(e) =>
                       handleUpdateStep(step.id, { name: e.target.value })
@@ -157,7 +159,7 @@ export const TaskStepEditor: React.FC<TaskStepEditorProps> = ({ value = [], onCh
                     className="!bg-main-view !border-border-message !text-text-01-dark"
                   />
                   <Input.TextArea
-                    placeholder="Step description (will be part of the prompt)"
+                    placeholder={t('step_description')}
                     value={step.content}
                     onChange={(e) =>
                       handleUpdateStep(step.id, { content: e.target.value })
@@ -200,7 +202,7 @@ export const TaskStepEditor: React.FC<TaskStepEditorProps> = ({ value = [], onCh
       <Modal
         open={showTemplateModal}
         onCancel={() => setShowTemplateModal(false)}
-        title="Select task template"
+        title={t('select_template')}
         footer={null}
         width={600}
       >
@@ -217,14 +219,14 @@ export const TaskStepEditor: React.FC<TaskStepEditorProps> = ({ value = [], onCh
                   <div className="text-text-12-dark">
                     <div>{template.description}</div>
                     <div className="mt-1 text-xs">
-                      Contains {template.steps.length} steps
+                      {t('contains_steps', { count: template.steps.length })}
                       {template.category && ` · ${template.category}`}
                     </div>
                   </div>
                 }
               />
               <Button type="primary" size="small">
-                Select
+                {t('select')}
               </Button>
             </List.Item>
           )}

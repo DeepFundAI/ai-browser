@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react'
 import { useRouter } from 'next/router'
 import Header from '@/components/Header'
-import { Input, Slider, Button, message as antdMessage } from 'antd'
+import { Input, Slider, Button, App } from 'antd'
 import { EkoResult, StreamCallbackMessage } from '@jarvis-agent/core/dist/types';
 import { MessageList } from '@/components/chat/MessageComponents';
 import { uuidv4 } from '@/common/utils';
@@ -16,6 +16,7 @@ import { useTranslation } from 'react-i18next';
 
 export default function main() {
     const { t } = useTranslation('main');
+    const { message: antdMessage } = App.useApp();
     const router = useRouter();
     const { taskId: urlTaskId, executionId: urlExecutionId } = router.query;
 
@@ -576,7 +577,7 @@ export default function main() {
             setCurrentTool(null);
             setCurrentHistoryIndex(toolHistory.length - 1);
 
-            antdMessage.info(t('switched_to_history'));
+            // Note: message notification is shown in HistoryPanel.tsx to avoid duplication
         } catch (error) {
             console.error('Failed to load history task:', error);
             antdMessage.error(t('load_history_failed'));
@@ -843,7 +844,7 @@ export default function main() {
                                                 />
 
                                                 <span className='text-xs text-text-12-dark'>
-                                                    Real-time
+                                                    {t('realtime')}
                                                 </span>
                                             </div>
                                         )}

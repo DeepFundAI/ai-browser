@@ -60,10 +60,6 @@ export default function Header() {
         </div>
       )}
       <div className='flex justify-center items-center gap-4'>
-        {/* Language Switcher */}
-        <div style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}>
-          <LanguageSwitcher />
-        </div>
         {/* Toolbox button - only show in home page */}
         {!isTaskDetailMode && (router.pathname === '/home' || router.pathname === '/') && (
           <Button
@@ -87,6 +83,11 @@ export default function Header() {
         >
           {isTaskDetailMode ? t('execution_history') : t('history')}
         </Button>
+
+        {/* Language Switcher */}
+        <div style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}>
+          <LanguageSwitcher />
+        </div>
       </div>
 
       {/* Global history task panel - passing scheduled task info */}

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Tabs, Switch, Input, Button, Card, message, Spin, Divider, Space, Typography } from 'antd';
+import { Tabs, Switch, Input, Button, Card, App, Spin, Divider, Space, Typography } from 'antd';
 import { SaveOutlined, ReloadOutlined, SettingOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/router';
 import type { AgentConfig, McpToolSchema } from '../type';
+import { useTranslation } from 'react-i18next';
 
 const { TabPane } = Tabs;
 const { TextArea } = Input;
@@ -13,6 +14,8 @@ const { Title, Text, Paragraph } = Typography;
  * Allows users to configure agents and MCP tools
  */
 export default function AgentConfigPage() {
+  const { t } = useTranslation('agentConfig');
+  const { message } = App.useApp();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -43,7 +46,7 @@ export default function AgentConfigPage() {
         setMcpTools(toolsResult.data);
       }
     } catch (error: any) {
-      message.error('Failed to load configuration: ' + error.message);
+      message.error(t('load_config_failed') + error.message);
     } finally {
       setLoading(false);
     }
@@ -54,12 +57,12 @@ export default function AgentConfigPage() {
     try {
       const result = await window.api.saveAgentConfig(config);
       if (result.success) {
-        message.success('Configuration saved and agents reloaded successfully!');
+        message.success(t('save_success'));
       } else {
-        message.error('Failed to save configuration');
+        message.error(t('save_failed'));
       }
     } catch (error: any) {
-      message.error('Failed to save configuration: ' + error.message);
+      message.error(t('save_failed') + ': ' + error.message);
     } finally {
       setSaving(false);
     }
@@ -67,7 +70,7 @@ export default function AgentConfigPage() {
 
   const handleReload = async () => {
     await loadConfiguration();
-    message.success('Configuration reloaded');
+    message.success(t('reload_success'));
   };
 
   const handleToolToggle = async (toolName: string, enabled: boolean) => {
@@ -91,14 +94,14 @@ export default function AgentConfigPage() {
       // Save to backend
       await window.api.setMcpToolEnabled(toolName, enabled);
     } catch (error: any) {
-      message.error('Failed to update tool status: ' + error.message);
+      message.error(t('tool_update_failed') + ': ' + error.message);
     }
   };
 
   if (loading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <Spin size="large" tip="Loading configuration..." />
+        <Spin size="large" tip={t('loading')} />
       </div>
     );
   }
@@ -114,19 +117,19 @@ export default function AgentConfigPage() {
             onClick={() => router.push('/home')}
             style={{ padding: '4px 8px' }}
           >
-            Back
+            {t('back')}
           </Button>
           <div>
             <Title level={2} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '12px' }}>
               <SettingOutlined />
-              Agent Configuration
+              {t('title')}
             </Title>
-            <Text type="secondary">Configure AI agents and MCP tools for task execution</Text>
+            <Text type="secondary">{t('subtitle')}</Text>
           </div>
         </div>
         <Space>
           <Button icon={<ReloadOutlined />} onClick={handleReload}>
-            Reload
+            {t('reload')}
           </Button>
           <Button
             type="primary"
@@ -134,7 +137,7 @@ export default function AgentConfigPage() {
             onClick={handleSave}
             loading={saving}
           >
-            Save Configuration
+            {t('save')}
           </Button>
         </Space>
       </div>
@@ -142,12 +145,12 @@ export default function AgentConfigPage() {
       {/* Configuration Tabs */}
       <Tabs defaultActiveKey="browser" type="card">
         {/* Browser Agent Tab */}
-        <TabPane tab="Browser Agent" key="browser">
+        <TabPane tab={t('browser_agent')} key="browser">
           <Card>
             <Space direction="vertical" size="large" style={{ width: '100%' }}>
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <Text strong>Enable Browser Agent</Text>
+                  <Text strong>{t('enable_browser_agent')}</Text>
                   <Switch
                     checked={config.browserAgent.enabled}
                     onChange={(enabled) =>
@@ -159,16 +162,16 @@ export default function AgentConfigPage() {
                   />
                 </div>
                 <Paragraph type="secondary" style={{ margin: 0 }}>
-                  Browser Agent handles web automation tasks like navigation, clicking, form filling, and content extraction.
+                  {t('browser_agent_desc')}
                 </Paragraph>
               </div>
 
               <Divider />
 
               <div>
-                <Text strong>Custom System Prompt</Text>
+                <Text strong>{t('custom_prompt')}</Text>
                 <Paragraph type="secondary">
-                  Add custom instructions to extend the Browser Agent's capabilities. This prompt will be appended to the agent's system prompt.
+                  {t('custom_prompt_desc')}
                 </Paragraph>
                 <TextArea
                   value={config.browserAgent.customPrompt}
@@ -178,7 +181,7 @@ export default function AgentConfigPage() {
                       browserAgent: { ...prev.browserAgent, customPrompt: e.target.value }
                     }))
                   }
-                  placeholder="Example: When extracting data from tables, always format the output as JSON arrays..."
+                  placeholder={t('browser_prompt_placeholder')}
                   rows={6}
                   disabled={!config.browserAgent.enabled}
                 />
@@ -188,12 +191,12 @@ export default function AgentConfigPage() {
         </TabPane>
 
         {/* File Agent Tab */}
-        <TabPane tab="File Agent" key="file">
+        <TabPane tab={t('file_agent')} key="file">
           <Card>
             <Space direction="vertical" size="large" style={{ width: '100%' }}>
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <Text strong>Enable File Agent</Text>
+                  <Text strong>{t('enable_file_agent')}</Text>
                   <Switch
                     checked={config.fileAgent.enabled}
                     onChange={(enabled) =>
@@ -205,16 +208,16 @@ export default function AgentConfigPage() {
                   />
                 </div>
                 <Paragraph type="secondary" style={{ margin: 0 }}>
-                  File Agent handles file system operations like reading, writing, searching, and organizing files.
+                  {t('file_agent_desc')}
                 </Paragraph>
               </div>
 
               <Divider />
 
               <div>
-                <Text strong>Custom System Prompt</Text>
+                <Text strong>{t('custom_prompt')}</Text>
                 <Paragraph type="secondary">
-                  Add custom instructions to extend the File Agent's capabilities. This prompt will be appended to the agent's system prompt.
+                  {t('custom_prompt_desc')}
                 </Paragraph>
                 <TextArea
                   value={config.fileAgent.customPrompt}
@@ -224,7 +227,7 @@ export default function AgentConfigPage() {
                       fileAgent: { ...prev.fileAgent, customPrompt: e.target.value }
                     }))
                   }
-                  placeholder="Example: When creating new files, always add a header comment with creation date and author information..."
+                  placeholder={t('file_prompt_placeholder')}
                   rows={6}
                   disabled={!config.fileAgent.enabled}
                 />
@@ -234,13 +237,13 @@ export default function AgentConfigPage() {
         </TabPane>
 
         {/* MCP Tools Tab */}
-        <TabPane tab="MCP Tools" key="tools">
+        <TabPane tab={t('mcp_tools')} key="tools">
           <Card>
             <Space direction="vertical" size="large" style={{ width: '100%' }}>
               <div>
-                <Title level={4} style={{ margin: 0 }}>Available Tools</Title>
+                <Title level={4} style={{ margin: 0 }}>{t('available_tools')}</Title>
                 <Paragraph type="secondary">
-                  Enable or disable specific MCP (Model Context Protocol) tools that agents can use during task execution.
+                  {t('mcp_tools_desc')}
                 </Paragraph>
               </div>
 
@@ -248,7 +251,7 @@ export default function AgentConfigPage() {
 
               {mcpTools.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '40px 0' }}>
-                  <Text type="secondary">No MCP tools available</Text>
+                  <Text type="secondary">{t('no_tools')}</Text>
                 </div>
               ) : (
                 <Space direction="vertical" size="middle" style={{ width: '100%' }}>
@@ -279,7 +282,7 @@ export default function AgentConfigPage() {
                           {tool.inputSchema.required.length > 0 && (
                             <div style={{ marginTop: '8px' }}>
                               <Text type="secondary" style={{ fontSize: '12px' }}>
-                                Required parameters: {tool.inputSchema.required.join(', ')}
+                                {t('required_params')}: {tool.inputSchema.required.join(', ')}
                               </Text>
                             </div>
                           )}

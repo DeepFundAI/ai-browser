@@ -7,6 +7,7 @@ import {
   CodeOutlined,
   FileOutlined
 } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
@@ -22,6 +23,7 @@ interface FileViewState {
 }
 
 export default function FileView() {
+  const { t } = useTranslation('fileView');
   const { message } = App.useApp();
   const [fileState, setFileState] = useState<FileViewState>({
     content: '',
@@ -106,10 +108,10 @@ export default function FileView() {
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(fileState.content);
-      message.success('Content copied to clipboard');
+      message.success(t('copy_success'));
     } catch (error) {
       console.error('Copy failed:', error);
-      message.error('Copy failed');
+      message.error(t('copy_failed'));
     }
   };
 
@@ -124,7 +126,7 @@ export default function FileView() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    message.success('File downloaded successfully');
+    message.success(t('download_success'));
   };
 
   // Format time
@@ -149,50 +151,50 @@ export default function FileView() {
               <FileTextOutlined style={{ fontSize: '20px', color: '#1890ff' }} />
               <div>
                 <Title level={4} style={{ margin: 0 }}>
-                  AI Generated File Preview
+                  {t('title')}
                 </Title>
                 <Text type="secondary" style={{ fontSize: '12px' }}>
-                  {fileState.lastUpdated ? `Last updated: ${formatTime(fileState.lastUpdated)}` : 'Waiting for content generation...'}
+                  {fileState.lastUpdated ? t('last_updated', { time: formatTime(fileState.lastUpdated) }) : t('waiting_content')}
                 </Text>
               </div>
             </div>
-            
+
             <Space>
               <Text type="secondary" style={{ fontSize: '12px' }}>
-                Lines: {fileState.lineCount} | Words: {fileState.wordCount}
+                {t('stats', { lines: fileState.lineCount, words: fileState.wordCount })}
               </Text>
-              <Button 
-                icon={<CodeOutlined />} 
-                size="small" 
+              <Button
+                icon={<CodeOutlined />}
+                size="small"
                 onClick={() => setShowType('code')}
                 type={showType === 'code' ? 'primary' : 'default'}
               >
-                Code
+                {t('code')}
               </Button>
-              <Button 
-                icon={<FileOutlined />} 
-                size="small" 
+              <Button
+                icon={<FileOutlined />}
+                size="small"
                 onClick={() => setShowType('preview')}
                 disabled={!fileState.url}
                 type={showType === 'preview' ? 'primary' : 'default'}
               >
-                Preview
+                {t('preview')}
               </Button>
-              <Button 
-                icon={<CopyOutlined />} 
-                size="small" 
+              <Button
+                icon={<CopyOutlined />}
+                size="small"
                 onClick={handleCopy}
                 disabled={!fileState.content}
               >
-                Copy
+                {t('copy')}
               </Button>
-              <Button 
-                icon={<DownloadOutlined />} 
-                size="small" 
+              <Button
+                icon={<DownloadOutlined />}
+                size="small"
                 onClick={handleDownload}
                 disabled={!fileState.content}
               >
-                Download
+                {t('download')}
               </Button>
             </Space>
           </div>
@@ -201,16 +203,16 @@ export default function FileView() {
         {/* File content area */}
         {showType === 'code' ? (<Card className='flex-1 overflow-auto' ref={contentRef}>
           {fileState.isLoading ? (
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'center', 
-              alignItems: 'center', 
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
               height: '100%',
               flexDirection: 'column',
               gap: '16px'
             }}>
               <Spin size="large" />
-              <Text type="secondary">Waiting for AI to generate content...</Text>
+              <Text type="secondary">{t('waiting_ai')}</Text>
             </div>
           ) : fileState.content ? (
             <div
@@ -229,19 +231,19 @@ export default function FileView() {
               {fileState.content}
             </div>
           ) : (
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'center', 
-              alignItems: 'center', 
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
               height: '100%',
               flexDirection: 'column',
               gap: '16px'
             }}>
               <FileTextOutlined style={{ fontSize: '64px', color: '#d9d9d9' }} />
               <div style={{ textAlign: 'center' }}>
-                <Title level={4} type="secondary">No content yet</Title>
+                <Title level={4} type="secondary">{t('no_content')}</Title>
                 <Text type="secondary">
-                  When AI starts generating or modifying files, content will be displayed here in real-time
+                  {t('no_content_hint')}
                 </Text>
               </div>
             </div>

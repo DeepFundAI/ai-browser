@@ -15,7 +15,7 @@ export const LanguageSwitcher: React.FC = () => {
     <Select
       value={language}
       onChange={changeLanguage}
-      style={{ width: 120 }}
+      style={{ width: 100 }}
       suffixIcon={<GlobalOutlined />}
       options={languages}
       size="small"

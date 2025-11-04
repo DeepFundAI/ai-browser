@@ -30,5 +30,6 @@
   "navigate_to": "Navigate to page",
   "wait_page_load": "Wait for page load",
   "capture_screenshot": "Capture page screenshot",
-  "execute_tool": "Execute tool operation"
+  "execute_tool": "Execute tool operation",
+  "executing_tool": "Executing {{toolName}}"
 }

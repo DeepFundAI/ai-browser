@@ -62,5 +62,13 @@
   "days": "天",
   "execution_rule": "执行规则：",
   "execute_every_interval": "每 {{interval}} {{unit}} 执行一次",
-  "execute_by_cron": "根据 Cron 表达式执行"
+  "execute_by_cron": "根据 Cron 表达式执行",
+  "scheduled_tasks": "定时任务",
+  "last": "上次：{{time}}",
+  "history": "历史",
+  "save": "保存",
+  "create_and_enable": "创建并启用",
+  "cancel": "取消",
+  "delete_failed": "删除失败",
+  "unknown": "未知"
 }
