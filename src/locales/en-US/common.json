@@ -1,0 +1,18 @@
+{
+  "app_name": "DeepFundAI",
+  "save": "Save",
+  "cancel": "Cancel",
+  "confirm": "Confirm",
+  "delete": "Delete",
+  "edit": "Edit",
+  "loading": "Loading...",
+  "error": "Error",
+  "success": "Success",
+  "close": "Close",
+  "search": "Search",
+  "submit": "Submit",
+  "back": "Back",
+  "next": "Next",
+  "previous": "Previous",
+  "finish": "Finish"
+}

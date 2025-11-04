@@ -4,12 +4,16 @@ import { PlusOutlined, EditOutlined, DeleteOutlined, PlayCircleOutlined, ClockCi
 import { useScheduledTaskStore } from '@/stores/scheduled-task-store';
 import { ScheduledTask } from '@/models';
 import { formatDistanceToNow } from 'date-fns';
-import { zhCN } from 'date-fns/locale';
+import { zhCN, enUS } from 'date-fns/locale';
+import { useTranslation } from 'react-i18next';
+import { useLanguageStore } from '@/stores/languageStore';
 
 /**
  * Scheduled task list panel
  */
 export const ScheduledTaskListPanel: React.FC = () => {
+  const { t } = useTranslation('scheduledTask');
+  const { language } = useLanguageStore();
   const { message } = App.useApp();
   const {
     showListPanel,
@@ -41,9 +45,9 @@ export const ScheduledTaskListPanel: React.FC = () => {
   const handleDelete = async (taskId: string) => {
     try {
       await deleteTask(taskId);
-      message.success('Task deleted successfully');
+      message.success(t('task_deleted_success'));
     } catch (error) {
-      message.error('Delete failed');
+      message.error(t('delete_failed'));
     }
   };
 
@@ -51,9 +55,9 @@ export const ScheduledTaskListPanel: React.FC = () => {
   const handleExecuteNow = async (task: ScheduledTask) => {
     try {
       await executeTaskNow(task);
-      message.success('Task has started executing');
+      message.success(t('task_started'));
     } catch (error) {
-      message.error('Execution failed');
+      message.error(t('execution_failed'));
     }
   };
 
@@ -63,13 +67,13 @@ export const ScheduledTaskListPanel: React.FC = () => {
       // Call main process to open task window history panel
       if (typeof window !== 'undefined' && (window as any).api) {
         await (window as any).api.invoke('open-task-history', task.id);
-        message.success('Opening execution history');
+        message.success(t('opening_history'));
         // Close task list panel
         setShowListPanel(false);
       }
     } catch (error) {
       console.error('Failed to open execution history:', error);
-      message.error('Failed to open execution history');
+      message.error(t('open_history_failed'));
     }
   };
 
@@ -77,29 +81,30 @@ export const ScheduledTaskListPanel: React.FC = () => {
   const getIntervalText = (task: ScheduledTask) => {
     const { schedule } = task;
     if (schedule.type === 'interval') {
-      const unitText = {
-        minute: 'minutes',
-        hour: 'hours',
-        day: 'days',
+      const unitMap = {
+        minute: 'every_minutes',
+        hour: 'every_hours',
+        day: 'every_days',
       };
-      return `Every ${schedule.intervalValue} ${unitText[schedule.intervalUnit!]}`;
+      return t(unitMap[schedule.intervalUnit!], { count: schedule.intervalValue });
     }
-    return 'Cron';
+    return t('cron');
   };
 
   // Get last execution time description
   const getLastExecutedText = (task: ScheduledTask) => {
     if (!task.lastExecutedAt) {
-      return 'Never executed';
+      return t('never_executed');
     }
 
     try {
+      const locale = language === 'zh-CN' ? zhCN : enUS;
       return formatDistanceToNow(new Date(task.lastExecutedAt), {
         addSuffix: true,
-        locale: zhCN,
+        locale,
       });
     } catch {
-      return 'Unknown';
+      return t('unknown');
     }
   };
 
@@ -108,7 +113,7 @@ export const ScheduledTaskListPanel: React.FC = () => {
       <Drawer
         title={
           <div className="flex items-center justify-between">
-            <span>Scheduled task list</span>
+            <span>{t('task_list')}</span>
             <Button
               type="primary"
               icon={<PlusOutlined />}
@@ -118,7 +123,7 @@ export const ScheduledTaskListPanel: React.FC = () => {
                 setShowCreateModal(true);
               }}
             >
-              New task
+              {t('new_task')}
             </Button>
           </div>
         }
@@ -143,7 +148,7 @@ export const ScheduledTaskListPanel: React.FC = () => {
       >
         {scheduledTasks.length === 0 ? (
           <Empty
-            description="No scheduled tasks yet"
+            description={t('no_tasks')}
             image={Empty.PRESENTED_IMAGE_SIMPLE}
           >
             <Button
@@ -154,7 +159,7 @@ export const ScheduledTaskListPanel: React.FC = () => {
                 setShowCreateModal(true);
               }}
             >
-              Create first task
+              {t('create_first_task')}
             </Button>
           </Empty>
         ) : (
@@ -174,7 +179,7 @@ export const ScheduledTaskListPanel: React.FC = () => {
                           {task.name}
                         </h4>
                         <Tag color={task.enabled ? 'success' : 'default'}>
-                          {task.enabled ? 'Enabled' : 'Disabled'}
+                          {task.enabled ? t('enabled') : t('disabled')}
                         </Tag>
                       </div>
                       {task.description && (
@@ -188,8 +193,8 @@ export const ScheduledTaskListPanel: React.FC = () => {
                     <Switch
                       checked={task.enabled}
                       onChange={() => toggleTaskEnabled(task.id)}
-                      checkedChildren="Enable"
-                      unCheckedChildren="Disable"
+                      checkedChildren={t('enable')}
+                      unCheckedChildren={t('disable')}
                     />
                   </div>
 
@@ -199,8 +204,8 @@ export const ScheduledTaskListPanel: React.FC = () => {
                       <ClockCircleOutlined className="mr-1" />
                       {getIntervalText(task)}
                     </span>
-                    <span>Last executed: {getLastExecutedText(task)}</span>
-                    <span>Steps: {task.steps.length}</span>
+                    <span>{t('last_executed', { time: getLastExecutedText(task) })}</span>
+                    <span>{t('steps_count', { count: task.steps.length })}</span>
                   </div>
 
                   {/* Action buttons */}
@@ -211,27 +216,27 @@ export const ScheduledTaskListPanel: React.FC = () => {
                       onClick={() => handleExecuteNow(task)}
                       disabled={!task.enabled}
                     >
-                      Execute now
+                      {t('execute_now')}
                     </Button>
                     <Button
                       size="small"
                       onClick={() => handleViewHistory(task)}
                     >
-                      Execution history
+                      {t('execution_history')}
                     </Button>
                     <Button
                       size="small"
                       icon={<EditOutlined />}
                       onClick={() => handleEdit(task)}
                     >
-                      Edit
+                      {t('edit')}
                     </Button>
                     <Popconfirm
-                      title="Confirm deletion"
-                      description="Once deleted, it cannot be recovered. Are you sure you want to delete this task?"
+                      title={t('confirm_deletion')}
+                      description={t('confirm_deletion_message')}
                       onConfirm={() => handleDelete(task.id)}
-                      okText="Delete"
-                      cancelText="Cancel"
+                      okText={t('delete')}
+                      cancelText={t('cancel')}
                       okButtonProps={{ danger: true }}
                     >
                       <Button
@@ -239,7 +244,7 @@ export const ScheduledTaskListPanel: React.FC = () => {
                         danger
                         icon={<DeleteOutlined />}
                       >
-                        Delete
+                        {t('delete')}
                       </Button>
                     </Popconfirm>
                   </div>

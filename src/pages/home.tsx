@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Header from '@/components/Header'
-import { Input, Button } from 'antd'
-import {ImageType, ReportType, SlideType, WebType, SpreadsheetType, VisualizeType, MoreType} from '@/icons/source-type-icons'
+import { Input } from 'antd'
 import { ScheduledTaskModal, ScheduledTaskListPanel } from '@/components/scheduled-task'
 import { useScheduledTaskStore } from '@/stores/scheduled-task-store'
 import { ModelConfigBar } from '@/components/ModelConfigBar'
 import { ChromeBrowserBackground } from '@/components/fellou/ChromeBrowserBackground'
+import { useTranslation } from 'react-i18next'
 
 export default function Home() {
     const [query, setQuery] = useState('')
     const router = useRouter()
+    const { t } = useTranslation('home')
 
     // Initialize scheduled task scheduler
     // Note: Use main process state flag to prevent duplicate initialization due to route switching
@@ -60,16 +61,6 @@ export default function Home() {
         }
     }
 
-    const sourceTypes = [
-        { icon: <ImageType/>, label: 'Image' },
-        { icon: <ReportType/>, label: 'Report' },
-        { icon: <SlideType/>, label: 'Slide' },
-        { icon: <WebType/>, label: 'Web' },
-        { icon: <SpreadsheetType/>, label: 'Spreadsheet' },
-        { icon: <VisualizeType/>, label: 'Visualization' },
-        { icon: <MoreType/>, label: 'More' }
-    ]
-
     return (
         <>
             <ChromeBrowserBackground/>
@@ -78,8 +69,8 @@ export default function Home() {
                 <div className='flex flex-col items-center pt-[130px] w-full h-full overflow-y-auto z-10'>
                     {/* Greeting */}
                     <div className='text-left leading-10 text-text-01-dark text-[28px] font-bold'>
-                        <div>Hi, DavidSmith</div>
-                        <p>I am Altas, a robot powered by llm. What can I do for you?</p>
+                        <div>{t('greeting_name')}</div>
+                        <p>{t('greeting_intro')}</p>
                     </div>
 
                     {/* Unified Input Area: Model Config + Query Input */}
@@ -95,7 +86,7 @@ export default function Home() {
                                     onChange={(e) => setQuery(e.target.value)}
                                     onKeyDown={handleKeyDown}
                                     className='!h-full !bg-transparent !text-text-01-dark !placeholder-text-12-dark !py-3 !px-4 !border !border-solid'
-                                    placeholder='Please enter your task'
+                                    placeholder={t('input_placeholder')}
                                     autoSize={false}
                                     style={{
                                         borderColor: 'rgba(255, 255, 255, 0.2)',

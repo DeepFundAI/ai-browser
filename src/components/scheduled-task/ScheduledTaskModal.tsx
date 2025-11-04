@@ -4,11 +4,13 @@ import { TaskStepEditor } from './TaskStepEditor';
 import { ScheduleConfigEditor } from './ScheduleConfigEditor';
 import { useScheduledTaskStore } from '@/stores/scheduled-task-store';
 import { TaskStep, ScheduleConfig } from '@/models';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Scheduled task create/edit modal
  */
 export const ScheduledTaskModal: React.FC = () => {
+  const { t } = useTranslation('scheduledTask');
   const { message } = App.useApp();
   const [form] = Form.useForm();
 
@@ -56,7 +58,7 @@ export const ScheduledTaskModal: React.FC = () => {
 
       // Validate steps
       if (!values.steps || values.steps.length === 0) {
-        message.error('Please add at least one task step');
+        message.error(t('add_step_required'));
         return;
       }
 
@@ -66,7 +68,7 @@ export const ScheduledTaskModal: React.FC = () => {
       );
 
       if (hasEmptyStep) {
-        message.error('Please fill in complete step information');
+        message.error(t('complete_step_info'));
         return;
       }
 
@@ -81,7 +83,7 @@ export const ScheduledTaskModal: React.FC = () => {
           source: 'manual', // Manually created task
         });
 
-        message.success('Task updated successfully');
+        message.success(t('task_updated'));
       } else {
         // Create task
         await createTask({
@@ -93,13 +95,13 @@ export const ScheduledTaskModal: React.FC = () => {
           source: 'manual',
         });
 
-        message.success('Task created successfully');
+        message.success(t('task_created'));
       }
 
       handleCancel();
     } catch (error: any) {
       console.error('Submit failed:', error);
-      message.error(error.message || 'Operation failed');
+      message.error(error.message || t('operation_failed'));
     }
   };
 
@@ -114,14 +116,14 @@ export const ScheduledTaskModal: React.FC = () => {
       open={showCreateModal}
       onCancel={handleCancel}
       onOk={handleSubmit}
-      title={isEditMode ? 'Edit scheduled task' : 'Create scheduled task'}
+      title={isEditMode ? t('edit_task') : t('create_task')}
       width="85%"
       style={{ minHeight: '60vh' }}
       styles={{
         body: { minHeight: '50vh', maxHeight: '75vh', overflowY: 'auto' }
       }}
-      okText={isEditMode ? 'Save' : 'Create and enable'}
-      cancelText="Cancel"
+      okText={isEditMode ? t('save') : t('create_and_enable')}
+      cancelText={t('cancel')}
       destroyOnClose
     >
       <Form
@@ -132,11 +134,11 @@ export const ScheduledTaskModal: React.FC = () => {
         {/* Task name */}
         <Form.Item
           name="name"
-          label="Task name"
-          rules={[{ required: true, message: 'Please enter task name' }]}
+          label={t('task_name')}
+          rules={[{ required: true, message: t('enter_task_name') }]}
         >
           <Input
-            placeholder="Please enter task name"
+            placeholder={t('enter_task_name')}
             className="!bg-main-view !border-border-message !text-text-01-dark"
           />
         </Form.Item>
@@ -144,10 +146,10 @@ export const ScheduledTaskModal: React.FC = () => {
         {/* Task description */}
         <Form.Item
           name="description"
-          label="Task description (optional)"
+          label={t('task_description')}
         >
           <Input.TextArea
-            placeholder="Please enter task description"
+            placeholder={t('enter_task_description')}
             rows={2}
             className="!bg-main-view !border-border-message !text-text-01-dark"
           />
@@ -156,12 +158,12 @@ export const ScheduledTaskModal: React.FC = () => {
         {/* Task steps */}
         <Form.Item
           name="steps"
-          label="Task steps"
+          label={t('task_steps')}
           rules={[
             {
               validator: async (_, value) => {
                 if (!value || value.length === 0) {
-                  throw new Error('Please add at least one task step');
+                  throw new Error(t('add_step_required'));
                 }
               },
             },
@@ -173,8 +175,8 @@ export const ScheduledTaskModal: React.FC = () => {
         {/* Schedule configuration */}
         <Form.Item
           name="schedule"
-          label="Schedule configuration"
-          rules={[{ required: true, message: 'Please configure execution interval' }]}
+          label={t('schedule_config')}
+          rules={[{ required: true, message: t('configure_interval') }]}
         >
           <ScheduleConfigEditor />
         </Form.Item>
@@ -182,7 +184,7 @@ export const ScheduledTaskModal: React.FC = () => {
         {/* Whether to enable */}
         <Form.Item
           name="enabled"
-          label="Enable immediately after creation"
+          label={t('enable_on_create')}
           valuePropName="checked"
         >
           <Switch />

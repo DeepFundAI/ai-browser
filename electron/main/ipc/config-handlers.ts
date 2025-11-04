@@ -1,6 +1,7 @@
 import { ipcMain } from "electron";
 import { ConfigManager, type UserModelConfigs, type ProviderType } from "../utils/config-manager";
 import { windowContextManager } from "../services/window-context-manager";
+import { store } from "../utils/store";
 
 /**
  * Register all configuration-related IPC handlers
@@ -88,6 +89,30 @@ export function registerConfigHandlers() {
       return { success: true };
     } catch (error: any) {
       console.error('IPC config:set-selected-provider error:', error);
+      throw error;
+    }
+  });
+
+  // Get saved language preference
+  ipcMain.handle('config:get-language', async () => {
+    try {
+      const language = store.get('app.language', 'en-US');
+      return language;
+    } catch (error: any) {
+      console.error('IPC config:get-language error:', error);
+      return 'en-US';
+    }
+  });
+
+  // Handle language change notification from renderer
+  ipcMain.handle('language-changed', async (_event, language: string) => {
+    try {
+      // Store language preference in electron-store
+      store.set('app.language', language);
+      console.log(`[IPC] Language changed to: ${language}`);
+      return { success: true };
+    } catch (error: any) {
+      console.error('IPC language-changed error:', error);
       throw error;
     }
   });

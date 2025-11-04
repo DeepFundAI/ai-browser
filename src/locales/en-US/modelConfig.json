@@ -1,0 +1,15 @@
+{
+  "api_key": "{{provider}} API Key:",
+  "set_via_env": "Set via environment variable",
+  "set_by_user": "Set by user",
+  "not_configured": "Not configured",
+  "enter_api_key": "Enter your API Key",
+  "edit_api_key": "Edit API Key",
+  "get_api_key": "Get API Key",
+  "model_updated": "Model updated",
+  "update_failed": "Failed to update model",
+  "api_key_empty": "API Key cannot be empty",
+  "api_key_saved": "API Key saved",
+  "save_failed": "Failed to save API Key",
+  "provider_change_failed": "Failed to change provider"
+}

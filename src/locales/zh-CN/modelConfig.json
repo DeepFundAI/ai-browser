@@ -1,0 +1,15 @@
+{
+  "api_key": "{{provider}} API Key：",
+  "set_via_env": "通过环境变量设置",
+  "set_by_user": "由用户设置",
+  "not_configured": "未配置",
+  "enter_api_key": "输入您的 API Key",
+  "edit_api_key": "编辑 API Key",
+  "get_api_key": "获取 API Key",
+  "model_updated": "模型已更新",
+  "update_failed": "更新模型失败",
+  "api_key_empty": "API Key 不能为空",
+  "api_key_saved": "API Key 已保存",
+  "save_failed": "保存 API Key 失败",
+  "provider_change_failed": "切换提供商失败"
+}

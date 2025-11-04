@@ -1,9 +1,9 @@
 import React from 'react';
-import { 
-  Card, 
-  Typography, 
-  Space, 
-  Tag, 
+import {
+  Card,
+  Typography,
+  Space,
+  Tag,
   Spin,
   Alert,
   Descriptions,
@@ -11,7 +11,7 @@ import {
   Collapse,
   Button
 } from "antd";
-import { 
+import {
   ToolOutlined,
   PlayCircleOutlined,
   CheckCircleOutlined,
@@ -21,14 +21,16 @@ import {
   EyeOutlined,
   EyeInvisibleOutlined
 } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 
 const { Text, Paragraph } = Typography;
 const { Panel } = Collapse;
 
 // Tool usage component
 export const ToolUseDisplay = ({ toolName, params }: { toolName: string; params: any }) => {
+  const { t } = useTranslation('chat');
   const [showParams, setShowParams] = React.useState(false);
-  
+
   const getToolIcon = (name: string) => {
     if (name.includes('current_page') || name.includes('browser')) return <FileTextOutlined />;
     if (name.includes('click') || name.includes('type')) return <PlayCircleOutlined />;
@@ -37,22 +39,22 @@ export const ToolUseDisplay = ({ toolName, params }: { toolName: string; params:
 
      const getToolDescription = (name: string) => {
      const descriptions: Record<string, string> = {
-       'current_page': 'Get current page information',
-       'click': 'Click page element',
-       'type': 'Input text',
-       'scroll': 'Scroll page',
-       'navigate': 'Navigate to page',
-       'wait': 'Wait for page load',
-       'screenshot': 'Capture page screenshot'
+       'current_page': t('tool_current_page'),
+       'click': t('tool_click'),
+       'type': t('tool_type'),
+       'scroll': t('tool_scroll'),
+       'navigate': t('tool_navigate'),
+       'wait': t('tool_wait'),
+       'screenshot': t('tool_screenshot')
      };
-     return descriptions[name] || 'Execute tool operation';
+     return descriptions[name] || t('tool_execute');
    };
 
   const formatParams = (params: any) => {
     if (!params || typeof params !== 'object' || Object.keys(params).length === 0) {
-      return [{ key: 'empty', label: 'Parameters', children: 'No parameters' }];
+      return [{ key: 'empty', label: t('parameters'), children: t('no_parameters') }];
     }
-    
+
     const items = Object.entries(params).map(([key, value]) => ({
       key,
       label: key,
@@ -83,14 +85,14 @@ export const ToolUseDisplay = ({ toolName, params }: { toolName: string; params:
           icon={showParams ? <EyeInvisibleOutlined /> : <EyeOutlined />}
           onClick={() => setShowParams(!showParams)}
         >
-          {showParams ? 'Hide' : 'View'} Parameters
+          {showParams ? t('hide') : t('view')} {t('parameters')}
         </Button>
       }
     >
       <Space direction="vertical" style={{ width: '100%' }}>
         {/* Tag row */}
         <div>
-          <Tag color="blue" style={{ fontSize: '11px' }}>Tool Call</Tag>
+          <Tag color="blue" style={{ fontSize: '11px' }}>{t('tool_call')}</Tag>
         </div>
 
         {/* Tool description */}
@@ -101,7 +103,7 @@ export const ToolUseDisplay = ({ toolName, params }: { toolName: string; params:
         {/* Parameter display */}
         {showParams && (
           <Collapse size="small" ghost>
-            <Panel header="Call Parameters" key="params">
+            <Panel header={t('call_parameters')} key="params">
               <Descriptions
                 size="small"
                 column={1}
@@ -118,11 +120,13 @@ export const ToolUseDisplay = ({ toolName, params }: { toolName: string; params:
 
 // Tool running component
 export const ToolRunningDisplay = ({ toolName, text }: { toolName: string; text: string }) => {
+  const { t } = useTranslation('chat');
+
   return (
-    <Card 
-      size="small" 
-      style={{ 
-        backgroundColor: '#fefce8', 
+    <Card
+      size="small"
+      style={{
+        backgroundColor: '#fefce8',
         border: '1px solid #fde047',
         borderRadius: '8px'
       }}
@@ -136,7 +140,7 @@ export const ToolRunningDisplay = ({ toolName, text }: { toolName: string; text:
       <Space direction="vertical" style={{ width: '100%' }}>
         {/* Status tag */}
         <div>
-          <Tag color="warning" style={{ fontSize: '11px' }}>Executing</Tag>
+          <Tag color="warning" style={{ fontSize: '11px' }}>{t('executing')}</Tag>
         </div>
 
         {/* Execution information */}
@@ -151,31 +155,32 @@ export const ToolRunningDisplay = ({ toolName, text }: { toolName: string; text:
 };
 
 // Tool result display component
-export const ToolResultDisplay = ({ toolName, params, result }: { 
-  toolName: string; 
-  params: any; 
-  result: any; 
+export const ToolResultDisplay = ({ toolName, params, result }: {
+  toolName: string;
+  params: any;
+  result: any;
 }) => {
+  const { t } = useTranslation('chat');
   const [showDetails, setShowDetails] = React.useState(false);
-  
+
   const formatResult = (result: any) => {
-    if (!result) return 'No result';
-    
+    if (!result) return t('no_result');
+
     if (typeof result.content === 'string') {
       return result.content;
     }
-    
+
     if (typeof result.content === 'object') {
       // Handle special result types
       if (result.content.url) {
-        return `Page URL: ${result.content.url}`;
+        return `${t('page_url')}: ${result.content.url}`;
       }
       if (result.content.title) {
-        return `Page Title: ${result.content.title}`;
+        return `${t('page_title')}: ${result.content.title}`;
       }
       return JSON.stringify(result.content, null, 2);
     }
-    
+
     return String(result.content || result);
   };
 
@@ -209,7 +214,7 @@ export const ToolResultDisplay = ({ toolName, params, result }: {
           icon={<CodeOutlined />}
           onClick={() => setShowDetails(!showDetails)}
         >
-          {showDetails ? 'Hide' : 'View'} Details
+          {showDetails ? t('hide') : t('view')} {t('details')}
         </Button>
       }
     >
@@ -217,7 +222,7 @@ export const ToolResultDisplay = ({ toolName, params, result }: {
         {/* Status tag */}
         <div>
           <Tag color={isError ? 'error' : 'success'} style={{ fontSize: '11px' }}>
-            {isError ? 'Execution Failed' : 'Execution Successful'}
+            {isError ? t('execution_failed') : t('execution_successful')}
           </Tag>
         </div>
 
@@ -243,29 +248,29 @@ export const ToolResultDisplay = ({ toolName, params, result }: {
         {/* Details display */}
         {showDetails && (
           <Collapse size="small" ghost>
-            <Panel header="Execution Details" key="details">
+            <Panel header={t('execution_details')} key="details">
               <Space direction="vertical" style={{ width: '100%' }}>
                 <Descriptions
                   size="small"
                   column={1}
-                  title="Call Parameters"
+                  title={t('call_parameters')}
                   items={params && typeof params === 'object' ?
                     Object.entries(params).map(([key, value]) => ({
                       key,
                       label: key,
                       children: typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value)
                     })) :
-                    [{ key: 'empty', label: 'Parameters', children: 'No parameters' }]
+                    [{ key: 'empty', label: t('parameters'), children: t('no_parameters') }]
                   }
                 />
-                
+
                 {result && (
                   <div style={{ marginTop: 12 }}>
-                    <Text strong>Return Result:</Text>
-                    <pre style={{ 
-                      marginTop: 4, 
-                      padding: '8px', 
-                      backgroundColor: '#f8f9fa', 
+                    <Text strong>{t('return_result')}:</Text>
+                    <pre style={{
+                      marginTop: 4,
+                      padding: '8px',
+                      backgroundColor: '#f8f9fa',
                       borderRadius: '4px',
                       fontSize: '12px',
                       overflow: 'auto',
@@ -285,28 +290,30 @@ export const ToolResultDisplay = ({ toolName, params, result }: {
 };
 
 // Tool process timeline component
-export const ToolTimelineDisplay = ({ 
-  toolName, 
-  status, 
-  params, 
-  result, 
-  streamText 
-}: { 
+export const ToolTimelineDisplay = ({
+  toolName,
+  status,
+  params,
+  result,
+  streamText
+}: {
   toolName: string;
   status: 'use' | 'running' | 'result';
   params?: any;
   result?: any;
   streamText?: string;
 }) => {
+  const { t } = useTranslation('chat');
+
   const items = [
     {
       dot: <ToolOutlined style={{ color: '#1890ff' }} />,
       children: (
         <div>
-          <Text strong>Call Tool: {toolName}</Text>
+          <Text strong>{t('call_tool')}: {toolName}</Text>
           {params && typeof params === 'object' && Object.keys(params).length > 0 && (
             <div style={{ marginTop: 4 }}>
-              <Tag color="blue">Parameters: {Object.keys(params).length} items</Tag>
+              <Tag color="blue">{t('parameters_count', { count: Object.keys(params).length })}</Tag>
             </div>
           )}
         </div>
@@ -316,12 +323,12 @@ export const ToolTimelineDisplay = ({
 
   if (status === 'running' || status === 'result') {
     items.push({
-      dot: status === 'running' ? 
-        <LoadingOutlined style={{ color: '#faad14' }} /> : 
+      dot: status === 'running' ?
+        <LoadingOutlined style={{ color: '#faad14' }} /> :
         <CheckCircleOutlined style={{ color: '#52c41a' }} />,
       children: (
         <div>
-          <Text>{status === 'running' ? 'Executing...' : 'Execution Completed'}</Text>
+          <Text>{status === 'running' ? t('executing_ellipsis') : t('execution_completed')}</Text>
           {streamText && (
             <div style={{ marginTop: 4, fontSize: '12px', color: '#666' }}>
               {streamText}
@@ -337,11 +344,11 @@ export const ToolTimelineDisplay = ({
       dot: <CheckCircleOutlined style={{ color: '#52c41a' }} />,
       children: (
         <div>
-          <Text strong>Return Result</Text>
-          <div style={{ 
-            marginTop: 4, 
-            padding: '6px 8px', 
-            backgroundColor: '#f6ffed', 
+          <Text strong>{t('return_result')}</Text>
+          <div style={{
+            marginTop: 4,
+            padding: '6px 8px',
+            backgroundColor: '#f6ffed',
             borderRadius: '4px',
             fontSize: '12px'
           }}>

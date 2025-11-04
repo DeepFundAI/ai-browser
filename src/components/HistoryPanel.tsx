@@ -3,6 +3,7 @@ import { Button, Input, List, Modal, Drawer, Tooltip, Space, Tag, Popconfirm, Ap
 import { SearchOutlined, DeleteOutlined, EyeOutlined, ClearOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import { Task, TaskStatus, TaskType } from '@/models';
 import { taskStorage } from '@/lib/taskStorage';
+import { useTranslation } from 'react-i18next';
 
 const { Search } = Input;
 
@@ -39,6 +40,7 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
   isTaskDetailMode = false,
   scheduledTaskId
 }) => {
+  const { t } = useTranslation('history');
   const { message } = App.useApp();
   const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -156,7 +158,7 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
       }
     } catch (error) {
       console.error('Failed to load history tasks:', error);
-      message.error('Failed to load history tasks');
+      message.error(t('load_failed'));
     } finally {
       setLoading(false);
     }
@@ -186,16 +188,16 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
         // Scheduled task in main panel: delete all execution history for this scheduled task
         const executions = await taskStorage.getExecutionsByScheduledTaskId(item.scheduledTaskId!);
         await Promise.all(executions.map(task => taskStorage.deleteTask(task.id)));
-        message.success(`Deleted ${executions.length} execution history records for scheduled task`);
+        message.success(t('deleted_executions', { count: executions.length }));
       } else {
         // Normal task or single execution history in scheduled task detail mode
         await taskStorage.deleteTask(item.id);
-        message.success('Task deleted');
+        message.success(t('task_deleted'));
       }
       await loadTasks();
     } catch (error) {
       console.error('Delete failed:', error);
-      message.error('Delete failed');
+      message.error(t('delete_failed'));
     }
   };
 
@@ -207,16 +209,16 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
         // Scheduled task detail mode: clear all execution history for this task
         const executions = await taskStorage.getExecutionsByScheduledTaskId(scheduledTaskId);
         await Promise.all(executions.map(task => taskStorage.deleteTask(task.id)));
-        message.success('Execution history cleared');
+        message.success(t('history_cleared'));
       } else {
         // Main panel mode: clear all tasks
         await taskStorage.clearAllTasks();
-        message.success('History tasks cleared');
+        message.success(t('tasks_cleared'));
       }
       await loadTasks();
     } catch (error) {
       console.error('Clear failed:', error);
-      message.error('Clear failed');
+      message.error(t('clear_failed'));
     }
   };
 
@@ -234,19 +236,19 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
       try {
         if (typeof window !== 'undefined' && (window as any).api) {
           await (window as any).api.invoke('open-task-history', item.scheduledTaskId);
-          message.success('Opening scheduled task window');
+          message.success(t('opening_task_window'));
           onClose(); // Close history panel
         }
       } catch (error) {
         console.error('Failed to open scheduled task window:', error);
-        message.error('Failed to open scheduled task window');
+        message.error(t('open_window_failed'));
       }
     } else {
       // Normal task or scheduled task detail mode: display directly
       const task = item.originalTask || item.latestExecution;
       if (task) {
         onSelectTask(task);
-        message.info('Switched to history task view mode');
+        message.info(t('switched_to_history'));
       }
     }
   };
@@ -259,10 +261,10 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
 
-    if (minutes < 1) return 'Just now';
-    if (minutes < 60) return `${minutes} minutes ago`;
-    if (hours < 24) return `${hours} hours ago`;
-    if (days < 7) return `${days} days ago`;
+    if (minutes < 1) return t('just_now');
+    if (minutes < 60) return t('minutes_ago', { minutes });
+    if (hours < 24) return t('hours_ago', { hours });
+    if (days < 7) return t('days_ago', { days });
 
     return date.toLocaleDateString('zh-CN', {
       year: 'numeric',
@@ -275,15 +277,15 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
   const getStatusTag = (status?: TaskStatus) => {
     switch (status) {
       case 'done':
-        return <Tag color="green">Completed</Tag>;
+        return <Tag color="green">{t('status_completed')}</Tag>;
       case 'running':
-        return <Tag color="blue">Running</Tag>;
+        return <Tag color="blue">{t('status_running')}</Tag>;
       case 'error':
-        return <Tag color="red">Error</Tag>;
+        return <Tag color="red">{t('status_error')}</Tag>;
       case 'abort':
-        return  <Tag color="red">Aborted</Tag>;
+        return  <Tag color="red">{t('status_aborted')}</Tag>;
       default:
-        return <Tag color="default">Unknown</Tag>;
+        return <Tag color="default">{t('status_unknown')}</Tag>;
     }
   };
 
@@ -296,7 +298,7 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
 
   return (
     <Drawer
-      title={isTaskDetailMode ? "Execution History" : "History"}
+      title={isTaskDetailMode ? t('execution_history') : t('history')}
       placement="left"
       size="large"
       open={visible}
@@ -319,15 +321,20 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
       extra={
         <Space>
           <Popconfirm
-            title="Confirm Clear"
-            description={isTaskDetailMode ? "Are you sure you want to clear all execution history for this task? This action cannot be undone." : "Are you sure you want to clear all history tasks? This action cannot be undone."}
-            okText="Confirm"
-            cancelText="Cancel"
+            title={t('confirm_clear')}
+            description={isTaskDetailMode ? t('confirm_clear_execution_history') : t('confirm_clear_message')}
+            okText={t('confirm')}
+            cancelText={t('cancel')}
             okType="danger"
             onConfirm={handleClearAll}
+            overlayInnerStyle={{
+              backgroundColor: 'rgba(30, 28, 35, 0.98)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(94, 49, 216, 0.3)'
+            }}
           >
             <Button danger icon={<ClearOutlined />}>
-              Clear History
+              {t('clear_history')}
             </Button>
           </Popconfirm>
         </Space>
@@ -336,7 +343,7 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
       <div className="space-y-4 flex flex-col h-full">
         {/* Search box */}
         <Search
-          placeholder="Search task name or ID..."
+          placeholder={t('search_placeholder')}
           allowClear
           enterButton={<SearchOutlined />}
           onSearch={handleSearch}
@@ -350,7 +357,7 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
           rowKey="id"
           size="small"
           className="overflow-y-auto flex-1"
-          locale={{ emptyText: isTaskDetailMode ? 'No execution history yet' : 'No history tasks yet' }}
+          locale={{ emptyText: isTaskDetailMode ? t('no_execution_history') : t('no_history_tasks') }}
           renderItem={(item) => (
             <List.Item
               key={item.id}
@@ -364,7 +371,7 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
               onClick={() => handleSelectItem(item)}
               actions={[
                 item.taskType === 'normal' && (
-                  <Tooltip key="view" title="View details">
+                  <Tooltip key="view" title={t('view_details')}>
                     <Button
                       type="text"
                       icon={<EyeOutlined />}
@@ -378,21 +385,26 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
                 ),
                 <Popconfirm
                   key="delete"
-                  title="Confirm Delete"
+                  title={t('confirm')}
                   description={
                     item.taskType === 'scheduled' && !isTaskDetailMode
-                      ? `Are you sure you want to delete all ${item.executionCount || 0} execution history records for this scheduled task? This action cannot be undone.`
-                      : 'Are you sure you want to delete this history task? This action cannot be undone.'
+                      ? t('confirm_delete_scheduled_executions', { count: item.executionCount || 0 })
+                      : t('confirm_delete_task')
                   }
-                  okText="Confirm"
-                  cancelText="Cancel"
+                  okText={t('confirm')}
+                  cancelText={t('cancel')}
                   okType="danger"
                   onConfirm={(e) => {
                     e?.stopPropagation();
                     handleDeleteTask(item);
                   }}
+                  overlayInnerStyle={{
+                    backgroundColor: 'rgba(30, 28, 35, 0.98)',
+                    backdropFilter: 'blur(20px)',
+                    border: '1px solid rgba(94, 49, 216, 0.3)'
+                  }}
                 >
-                  <Tooltip title={item.taskType === 'scheduled' && !isTaskDetailMode ? "Delete all execution history" : "Delete task"}>
+                  <Tooltip title={item.taskType === 'scheduled' && !isTaskDetailMode ? t('delete_all_executions') : t('delete_task')}>
                     <Button
                       type="text"
                       danger
@@ -421,25 +433,25 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
                 description={
                   <div className="text-xs opacity-70">
                     <div className="flex items-center justify-between">
-                      <span>ID: {item.id.slice(0, 16)}...</span>
+                      <span>{t('id_short')}: {item.id.slice(0, 16)}...</span>
                       {item.taskType === 'scheduled' && item.executionCount && !isTaskDetailMode && (
                         <Tag color="blue">
-                          {item.executionCount} executions
+                          {t('executions_count', { count: item.executionCount })}
                         </Tag>
                       )}
                     </div>
                     <div className="flex items-center justify-between mt-1">
-                      <span>Created: {formatTime(item.createdAt)}</span>
-                      <span>Updated: {formatTime(item.updatedAt)}</span>
+                      <span>{t('created')}: {formatTime(item.createdAt)}</span>
+                      <span>{t('updated')}: {formatTime(item.updatedAt)}</span>
                     </div>
                     {item.originalTask?.messages && item.originalTask.messages.length > 0 && (
                       <div className="mt-1 opacity-90">
-                        {item.originalTask.messages.length} messages
+                        {t('messages_count', { count: item.originalTask.messages.length })}
                       </div>
                     )}
                     {item.latestExecution?.messages && item.latestExecution.messages.length > 0 && (
                       <div className="mt-1 opacity-90">
-                        {item.latestExecution.messages.length} messages
+                        {t('messages_count', { count: item.latestExecution.messages.length })}
                       </div>
                     )}
                   </div>
@@ -453,10 +465,10 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
         {!isTaskDetailMode && (
           <div className="text-center text-sm p-4 rounded-lg" style={{ backgroundColor: 'rgba(255, 149, 0, 0.1)' }}>
             <div className="font-medium mb-1" style={{ color: '#FF9500' }}>
-              📋 History Session is Read-Only Mode
+              📋 {t('readonly_mode_title')}
             </div>
             <div className="opacity-80">
-              Selecting history will enter view mode and you cannot continue the conversation temporarily. To continue similar tasks, click the DeepFundAI icon to create a new session.
+              {t('readonly_mode_description')}
             </div>
           </div>
         )}

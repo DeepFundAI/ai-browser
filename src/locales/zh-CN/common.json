@@ -1,0 +1,19 @@
+{
+  "app_name": "DeepFundAI",
+  "save": "保存",
+  "cancel": "取消",
+  "confirm": "确认",
+  "delete": "删除",
+  "edit": "编辑",
+  "loading": "加载中...",
+  "error": "错误",
+  "success": "成功",
+  "close": "关闭",
+  "search": "搜索",
+  "submit": "提交",
+  "back": "返回",
+  "next": "下一步",
+  "previous": "上一步",
+  "finish": "完成",
+  "reload": "重新加载"
+}

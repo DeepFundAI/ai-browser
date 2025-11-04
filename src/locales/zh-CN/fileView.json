@@ -1,0 +1,16 @@
+{
+  "title": "AI 生成文件预览",
+  "last_updated": "最后更新：{{time}}",
+  "waiting_generation": "等待内容生成...",
+  "lines_words": "行数：{{lines}} | 字数：{{words}}",
+  "code": "代码",
+  "preview": "预览",
+  "copy": "复制",
+  "download": "下载",
+  "copy_success": "内容已复制到剪贴板",
+  "copy_failed": "复制失败",
+  "download_success": "文件下载成功",
+  "waiting_ai": "等待 AI 生成内容...",
+  "no_content": "暂无内容",
+  "no_content_tip": "当 AI 开始生成或修改文件时，内容将实时显示在这里"
+}

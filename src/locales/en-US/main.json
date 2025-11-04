@@ -1,0 +1,29 @@
+{
+  "enter_question": "Please enter your question!",
+  "history_readonly": "History tasks are read-only mode, cannot send messages",
+  "task_terminated": "Task terminated",
+  "task_terminated_with_reason": "Task terminated: {{reason}}",
+  "terminate_failed": "Failed to terminate task",
+  "switched_to_history": "Switched to history task view mode",
+  "load_history_failed": "Failed to load history task",
+  "history_task_readonly": "(History Task - Read Only)",
+  "input_placeholder": "Enter your question...",
+  "history_readonly_input": "History tasks are read-only mode, cannot input new messages",
+  "atlas_computer": "Atlas's Computer",
+  "atlas_using_tool": "Atlas is using tool",
+  "running": "Running",
+  "completed": "Completed",
+  "execution_error": "Execution Error",
+  "realtime": "Real-time",
+  "task_execution_completed": "Task execution completed",
+  "failed_update_task_status": "Failed to update task status",
+  "no_task_running": "No task currently running",
+  "failed_send_message": "Failed to send message",
+  "tool_operations": {
+    "browsing_web_page": "Browsing web page",
+    "writing_file": "Writing file",
+    "reading_file": "Reading file",
+    "searching": "Searching",
+    "executing": "Executing {{toolName}}"
+  }
+}

@@ -3,6 +3,7 @@ import { Typography, Button } from "antd";
 import ReactMarkdown from "react-markdown";
 import { Executing, Browser, Search, DataAnalysis, ExpandCollapse, DeepThinking, FinishStatus, RuningStatus, Atlas } from '../../icons/deepfundai-icons';
 import { DisplayMessage, AgentGroupMessage, ToolAction, AgentMessage } from '../../models';
+import { useTranslation } from 'react-i18next';
 
 const { Text } = Typography;
 
@@ -43,7 +44,7 @@ const WorkflowDisplay = ({ workflow }: { workflow: any }) => {
 };
 
 // Safely render node text
-const renderNodeText = (node: any): string => {
+const renderNodeText = (node: any, t: any): string => {
   if (typeof node === 'string') {
     return node;
   }
@@ -52,13 +53,14 @@ const renderNodeText = (node: any): string => {
       return node.text;
     }
     // If no text property or empty, return default text
-    return 'Step description';
+    return t('step_description');
   }
-  return String(node || 'Step description');
+  return String(node || t('step_description'));
 };
 
 // Thinking display component
 const ThinkingDisplay = ({ content, isCompleted = false }: { content: string; isCompleted?: boolean }) => {
+  const { t } = useTranslation('chat');
   const [collapsed, setCollapsed] = useState(false);
 
   return (
@@ -74,7 +76,7 @@ const ThinkingDisplay = ({ content, isCompleted = false }: { content: string; is
           ) : (
             <DeepThinking />
           )}
-          <span className="text-white font-medium text-sm">Thinking</span>
+          <span className="text-white font-medium text-sm">{t('thinking')}</span>
         </div>
         <Button
           type="text"
@@ -96,13 +98,15 @@ const ThinkingDisplay = ({ content, isCompleted = false }: { content: string; is
 
 // STEP format Agent display component
 const StepAgentDisplay = ({ agent, stepNumber }: { agent: any; stepNumber: number }) => {
+  const { t } = useTranslation('chat');
+
   return (
     <div className="step-agent-display text-base">
       {/* Agent information - status display removed */}
       <div className="px-2 border-l-2 border-text-05-dark mb-3">
         <div className="flex items-center gap-1 text-text-05-dark font-semibold ">
           <DeepThinking />
-          {agent.name} Agent
+          {agent.name} {t('agent')}
         </div>
         <div className="mt-1">
           {agent.task}
@@ -118,7 +122,7 @@ const StepAgentDisplay = ({ agent, stepNumber }: { agent: any; stepNumber: numbe
                 {nodeIndex + 1}
               </span>
               <span className='line-clamp-1 flex-1'>
-                {renderNodeText(node)}
+                {renderNodeText(node, t)}
               </span>
             </div>
           ))}
@@ -136,6 +140,8 @@ const ToolDisplay = ({
   message: ToolAction;
   onToolClick: (message: ToolAction) => void;
 }) => {
+  const { t } = useTranslation('chat');
+
   // Tool icon mapping (can do approximate matching based on common tool names)
   const getToolIcon = (toolName?: string) => {
     const name = (toolName || '').toLowerCase();
@@ -151,7 +157,7 @@ const ToolDisplay = ({
       onClick={() => onToolClick(message)}
     >
       {getToolIcon(message.toolName)}
-      <span>Executing {message.toolName || 'tool'} call</span>
+      <span>{t('executing_tool', { toolName: message.toolName || 'tool' })}</span>
     </div>
   );
 };

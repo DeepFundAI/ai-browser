@@ -9,6 +9,7 @@ import {
   ArrowLeftOutlined
 } from '@ant-design/icons';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'react-i18next';
 import AgentConfigModal from '@/components/AgentConfigModal';
 import { ScheduledTaskListModal } from '@/components/scheduled-task/ScheduledTaskListModal';
 
@@ -31,14 +32,15 @@ interface ToolItem {
  */
 export default function ToolboxPage() {
   const router = useRouter();
+  const { t } = useTranslation('toolbox');
   const [agentConfigVisible, setAgentConfigVisible] = useState(false);
   const [scheduledTaskVisible, setScheduledTaskVisible] = useState(false);
 
   const tools: ToolItem[] = [
     {
       id: 'agent-config',
-      title: 'Agent Configuration',
-      description: 'Configure AI agents and MCP tools for task execution. Customize agent behavior and enable/disable specific tools.',
+      title: t('agent_config_title'),
+      description: t('agent_config_desc'),
       icon: <RobotOutlined style={{ fontSize: '36px' }} />,
       color: '#1890ff',
       gradient: 'linear-gradient(135deg, #1890ff 0%, #096dd9 100%)',
@@ -49,8 +51,8 @@ export default function ToolboxPage() {
     },
     {
       id: 'scheduled-tasks',
-      title: 'Scheduled Tasks',
-      description: 'Create and manage automated recurring tasks. Set up schedules, monitor execution status, and view task history.',
+      title: t('scheduled_tasks_title'),
+      description: t('scheduled_tasks_desc'),
       icon: <ClockCircleOutlined style={{ fontSize: '36px' }} />,
       color: '#52c41a',
       gradient: 'linear-gradient(135deg, #52c41a 0%, #389e0d 100%)',
@@ -61,46 +63,46 @@ export default function ToolboxPage() {
     },
     {
       id: 'system-settings',
-      title: 'System Settings',
-      description: 'Configure application preferences, appearance, performance options, and other system-level settings.',
+      title: t('system_settings_title'),
+      description: t('system_settings_desc'),
       icon: <SettingOutlined style={{ fontSize: '36px' }} />,
       color: '#8c8c8c',
       gradient: 'linear-gradient(135deg, #8c8c8c 0%, #595959 100%)',
       implemented: false,
       onClick: () => {
         Modal.info({
-          title: 'Coming Soon',
-          content: 'System settings feature is under development. Stay tuned for updates!',
+          title: t('coming_soon_title'),
+          content: t('system_settings_coming_soon'),
         });
       }
     },
     {
       id: 'tools-marketplace',
-      title: 'Tools Marketplace',
-      description: 'Browse and install additional MCP tools and plugins. Extend your agent capabilities with community tools.',
+      title: t('tools_marketplace_title'),
+      description: t('tools_marketplace_desc'),
       icon: <ToolOutlined style={{ fontSize: '36px' }} />,
       color: '#8c8c8c',
       gradient: 'linear-gradient(135deg, #8c8c8c 0%, #595959 100%)',
       implemented: false,
       onClick: () => {
         Modal.info({
-          title: 'Coming Soon',
-          content: 'Tools marketplace is under development. We will launch it soon with amazing tools!',
+          title: t('coming_soon_title'),
+          content: t('tools_marketplace_coming_soon'),
         });
       }
     },
     {
       id: 'workflow-templates',
-      title: 'Workflow Templates',
-      description: 'Pre-built automation workflows for common tasks. Save time with ready-to-use task templates.',
+      title: t('workflow_templates_title'),
+      description: t('workflow_templates_desc'),
       icon: <ThunderboltOutlined style={{ fontSize: '36px' }} />,
       color: '#8c8c8c',
       gradient: 'linear-gradient(135deg, #8c8c8c 0%, #595959 100%)',
       implemented: false,
       onClick: () => {
         Modal.info({
-          title: 'Coming Soon',
-          content: 'Workflow templates feature is under development. Coming soon with powerful automation!',
+          title: t('coming_soon_title'),
+          content: t('workflow_templates_coming_soon'),
         });
       }
     }
@@ -132,7 +134,7 @@ export default function ToolboxPage() {
             WebkitAppRegion: 'no-drag',
           } as React.CSSProperties}
         >
-          Back to Home
+          {t('back_to_home')}
         </Button>
       </div>
 
@@ -147,7 +149,7 @@ export default function ToolboxPage() {
             fontWeight: 700,
             letterSpacing: '-0.5px'
           }}>
-            🔧 Toolbox
+            {t('title')}
           </Title>
           <Paragraph style={{
             color: 'rgba(255, 255, 255, 0.65)',
@@ -155,7 +157,7 @@ export default function ToolboxPage() {
             margin: '10px 0 0 0',
             maxWidth: '600px'
           }}>
-            Access all system features and configuration options. Click on any card to open the corresponding tool.
+            {t('subtitle')}
           </Paragraph>
         </div>
 
@@ -214,7 +216,7 @@ export default function ToolboxPage() {
                     zIndex: 2
                   }}
                 >
-                  Coming Soon
+                  {t('coming_soon')}
                 </Tag>
               )}
 

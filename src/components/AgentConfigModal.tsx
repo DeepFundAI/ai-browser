@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Tabs, Switch, Input, Button, Card, message, Spin, Divider, Space, Typography } from 'antd';
 import { SaveOutlined, ReloadOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 import type { AgentConfig, McpToolSchema } from '../type';
 
 const { TabPane } = Tabs;
@@ -17,6 +18,7 @@ interface AgentConfigModalProps {
  * Modal version of agent configuration page
  */
 export default function AgentConfigModal({ visible, onClose }: AgentConfigModalProps) {
+  const { t } = useTranslation('agentConfig');
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [config, setConfig] = useState<AgentConfig>({
@@ -48,7 +50,7 @@ export default function AgentConfigModal({ visible, onClose }: AgentConfigModalP
         setMcpTools(toolsResult.data);
       }
     } catch (error: any) {
-      message.error('Failed to load configuration: ' + error.message);
+      message.error(t('load_error') + error.message);
     } finally {
       setLoading(false);
     }
@@ -59,13 +61,13 @@ export default function AgentConfigModal({ visible, onClose }: AgentConfigModalP
     try {
       const result = await window.api.saveAgentConfig(config);
       if (result.success) {
-        message.success('Configuration saved successfully!');
+        message.success(t('save_success'));
         onClose();
       } else {
-        message.error('Failed to save configuration');
+        message.error(t('save_error'));
       }
     } catch (error: any) {
-      message.error('Failed to save configuration: ' + error.message);
+      message.error(t('save_error') + ': ' + error.message);
     } finally {
       setSaving(false);
     }
@@ -73,7 +75,7 @@ export default function AgentConfigModal({ visible, onClose }: AgentConfigModalP
 
   const handleReload = async () => {
     await loadConfiguration();
-    message.success('Configuration reloaded');
+    message.success(t('reload_success'));
   };
 
   const handleToolToggle = async (toolName: string, enabled: boolean) => {
@@ -97,22 +99,22 @@ export default function AgentConfigModal({ visible, onClose }: AgentConfigModalP
       // Save to backend
       await window.api.setMcpToolEnabled(toolName, enabled);
     } catch (error: any) {
-      message.error('Failed to update tool status: ' + error.message);
+      message.error(t('tool_update_error') + error.message);
     }
   };
 
   return (
     <Modal
-      title="Agent Configuration"
+      title={t('title')}
       open={visible}
       onCancel={onClose}
       width="90%"
       footer={[
         <Button key="reload" icon={<ReloadOutlined />} onClick={handleReload}>
-          Reload
+          {t('reload')}
         </Button>,
         <Button key="cancel" onClick={onClose}>
-          Cancel
+          {t('cancel', { ns: 'common' })}
         </Button>,
         <Button
           key="save"
@@ -121,7 +123,7 @@ export default function AgentConfigModal({ visible, onClose }: AgentConfigModalP
           loading={saving}
           onClick={handleSave}
         >
-          Save Configuration
+          {t('save_configuration')}
         </Button>,
       ]}
       style={{ minHeight: '60vh' }}
@@ -131,16 +133,16 @@ export default function AgentConfigModal({ visible, onClose }: AgentConfigModalP
     >
       {loading ? (
         <div style={{ display: 'flex', justifyContent: 'center', padding: '40px 0' }}>
-          <Spin size="large" tip="Loading configuration..." />
+          <Spin size="large" tip={t('loading')} />
         </div>
       ) : (
         <Tabs defaultActiveKey="browser" type="card">
           {/* Browser Agent Tab */}
-          <TabPane tab="Browser Agent" key="browser">
+          <TabPane tab={t('browser_agent')} key="browser">
             <Space direction="vertical" size={16} style={{ width: '100%' }}>
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                  <Text strong>Enable Browser Agent</Text>
+                  <Text strong>{t('enable_browser_agent')}</Text>
                   <Switch
                     checked={config.browserAgent.enabled}
                     onChange={(enabled) =>
@@ -152,7 +154,7 @@ export default function AgentConfigModal({ visible, onClose }: AgentConfigModalP
                   />
                 </div>
                 <Paragraph type="secondary" style={{ margin: 0, fontSize: '13px' }}>
-                  Browser Agent handles web automation tasks like navigation, clicking, form filling, and content extraction.
+                  {t('browser_agent_desc')}
                 </Paragraph>
               </div>
 
@@ -160,9 +162,9 @@ export default function AgentConfigModal({ visible, onClose }: AgentConfigModalP
 
               <div>
                 <div style={{ marginBottom: '12px' }}>
-                  <Text strong style={{ display: 'block', marginBottom: '6px' }}>Custom System Prompt</Text>
+                  <Text strong style={{ display: 'block', marginBottom: '6px' }}>{t('custom_system_prompt')}</Text>
                   <Text type="secondary" style={{ fontSize: '13px' }}>
-                    Add custom instructions to extend the Browser Agent's capabilities.
+                    {t('custom_prompt_desc')}
                   </Text>
                 </div>
 
@@ -176,7 +178,7 @@ export default function AgentConfigModal({ visible, onClose }: AgentConfigModalP
                   lineHeight: '1.8'
                 }}>
                   <div style={{ fontSize: '12px', fontWeight: 500, marginBottom: '6px', color: 'rgba(255,255,255,0.85)' }}>
-                    Default behaviors:
+                    {t('default_behaviors')}
                   </div>
                   <div style={{ color: 'rgba(255,255,255,0.75)' }}>
                     • Analyze webpages by taking screenshots and page element structures<br/>
@@ -195,7 +197,7 @@ export default function AgentConfigModal({ visible, onClose }: AgentConfigModalP
                       browserAgent: { ...prev.browserAgent, customPrompt: e.target.value }
                     }))
                   }
-                  placeholder="Example: When extracting data from tables, always format the output as JSON arrays and save to a file..."
+                  placeholder={t('browser_prompt_placeholder')}
                   rows={6}
                   disabled={!config.browserAgent.enabled}
                 />
@@ -204,11 +206,11 @@ export default function AgentConfigModal({ visible, onClose }: AgentConfigModalP
           </TabPane>
 
           {/* File Agent Tab */}
-          <TabPane tab="File Agent" key="file">
+          <TabPane tab={t('file_agent')} key="file">
             <Space direction="vertical" size={16} style={{ width: '100%' }}>
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                  <Text strong>Enable File Agent</Text>
+                  <Text strong>{t('enable_file_agent')}</Text>
                   <Switch
                     checked={config.fileAgent.enabled}
                     onChange={(enabled) =>
@@ -220,7 +222,7 @@ export default function AgentConfigModal({ visible, onClose }: AgentConfigModalP
                   />
                 </div>
                 <Paragraph type="secondary" style={{ margin: 0, fontSize: '13px' }}>
-                  File Agent handles file system operations like reading, writing, searching, and organizing files.
+                  {t('file_agent_desc')}
                 </Paragraph>
               </div>
 
@@ -244,7 +246,7 @@ export default function AgentConfigModal({ visible, onClose }: AgentConfigModalP
                   lineHeight: '1.8'
                 }}>
                   <div style={{ fontSize: '12px', fontWeight: 500, marginBottom: '6px', color: 'rgba(255,255,255,0.85)' }}>
-                    Default behaviors:
+                    {t('default_behaviors')}
                   </div>
                   <div style={{ color: 'rgba(255,255,255,0.75)' }}>
                     • Handle file-related tasks: creating, finding, reading, modifying files<br/>
@@ -263,7 +265,7 @@ export default function AgentConfigModal({ visible, onClose }: AgentConfigModalP
                       fileAgent: { ...prev.fileAgent, customPrompt: e.target.value }
                     }))
                   }
-                  placeholder="Example: When creating new files, always add a header comment with timestamp and description..."
+                  placeholder={t('file_prompt_placeholder')}
                   rows={6}
                   disabled={!config.fileAgent.enabled}
                 />
@@ -272,15 +274,15 @@ export default function AgentConfigModal({ visible, onClose }: AgentConfigModalP
           </TabPane>
 
           {/* MCP Tools Tab */}
-          <TabPane tab="MCP Tools" key="tools">
+          <TabPane tab={t('mcp_tools')} key="tools">
             <Space direction="vertical" size={12} style={{ width: '100%' }}>
               <Paragraph type="secondary" style={{ margin: '0 0 8px 0', fontSize: '13px' }}>
-                Enable or disable specific MCP tools that agents can use during task execution.
+                {t('available_tools_desc')}
               </Paragraph>
 
               {mcpTools.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '40px 0' }}>
-                  <Text style={{ color: 'rgba(255, 255, 255, 0.65)' }}>No MCP tools available</Text>
+                  <Text style={{ color: 'rgba(255, 255, 255, 0.65)' }}>{t('no_tools')}</Text>
                 </div>
               ) : (
                 mcpTools.map((tool) => (

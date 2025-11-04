@@ -1,0 +1,29 @@
+{
+  "enter_question": "请输入您的问题！",
+  "history_readonly": "历史任务为只读模式，无法发送消息",
+  "task_terminated": "任务已终止",
+  "task_terminated_with_reason": "任务已终止：{{reason}}",
+  "terminate_failed": "终止任务失败",
+  "switched_to_history": "已切换到历史任务查看模式",
+  "load_history_failed": "加载历史任务失败",
+  "history_task_readonly": "（历史任务 - 只读）",
+  "input_placeholder": "输入您的问题...",
+  "history_readonly_input": "历史任务为只读模式，无法输入新消息",
+  "atlas_computer": "Atlas 的计算机",
+  "atlas_using_tool": "Atlas 正在使用工具",
+  "running": "运行中",
+  "completed": "已完成",
+  "execution_error": "执行错误",
+  "realtime": "实时",
+  "task_execution_completed": "任务执行完成",
+  "failed_update_task_status": "更新任务状态失败",
+  "no_task_running": "当前没有正在运行的任务",
+  "failed_send_message": "发送消息失败",
+  "tool_operations": {
+    "browsing_web_page": "浏览网页",
+    "writing_file": "写入文件",
+    "reading_file": "读取文件",
+    "searching": "搜索中",
+    "executing": "正在执行 {{toolName}}"
+  }
+}

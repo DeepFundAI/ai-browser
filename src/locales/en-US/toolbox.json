@@ -1,0 +1,20 @@
+{
+  "back_to_home": "Back to Home",
+  "title": "🔧 Toolbox",
+  "subtitle": "Access all system features and configuration options. Click on any card to open the corresponding tool.",
+  "coming_soon": "Coming Soon",
+  "coming_soon_title": "Coming Soon",
+  "agent_config_title": "Agent Configuration",
+  "agent_config_desc": "Configure AI agents and MCP tools for task execution. Customize agent behavior and enable/disable specific tools.",
+  "scheduled_tasks_title": "Scheduled Tasks",
+  "scheduled_tasks_desc": "Create and manage automated recurring tasks. Set up schedules, monitor execution status, and view task history.",
+  "system_settings_title": "System Settings",
+  "system_settings_desc": "Configure application preferences, appearance, performance options, and other system-level settings.",
+  "system_settings_coming_soon": "System settings feature is under development. Stay tuned for updates!",
+  "tools_marketplace_title": "Tools Marketplace",
+  "tools_marketplace_desc": "Browse and install additional MCP tools and plugins. Extend your agent capabilities with community tools.",
+  "tools_marketplace_coming_soon": "Tools marketplace is under development. We will launch it soon with amazing tools!",
+  "workflow_templates_title": "Workflow Templates",
+  "workflow_templates_desc": "Pre-built automation workflows for common tasks. Save time with ready-to-use task templates.",
+  "workflow_templates_coming_soon": "Workflow templates feature is under development. Coming soon with powerful automation!"
+}

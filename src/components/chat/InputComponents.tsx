@@ -1,14 +1,15 @@
 import React from 'react';
-import { 
-  Input, 
-  Card, 
-  Button, 
-  Space, 
+import {
+  Input,
+  Card,
+  Button,
+  Space,
   Spin
 } from "antd";
-import { 
+import {
   SendOutlined
 } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 
 const { TextArea } = Input;
 
@@ -20,18 +21,20 @@ interface ChatInputProps {
   onKeyPress: (e: React.KeyboardEvent) => void;
 }
 
-export const ChatInput = ({ 
-  inputMessage, 
-  setInputMessage, 
-  sendMessage, 
-  isLoading, 
-  onKeyPress 
+export const ChatInput = ({
+  inputMessage,
+  setInputMessage,
+  sendMessage,
+  isLoading,
+  onKeyPress
 }: ChatInputProps) => {
+  const { t } = useTranslation('chat');
+
   return (
     <Card>
       <Space.Compact style={{ width: '100%' }}>
         <TextArea
-          placeholder="Please enter your question... (Shift+Enter for new line, Enter to send)"
+          placeholder={t('input_placeholder')}
           value={inputMessage}
           onChange={(e) => setInputMessage(e.target.value)}
           onKeyDown={onKeyPress}
@@ -47,15 +50,15 @@ export const ChatInput = ({
           disabled={!inputMessage.trim() || isLoading}
           style={{ height: 'auto', minHeight: '32px' }}
         >
-          Send
+          {t('send')}
         </Button>
       </Space.Compact>
-      
+
       {isLoading && (
         <div style={{ marginTop: 8, textAlign: 'center' }}>
           <Space>
             <Spin size="small" />
-            <span style={{ color: '#999', fontSize: '14px' }}>AI is thinking...</span>
+            <span style={{ color: '#999', fontSize: '14px' }}>{t('ai_thinking')}</span>
           </Space>
         </div>
       )}

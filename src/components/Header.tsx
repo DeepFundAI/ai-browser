@@ -4,16 +4,19 @@ import { HistoryOutlined, ToolOutlined } from '@ant-design/icons'
 import { useRouter } from 'next/router'
 import { HistoryPanel } from '@/components/HistoryPanel'
 import { useHistoryStore } from '@/stores/historyStore'
+import { LanguageSwitcher } from '@/components/LanguageSwitcher'
+import { useTranslation } from 'react-i18next'
 
 export default function Header() {
   const router = useRouter()
   const { taskId, executionId } = router.query
+  const { t } = useTranslation('header')
 
   // Check if in scheduled task detail mode
   const isTaskDetailMode = !!taskId && !!executionId
 
   // Using Zustand store, as simple as Pinia!
-  const { showHistoryPanel, setShowHistoryPanel, selectHistoryTask, terminateCurrentTaskFn } = useHistoryStore()
+  const { showHistoryPanel, setShowHistoryPanel, selectHistoryTask } = useHistoryStore()
 
   const goback = async () => {
     router.push('/home')
@@ -50,7 +53,7 @@ export default function Header() {
       )}
       {isTaskDetailMode && (
         <div className='flex items-center gap-2 ml-8 px-3 py-1 bg-blue-500/20 rounded-md border border-blue-500/50'>
-          <span className='text-blue-400 text-xs font-medium'>Scheduled Task</span>
+          <span className='text-blue-400 text-xs font-medium'>{t('scheduled_task')}</span>
           {taskId && (
             <span className='text-blue-300 text-xs opacity-70'>#{String(taskId).slice(-6)}</span>
           )}
@@ -67,7 +70,7 @@ export default function Header() {
             className='!text-text-01-dark hover:!bg-blue-500/10'
             style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
           >
-            Toolbox
+            {t('toolbox')}
           </Button>
         )}
         <Button
@@ -78,8 +81,13 @@ export default function Header() {
           className='!text-text-01-dark'
           style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
         >
-          {isTaskDetailMode ? 'Execution History' : 'History'}
+          {isTaskDetailMode ? t('execution_history') : t('history')}
         </Button>
+
+        {/* Language Switcher */}
+        <div style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}>
+          <LanguageSwitcher />
+        </div>
       </div>
 
       {/* Global history task panel - passing scheduled task info */}

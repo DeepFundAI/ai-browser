@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react'
 import { useRouter } from 'next/router'
 import Header from '@/components/Header'
-import { Input, Slider, Button, message as antdMessage } from 'antd'
+import { Input, Slider, Button, App } from 'antd'
 import { EkoResult, StreamCallbackMessage } from '@jarvis-agent/core/dist/types';
 import { MessageList } from '@/components/chat/MessageComponents';
 import { uuidv4 } from '@/common/utils';
@@ -11,9 +11,12 @@ import { MessageProcessor } from '@/utils/messageTransform';
 import { useTaskManager } from '@/hooks/useTaskManager';
 import { useHistoryStore } from '@/stores/historyStore';
 import { scheduledTaskStorage } from '@/lib/scheduled-task-storage';
+import { useTranslation } from 'react-i18next';
 
 
 export default function main() {
+    const { t } = useTranslation('main');
+    const { message: antdMessage } = App.useApp();
     const router = useRouter();
     const { taskId: urlTaskId, executionId: urlExecutionId } = router.query;
 
@@ -204,7 +207,7 @@ export default function main() {
                     endTime: new Date(timestamp),
                 });
 
-                antdMessage.warning(`Task terminated: ${reason}`);
+                antdMessage.warning(t('task_terminated_with_reason', { reason }));
             } catch (error) {
                 console.error('[Main] Failed to update aborted task status:', error);
             }
@@ -253,10 +256,10 @@ export default function main() {
                     console.log(`[Main] Scheduled task configuration updated lastExecutedAt: ${scheduledTaskId}`);
                 }
 
-                antdMessage.success('Task execution completed');
+                antdMessage.success(t('task_execution_completed'));
             } catch (error) {
                 console.error('[Main] Failed to update task completion status:', error);
-                antdMessage.error('Failed to update task status');
+                antdMessage.error(t('failed_update_task_status'));
             }
         };
 
@@ -443,16 +446,16 @@ export default function main() {
         switch (toolName.toLowerCase()) {
             case 'browser':
             case 'browser_navigate':
-                return 'Browsing web page';
+                return t('tool_operations.browsing_web_page');
             case 'file_write':
             case 'file':
-                return 'Writing file';
+                return t('tool_operations.writing_file');
             case 'file_read':
-                return 'Reading file';
+                return t('tool_operations.reading_file');
             case 'search':
-                return 'Searching';
+                return t('tool_operations.searching');
             default:
-                return `Executing ${toolName}`;
+                return t('tool_operations.executing', { toolName });
         }
     };
 
@@ -574,10 +577,10 @@ export default function main() {
             setCurrentTool(null);
             setCurrentHistoryIndex(toolHistory.length - 1);
 
-            antdMessage.info('Switched to history task view mode');
+            // Note: message notification is shown in HistoryPanel.tsx to avoid duplication
         } catch (error) {
             console.error('Failed to load history task:', error);
-            antdMessage.error('Failed to load history task');
+            antdMessage.error(t('load_history_failed'));
         }
     };
 
@@ -599,12 +602,12 @@ export default function main() {
 
     const sendMessage = async (message: string) => {
         if (!message) {
-            antdMessage.warning('Please enter your question!');
+            antdMessage.warning(t('enter_question'));
             return;
         }
         // Prohibit sending messages in history mode
         if (isHistoryMode) {
-            antdMessage.warning('History tasks are read-only mode, cannot send messages');
+            antdMessage.warning(t('history_readonly'));
             return;
         }
 
@@ -681,7 +684,7 @@ export default function main() {
                 updateTask(taskIdRef.current, { status: 'error' });
             }
             console.error('Failed to send message:', error);
-            antdMessage.error('Failed to send message');
+            antdMessage.error(t('failed_send_message'));
         }
     }
 
@@ -689,15 +692,15 @@ export default function main() {
     // Task termination handling (manual click cancel button)
     const handleCancelTask = async () => {
         if (!currentTaskId) {
-            antdMessage.error('No task currently running');
+            antdMessage.error(t('no_task_running'));
             return;
         }
 
         const success = await terminateCurrentTask('User manually terminated');
         if (success) {
-            antdMessage.success('Task terminated');
+            antdMessage.success(t('task_terminated'));
         } else {
-            antdMessage.error('Failed to terminate task');
+            antdMessage.error(t('terminate_failed'));
         }
     };
 
@@ -712,7 +715,7 @@ export default function main() {
                             <div className='line-clamp-1 text-xl font-semibold flex-1'>
                                 {currentTaskId && tasks.find(task => task.id === currentTaskId)?.name}
                                 {isHistoryMode && (
-                                    <span className='ml-2 text-sm text-gray-500'>(History Task - Read Only)</span>
+                                    <span className='ml-2 text-sm text-gray-500'>{t('history_task_readonly')}</span>
                                 )}
                             </div>
                         </div>
@@ -731,7 +734,7 @@ export default function main() {
                                 onKeyDown={handleKeyDown}
                                 onChange={(e) => setQuery(e.target.value)}
                                 className="!h-full !bg-tool-call !text-text-01-dark !placeholder-text-12-dark !py-2"
-                                placeholder={isHistoryMode ? 'History tasks are read-only mode, cannot input new messages' : 'Enter your question...'}
+                                placeholder={isHistoryMode ? t('history_readonly_input') : t('input_placeholder')}
                                 disabled={isHistoryMode}
                             />
 
@@ -764,18 +767,18 @@ export default function main() {
                         <div className='h-full border-border-message border flex flex-col rounded-xl'>
                             {/* Detail panel title */}
                             <div className='p-4'>
-                                <h3 className='text-xl font-semibold'>Atlas's Computer</h3>
+                                <h3 className='text-xl font-semibold'>{t('atlas_computer')}</h3>
                                 <div className='flex flex-col items-start justify-centerce px-5 py-3 gap-3 border-border-message border rounded-md h-[80px] bg-tool-call mt-3'>
                                     {currentTool && (
                                         <>
                                             <div className='border-b w-full border-dashed border-border-message flex items-center'>
-                                                Atlas is using tool
+                                                {t('atlas_using_tool')}
                                                 <div className={`w-2 h-2 ml-2 rounded-full ${currentTool.status === 'running' ? 'bg-blue-500 animate-pulse' :
                                                         currentTool.status === 'completed' ? 'bg-green-500' : 'bg-red-500'
                                                     }`}></div>
                                                 <span className='ml-1 text-xs text-text-12-dark'>
-                                                    {currentTool.status === 'running' ? 'Running' :
-                                                        currentTool.status === 'completed' ? 'Completed' : 'Execution Error'}
+                                                    {currentTool.status === 'running' ? t('running') :
+                                                        currentTool.status === 'completed' ? t('completed') : t('execution_error')}
                                                 </span>
 
                                             </div>
@@ -841,7 +844,7 @@ export default function main() {
                                                 />
 
                                                 <span className='text-xs text-text-12-dark'>
-                                                    Real-time
+                                                    {t('realtime')}
                                                 </span>
                                             </div>
                                         )}

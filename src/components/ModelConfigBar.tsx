@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Select, Button, Input, App } from 'antd';
 import { EditOutlined, CheckOutlined, CloseOutlined, LinkOutlined } from '@ant-design/icons';
 import type { UserModelConfigs } from '@/type';
+import { useTranslation } from 'react-i18next';
 
 const { Option } = Select;
 
@@ -60,7 +61,7 @@ const MODELS: Record<string, string[]> = {
 type ProviderType = 'deepseek' | 'qwen' | 'google' | 'anthropic' | 'openrouter';
 
 export const ModelConfigBar: React.FC = () => {
-
+  const { t } = useTranslation('modelConfig');
   const message = App.useApp().message;
 
   const [selectedProvider, setSelectedProvider] = useState<ProviderType>('deepseek');
@@ -106,7 +107,7 @@ export const ModelConfigBar: React.FC = () => {
       setApiKeySource(source);
     } catch (error) {
       console.error('Failed to change provider:', error);
-      message.error('Failed to change provider');
+      message.error(t('provider_change_failed'));
     }
   };
 
@@ -122,10 +123,10 @@ export const ModelConfigBar: React.FC = () => {
       };
       await window.api.saveUserModelConfigs(updatedConfigs);
       setConfigs(updatedConfigs);
-      message.success('Model updated');
+      message.success(t('model_updated'));
     } catch (error) {
       console.error('Failed to update model:', error);
-      message.error('Failed to update model');
+      message.error(t('model_update_failed'));
     }
   };
 
@@ -142,7 +143,7 @@ export const ModelConfigBar: React.FC = () => {
   const handleSaveApiKey = async () => {
     // Validate API Key is not empty
     if (!tempApiKey || tempApiKey.trim() === '') {
-      message.warning('API Key cannot be empty');
+      message.warning(t('api_key_empty_warning'));
       return;
     }
 
@@ -158,10 +159,10 @@ export const ModelConfigBar: React.FC = () => {
       setConfigs(updatedConfigs);
       setIsEditingApiKey(false);
       setApiKeySource('user');
-      message.success('API Key saved');
+      message.success(t('api_key_saved'));
     } catch (error) {
       console.error('Failed to save API key:', error);
-      message.error('Failed to save API Key');
+      message.error(t('api_key_save_failed'));
     }
   };
 
@@ -220,19 +221,19 @@ export const ModelConfigBar: React.FC = () => {
           {apiKeySource === 'env' && !isEditingApiKey && (
             <span className="flex items-center gap-1 text-green-400">
               <CheckOutlined />
-              Set via environment variable
+              {t('api_key_env')}
             </span>
           )}
 
           {apiKeySource === 'user' && !isEditingApiKey && (
             <span className="flex items-center gap-1 text-blue-400">
               <CheckOutlined />
-              Set by user
+              {t('api_key_user')}
             </span>
           )}
 
           {apiKeySource === 'none' && !isEditingApiKey && (
-            <span className="text-yellow-400">Not configured</span>
+            <span className="text-yellow-400">{t('api_key_not_configured')}</span>
           )}
 
           {isEditingApiKey && (
@@ -240,7 +241,7 @@ export const ModelConfigBar: React.FC = () => {
               type="password"
               value={tempApiKey}
               onChange={(e) => setTempApiKey(e.target.value)}
-              placeholder="Enter your API Key"
+              placeholder={t('api_key_placeholder')}
               className="flex-1 max-w-sm"
               size="small"
               onPressEnter={handleSaveApiKey}
@@ -258,7 +259,7 @@ export const ModelConfigBar: React.FC = () => {
                 type="text"
                 className="text-gray-300 hover:text-white"
               >
-                Edit API Key
+                {t('edit_api_key')}
               </Button>
               <a
                 href={currentProvider?.getKeyUrl}
@@ -267,7 +268,7 @@ export const ModelConfigBar: React.FC = () => {
                 className="flex items-center gap-1 text-blue-400 hover:text-blue-300 whitespace-nowrap"
               >
                 <LinkOutlined />
-                Get API Key
+                {t('get_api_key')}
               </a>
             </>
           ) : (
