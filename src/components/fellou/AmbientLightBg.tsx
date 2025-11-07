@@ -48,25 +48,35 @@ export function AnimatedBackground({
     const handleLoaded = () => {
       if (isDestroyed || !containerRef.current || !window.AmbientLightBg) return;
 
-      // 创建 AmbientLightBg 实例
-      colorBgRef.current = new window.AmbientLightBg({
-        dom: containerRef.current.id,
-        colors: ["#004880", "#CDCFCF", "#3390C0", "#2B71A1", "#005A92", "#004880"],
-        //["#007FFE","#3099FE","#60B2FE","#90CCFE","#a8d3f0","#b7e1df"],
-        loop: true,
-        speed: speed,
-      });
+      try {
+        // 创建 AmbientLightBg 实例
+        colorBgRef.current = new window.AmbientLightBg({
+          dom: containerRef.current.id,
+          colors: ["#004880", "#CDCFCF", "#3390C0", "#2B71A1", "#005A92", "#004880"],
+          //["#007FFE","#3099FE","#60B2FE","#90CCFE","#a8d3f0","#b7e1df"],
+          loop: true,
+          speed: speed,
+        });
 
-      // 应用自定义参数
-      if (colorBgRef.current && colorBgRef.current.update) {
-        // Scale 参数对应 pattern scale
-        colorBgRef.current.update("pattern scale", scale);
+        // 应用自定义参数
+        if (colorBgRef.current && colorBgRef.current.update) {
+          // Scale 参数对应 pattern scale
+          colorBgRef.current.update("pattern scale", scale);
 
-        // Blur 参数对应 edge blur
-        colorBgRef.current.update("edge blur", blur);
+          // Blur 参数对应 edge blur
+          colorBgRef.current.update("edge blur", blur);
 
-        // Noise 参数
-        colorBgRef.current.update("noise", noise);
+          // Noise 参数
+          colorBgRef.current.update("noise", noise);
+        }
+      } catch (error) {
+        // Handle initialization error (likely WebGL not supported)
+        console.error('AmbientLightBg initialization failed:', error);
+
+        // Trigger fallback event to notify parent component
+        window.dispatchEvent(new CustomEvent('ambientBgError', {
+          detail: { error }
+        }));
       }
     };
 
