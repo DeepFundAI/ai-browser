@@ -41,6 +41,7 @@ win:
   icon: assets/icons/logo.png
   target:
     - nsis
+    - zip
   signDlls: false
   artifactName: ${name}-${version}-${os}-${arch}.${ext}
 
