@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react'
 import { useRouter } from 'next/router'
 import Header from '@/components/Header'
-import { Input, Slider, Button, App, Modal, Checkbox, Radio } from 'antd'
+import { Input, Slider, Button, App, Checkbox, Radio } from 'antd'
 import { EkoResult, StreamCallbackMessage } from '@jarvis-agent/core/dist/types';
 import { MessageList } from '@/components/chat/MessageComponents';
 import { uuidv4 } from '@/common/utils';
@@ -75,7 +75,6 @@ export default function main() {
 
     const [ekoRequest, setEkoRequest] = useState<Promise<any> | null>(null)
     const [humanRequest, setHumanRequest] = useState<HumanRequestPayload | null>(null);
-    const [isHumanModalOpen, setIsHumanModalOpen] = useState(false);
     const [humanInputValue, setHumanInputValue] = useState('');
     const [humanSelectValues, setHumanSelectValues] = useState<string[]>([]);
     const [isSubmittingHumanResponse, setIsSubmittingHumanResponse] = useState(false);
@@ -114,7 +113,6 @@ export default function main() {
         const handler = (request: HumanRequestPayload) => {
             console.log('Received human intervention request:', request);
             setHumanRequest(request);
-            setIsHumanModalOpen(true);
             setIsSubmittingHumanResponse(false);
             setHumanInputValue('');
             setHumanSelectValues([]);
@@ -758,7 +756,6 @@ export default function main() {
 
     const submitHumanResponse = async (success: boolean, result?: any, errorMessage?: string) => {
         if (!humanRequest) {
-            setIsHumanModalOpen(false);
             return;
         }
 
@@ -786,7 +783,6 @@ export default function main() {
                 antdMessage.warning('已取消人工协助请求。');
             }
 
-            setIsHumanModalOpen(false);
             setHumanRequest(null);
             setHumanInputValue('');
             setHumanSelectValues([]);
@@ -795,7 +791,6 @@ export default function main() {
             const message = typeof error?.message === 'string' ? error.message : '提交人工反馈失败，请重试。';
             antdMessage.error(message);
             if (message.includes('not found')) {
-                setIsHumanModalOpen(false);
                 setHumanRequest(null);
             }
         } finally {
@@ -803,7 +798,7 @@ export default function main() {
         }
     };
 
-    const handleHumanModalCancel = () => {
+    const handleHumanPromptCancel = () => {
         if (isSubmittingHumanResponse) {
             return;
         }
@@ -852,7 +847,7 @@ export default function main() {
         submitHumanResponse(true, resolved);
     };
 
-    const renderHumanModalContent = () => {
+    const renderHumanPromptContent = () => {
         if (!humanRequest) {
             return null;
         }
@@ -903,7 +898,7 @@ export default function main() {
                             disabled={isSubmittingHumanResponse}
                         />
                         <div className='mt-6 flex justify-end gap-2'>
-                            <Button onClick={handleHumanModalCancel} disabled={isSubmittingHumanResponse}>
+                            <Button onClick={handleHumanPromptCancel} disabled={isSubmittingHumanResponse}>
                                 取消
                             </Button>
                             <Button
@@ -952,7 +947,7 @@ export default function main() {
                             )}
                         </div>
                         <div className='mt-6 flex justify-end gap-2'>
-                            <Button onClick={handleHumanModalCancel} disabled={isSubmittingHumanResponse}>
+                            <Button onClick={handleHumanPromptCancel} disabled={isSubmittingHumanResponse}>
                                 取消
                             </Button>
                             <Button
@@ -1018,6 +1013,21 @@ export default function main() {
                         >
                             <MessageList messages={messages} onToolClick={handleToolClick} />
                         </div>
+                        {humanRequest && (
+                            <div className='px-4'>
+                                <div className='bg-tool-call border border-border-message rounded-lg p-4 shadow-lg sticky bottom-4 z-10'>
+                                    <div className='text-base font-semibold text-text-01-dark'>
+                                        人工协助请求
+                                    </div>
+                                    <div className='mt-1 text-xs text-text-12-dark'>
+                                        请根据提示完成协助操作。
+                                    </div>
+                                    <div className='mt-4 max-h-[360px] overflow-y-auto pr-1'>
+                                        {renderHumanPromptContent()}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                         {/* Question input box */}
                         <div className='h-30 gradient-border relative'>
                             <Input.TextArea
@@ -1146,20 +1156,6 @@ export default function main() {
                     )}
                 </div>
             </div>
-
-            <Modal
-                title='人工协助请求'
-                open={isHumanModalOpen && !!humanRequest}
-                onCancel={handleHumanModalCancel}
-                footer={null}
-                maskClosable={false}
-                closable={!isSubmittingHumanResponse}
-                destroyOnClose
-                centered
-            >
-                {renderHumanModalContent()}
-            </Modal>
-
         </>
     )
 }
