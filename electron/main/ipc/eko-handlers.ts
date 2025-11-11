@@ -76,5 +76,17 @@ export function registerEkoHandlers() {
     }
   });
 
+  // Human intervention response
+  ipcMain.handle('eko:human-response', async (event, response) => {
+    const context = windowContextManager.getContext(event.sender.id);
+    if (!context || !context.ekoService) {
+      throw new Error('EkoService not found for this window');
+    }
+    if (!response || !response.requestId) {
+      throw new Error('Invalid human response payload');
+    }
+    return context.ekoService.handleHumanResponse(response);
+  });
+
   console.log('[IPC] Eko service handlers registered');
 }

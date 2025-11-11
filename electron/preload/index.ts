@@ -39,6 +39,8 @@ const api = {
   ekoGetTaskStatus: (taskId: string) => ipcRenderer.invoke('eko:getTaskStatus', taskId),
   ekoCancelTask: (taskId: string) => ipcRenderer.invoke('eko:cancel-task', taskId),
   onEkoStreamMessage: (callback: (message: any) => void) => ipcRenderer.on('eko-stream-message', (_, message) => callback(message)),
+  onEkoHumanRequest: (callback: (message: any) => void) => ipcRenderer.on('eko-human-request', (_, message) => callback(message)),
+  sendEkoHumanResponse: (response: any) => ipcRenderer.invoke('eko:human-response', response),
 
   // Model configuration APIs
   getUserModelConfigs: () => ipcRenderer.invoke('config:get-user-configs'),
