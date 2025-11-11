@@ -1,9 +1,30 @@
-import { Eko, Log, SimpleSseMcpClient, type LLMs, type StreamCallbackMessage } from "@jarvis-agent/core";
+import { Eko, Log, SimpleSseMcpClient, type AgentContext, type LLMs, type StreamCallbackMessage } from "@jarvis-agent/core";
 import { BrowserAgent, FileAgent } from "@jarvis-agent/electron";
 import type { EkoResult } from "@jarvis-agent/core/types";
 import { BrowserWindow, WebContentsView, app } from "electron";
+import { randomUUID } from "node:crypto";
 import path from "node:path";
 import { ConfigManager } from "../utils/config-manager";
+
+type HumanInteractType = "confirm" | "input" | "select" | "request_help";
+
+type HumanRequestMessage = {
+  requestId: string;
+  interactType: HumanInteractType;
+  prompt: string;
+  selectOptions?: string[];
+  selectMultiple?: boolean;
+  helpType?: "request_login" | "request_assistance";
+  taskId?: string;
+  agentName?: string;
+};
+
+type HumanResponseMessage = {
+  requestId: string;
+  success: boolean;
+  result?: any;
+  error?: string;
+};
 
 export class EkoService {
   private eko: Eko | null = null;
@@ -11,6 +32,7 @@ export class EkoService {
   private detailView: WebContentsView;
   private mcpClient!: SimpleSseMcpClient;
   private agents!: any[];
+  private pendingHumanRequests = new Map<string, { resolve: (value: any) => void; reject: (reason: any) => void }>();
 
   constructor(mainWindow: BrowserWindow, detailView: WebContentsView) {
     this.mainWindow = mainWindow;
@@ -76,8 +98,177 @@ export class EkoService {
       },
       onHuman: (message: any) => {
         console.log('EkoService human callback:', message);
+      },
+      onHumanConfirm: async (agentContext: AgentContext, prompt: string) => {
+        Log.info('EkoService human confirm requested:', prompt);
+        try {
+          const result = await this.requestHumanInteraction(agentContext, {
+            interactType: 'confirm',
+            prompt
+          });
+          return Boolean(result);
+        } catch (error) {
+          Log.error('EkoService human confirm failed:', error);
+          throw error;
+        }
+      },
+      onHumanInput: async (agentContext: AgentContext, prompt: string) => {
+        Log.info('EkoService human input requested:', prompt);
+        try {
+          const result = await this.requestHumanInteraction(agentContext, {
+            interactType: 'input',
+            prompt
+          });
+          return typeof result === 'string' ? result : String(result ?? '');
+        } catch (error) {
+          Log.error('EkoService human input failed:', error);
+          throw error;
+        }
+      },
+      onHumanSelect: async (
+        agentContext: AgentContext,
+        prompt: string,
+        options: string[] = [],
+        multiple: boolean = false
+      ) => {
+        Log.info('EkoService human select requested:', prompt, options);
+        try {
+          const result = await this.requestHumanInteraction(agentContext, {
+            interactType: 'select',
+            prompt,
+            selectOptions: options,
+            selectMultiple: multiple
+          });
+          if (Array.isArray(result)) {
+            return result.map(item => String(item));
+          }
+          return [];
+        } catch (error) {
+          Log.error('EkoService human select failed:', error);
+          throw error;
+        }
+      },
+      onHumanHelp: async (
+        agentContext: AgentContext,
+        helpType: 'request_login' | 'request_assistance',
+        prompt: string
+      ) => {
+        Log.info('EkoService human help requested:', helpType, prompt);
+        try {
+          const result = await this.requestHumanInteraction(agentContext, {
+            interactType: 'request_help',
+            prompt,
+            helpType
+          });
+          return Boolean(result);
+        } catch (error) {
+          Log.error('EkoService human help failed:', error);
+          throw error;
+        }
       }
     };
+  }
+
+  private requestHumanInteraction(
+    agentContext: AgentContext,
+    payload: Omit<HumanRequestMessage, 'requestId' | 'taskId' | 'agentName'>
+  ): Promise<any> {
+    if (!this.mainWindow || this.mainWindow.isDestroyed()) {
+      const error = new Error('Main window destroyed, cannot request human interaction');
+      Log.error(error.message);
+      return Promise.reject(error);
+    }
+
+    const requestId = randomUUID();
+    const message: HumanRequestMessage = {
+      requestId,
+      ...payload,
+      taskId: agentContext?.context?.taskId,
+      agentName: agentContext?.agent?.name
+    };
+
+    Log.info('Dispatching human interaction request:', message);
+
+    const controllerSignal = agentContext?.context?.controller?.signal;
+
+    return new Promise((resolve, reject) => {
+      const cleanup = () => {
+        this.pendingHumanRequests.delete(requestId);
+        if (controllerSignal) {
+          controllerSignal.removeEventListener('abort', onAbort);
+        }
+      };
+
+      const settleResolve = (value: any) => {
+        cleanup();
+        resolve(value);
+      };
+
+      const settleReject = (reason: any) => {
+        cleanup();
+        reject(reason);
+      };
+
+      const onAbort = () => {
+        Log.warn(`Human interaction request ${requestId} aborted by controller`);
+        settleReject(new Error('Task aborted during human interaction'));
+      };
+
+      this.pendingHumanRequests.set(requestId, {
+        resolve: settleResolve,
+        reject: settleReject
+      });
+
+      if (controllerSignal) {
+        if (controllerSignal.aborted) {
+          onAbort();
+          return;
+        }
+        controllerSignal.addEventListener('abort', onAbort);
+      }
+
+      try {
+        if (!this.mainWindow || this.mainWindow.isDestroyed()) {
+          throw new Error('Main window destroyed, cannot send human interaction request');
+        }
+        this.mainWindow.webContents.send('eko-human-request', message);
+      } catch (error) {
+        settleReject(error);
+      }
+    });
+  }
+
+  public handleHumanResponse(response: HumanResponseMessage): boolean {
+    const pending = this.pendingHumanRequests.get(response.requestId);
+    if (!pending) {
+      const errorMessage = `Human interaction request ${response.requestId} not found`;
+      Log.warn(errorMessage);
+      throw new Error(errorMessage);
+    }
+
+    if (response.success) {
+      pending.resolve(response.result);
+    } else {
+      pending.reject(new Error(response.error || 'Human interaction cancelled'));
+    }
+
+    return true;
+  }
+
+  private rejectAllHumanRequests(reason: Error) {
+    if (this.pendingHumanRequests.size === 0) {
+      return;
+    }
+
+    const pendingRequests = Array.from(this.pendingHumanRequests.values());
+    this.pendingHumanRequests.clear();
+    pendingRequests.forEach(({ reject }) => {
+      try {
+        reject(reason);
+      } catch (error) {
+        Log.error('Failed to reject human interaction request:', error);
+      }
+    });
   }
 
   private initializeEko() {
@@ -150,6 +341,8 @@ export class EkoService {
         }
       });
     }
+
+    this.rejectAllHumanRequests(new Error('EkoService configuration reloaded'));
 
     // Get new LLMs configuration
     const configManager = ConfigManager.getInstance();
@@ -322,6 +515,8 @@ export class EkoService {
 
     await Promise.all(abortPromises);
     Log.info('All tasks aborted');
+
+    this.rejectAllHumanRequests(new Error('All tasks aborted'));
   }
 
   /**
@@ -329,6 +524,7 @@ export class EkoService {
    */
   destroy() {
     console.log('EkoService destroyed');
+    this.rejectAllHumanRequests(new Error('EkoService destroyed'));
     this.eko = null;
   }
 }

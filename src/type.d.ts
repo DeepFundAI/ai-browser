@@ -81,8 +81,10 @@ declare global {
       ekoModify: (taskId: string, prompt: string) => Promise<any>
       ekoExecute: (taskId: string) => Promise<any>
       onEkoStreamMessage: (callback: (message: any) => void) => void
+      onEkoHumanRequest: (callback: (message: any) => void) => void
       ekoGetTaskStatus: (taskId: string) => Promise<any>
       ekoCancelTask: (taskId: string) => Promise<any>
+      sendEkoHumanResponse: (response: { requestId: string; success: boolean; result?: any; error?: string }) => Promise<any>
 
       // Model configuration APIs
       getUserModelConfigs: () => Promise<UserModelConfigs>

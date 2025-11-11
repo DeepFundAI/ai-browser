@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react'
 import { useRouter } from 'next/router'
 import Header from '@/components/Header'
-import { Input, Slider, Button, App } from 'antd'
+import { Input, Slider, Button, App, Modal, Checkbox, Radio } from 'antd'
 import { EkoResult, StreamCallbackMessage } from '@jarvis-agent/core/dist/types';
 import { MessageList } from '@/components/chat/MessageComponents';
 import { uuidv4 } from '@/common/utils';
@@ -12,6 +12,19 @@ import { useTaskManager } from '@/hooks/useTaskManager';
 import { useHistoryStore } from '@/stores/historyStore';
 import { scheduledTaskStorage } from '@/lib/scheduled-task-storage';
 import { useTranslation } from 'react-i18next';
+
+type HumanInteractType = 'confirm' | 'input' | 'select' | 'request_help';
+
+interface HumanRequestPayload {
+    requestId: string;
+    interactType: HumanInteractType;
+    prompt: string;
+    selectOptions?: string[];
+    selectMultiple?: boolean;
+    helpType?: 'request_login' | 'request_assistance';
+    taskId?: string;
+    agentName?: string;
+}
 
 
 export default function main() {
@@ -61,6 +74,11 @@ export default function main() {
     const showDetailAgents = ['Browser', 'File'];
 
     const [ekoRequest, setEkoRequest] = useState<Promise<any> | null>(null)
+    const [humanRequest, setHumanRequest] = useState<HumanRequestPayload | null>(null);
+    const [isHumanModalOpen, setIsHumanModalOpen] = useState(false);
+    const [humanInputValue, setHumanInputValue] = useState('');
+    const [humanSelectValues, setHumanSelectValues] = useState<string[]>([]);
+    const [isSubmittingHumanResponse, setIsSubmittingHumanResponse] = useState(false);
 
     // Check if current task is running
     const isCurrentTaskRunning = useMemo(() => {
@@ -86,6 +104,40 @@ export default function main() {
     useEffect(() => {
         taskIdRef.current = currentTaskId;
     }, [currentTaskId]);
+
+    // Listen for human intervention requests from agent
+    useEffect(() => {
+        if (!window.api || !(window.api as any).onEkoHumanRequest) {
+            return;
+        }
+
+        const handler = (request: HumanRequestPayload) => {
+            console.log('Received human intervention request:', request);
+            setHumanRequest(request);
+            setIsHumanModalOpen(true);
+            setIsSubmittingHumanResponse(false);
+            setHumanInputValue('');
+            setHumanSelectValues([]);
+
+            if (!isHistoryMode) {
+                setShowDetail(true);
+            }
+
+            if (request.interactType === 'request_help') {
+                antdMessage.warning('智能体需要人工协助，请在工作区完成操作后反馈结果。');
+            } else {
+                antdMessage.info('智能体需要您的反馈，请查看提示。');
+            }
+        };
+
+        (window.api as any).onEkoHumanRequest(handler);
+
+        return () => {
+            if (window.api && window.api.removeAllListeners) {
+                window.api.removeAllListeners('eko-human-request');
+            }
+        };
+    }, [antdMessage, isHistoryMode]);
 
     // Monitor detail panel display status changes, synchronize control of detail view
     useEffect(() => {
@@ -704,6 +756,245 @@ export default function main() {
         }
     };
 
+    const submitHumanResponse = async (success: boolean, result?: any, errorMessage?: string) => {
+        if (!humanRequest) {
+            setIsHumanModalOpen(false);
+            return;
+        }
+
+        if (!window.api || !(window.api as any).sendEkoHumanResponse) {
+            antdMessage.error('未能提交人工反馈，通信接口不可用。');
+            return;
+        }
+
+        if (isSubmittingHumanResponse) {
+            return;
+        }
+
+        setIsSubmittingHumanResponse(true);
+        try {
+            await (window.api as any).sendEkoHumanResponse({
+                requestId: humanRequest.requestId,
+                success,
+                result,
+                error: errorMessage,
+            });
+
+            if (success) {
+                antdMessage.success('已提交人工反馈。');
+            } else {
+                antdMessage.warning('已取消人工协助请求。');
+            }
+
+            setIsHumanModalOpen(false);
+            setHumanRequest(null);
+            setHumanInputValue('');
+            setHumanSelectValues([]);
+        } catch (error: any) {
+            console.error('Failed to send human response:', error);
+            const message = typeof error?.message === 'string' ? error.message : '提交人工反馈失败，请重试。';
+            antdMessage.error(message);
+            if (message.includes('not found')) {
+                setIsHumanModalOpen(false);
+                setHumanRequest(null);
+            }
+        } finally {
+            setIsSubmittingHumanResponse(false);
+        }
+    };
+
+    const handleHumanModalCancel = () => {
+        if (isSubmittingHumanResponse) {
+            return;
+        }
+        submitHumanResponse(false, undefined, '用户取消了人工协助');
+    };
+
+    const handleConfirmResponse = (value: boolean) => {
+        if (isSubmittingHumanResponse) {
+            return;
+        }
+        submitHumanResponse(true, value);
+    };
+
+    const handleInputSubmit = () => {
+        if (!humanRequest || isSubmittingHumanResponse) {
+            return;
+        }
+
+        const value = humanInputValue.trim();
+        if (!value) {
+            antdMessage.warning('请输入反馈内容。');
+            return;
+        }
+
+        submitHumanResponse(true, value);
+    };
+
+    const handleSelectSubmit = () => {
+        if (!humanRequest || isSubmittingHumanResponse) {
+            return;
+        }
+
+        if (!humanSelectValues.length) {
+            antdMessage.warning('请选择至少一个选项。');
+            return;
+        }
+
+        const result = humanRequest.selectMultiple ? humanSelectValues : [humanSelectValues[0]];
+        submitHumanResponse(true, result);
+    };
+
+    const handleHelpResult = (resolved: boolean) => {
+        if (isSubmittingHumanResponse) {
+            return;
+        }
+        submitHumanResponse(true, resolved);
+    };
+
+    const renderHumanModalContent = () => {
+        if (!humanRequest) {
+            return null;
+        }
+
+        const promptBlock = (
+            <div className='mt-3'>
+                {humanRequest.agentName && (
+                    <div className='text-xs text-text-12-dark mb-1'>执行代理：{humanRequest.agentName}</div>
+                )}
+                {humanRequest.taskId && (
+                    <div className='text-xs text-text-12-dark mb-2'>任务ID：{humanRequest.taskId}</div>
+                )}
+                <div className='whitespace-pre-wrap text-sm text-text-01-dark bg-tool-call rounded-md p-3'>
+                    {humanRequest.prompt}
+                </div>
+            </div>
+        );
+
+        switch (humanRequest.interactType) {
+            case 'confirm':
+                return (
+                    <>
+                        {promptBlock}
+                        <div className='mt-6 flex justify-end gap-2'>
+                            <Button onClick={() => handleConfirmResponse(false)} disabled={isSubmittingHumanResponse}>
+                                拒绝
+                            </Button>
+                            <Button
+                                type='primary'
+                                onClick={() => handleConfirmResponse(true)}
+                                loading={isSubmittingHumanResponse}
+                            >
+                                确认
+                            </Button>
+                        </div>
+                    </>
+                );
+            case 'input':
+                return (
+                    <>
+                        {promptBlock}
+                        <Input.TextArea
+                            className='mt-4'
+                            rows={4}
+                            value={humanInputValue}
+                            onChange={(e) => setHumanInputValue(e.target.value)}
+                            placeholder='请输入您希望反馈的内容'
+                            disabled={isSubmittingHumanResponse}
+                        />
+                        <div className='mt-6 flex justify-end gap-2'>
+                            <Button onClick={handleHumanModalCancel} disabled={isSubmittingHumanResponse}>
+                                取消
+                            </Button>
+                            <Button
+                                type='primary'
+                                onClick={handleInputSubmit}
+                                loading={isSubmittingHumanResponse}
+                                disabled={!humanInputValue.trim()}
+                            >
+                                提交
+                            </Button>
+                        </div>
+                    </>
+                );
+            case 'select': {
+                const options = humanRequest.selectOptions || [];
+                return (
+                    <>
+                        {promptBlock}
+                        <div className='mt-4 flex flex-col gap-2 max-h-64 overflow-y-auto pr-1'>
+                            {humanRequest.selectMultiple ? (
+                                <Checkbox.Group
+                                    value={humanSelectValues}
+                                    onChange={(values) => setHumanSelectValues(values as string[])}
+                                    className='flex flex-col gap-2'
+                                    disabled={isSubmittingHumanResponse}
+                                >
+                                    {options.map(option => (
+                                        <Checkbox key={option} value={option} className='text-sm text-text-01-dark'>
+                                            {option}
+                                        </Checkbox>
+                                    ))}
+                                </Checkbox.Group>
+                            ) : (
+                                <Radio.Group
+                                    value={humanSelectValues[0] ?? null}
+                                    onChange={(e) => setHumanSelectValues([e.target.value])}
+                                    className='flex flex-col gap-2'
+                                    disabled={isSubmittingHumanResponse}
+                                >
+                                    {options.map(option => (
+                                        <Radio key={option} value={option} className='text-sm text-text-01-dark'>
+                                            {option}
+                                        </Radio>
+                                    ))}
+                                </Radio.Group>
+                            )}
+                        </div>
+                        <div className='mt-6 flex justify-end gap-2'>
+                            <Button onClick={handleHumanModalCancel} disabled={isSubmittingHumanResponse}>
+                                取消
+                            </Button>
+                            <Button
+                                type='primary'
+                                onClick={handleSelectSubmit}
+                                loading={isSubmittingHumanResponse}
+                                disabled={options.length === 0 || humanSelectValues.length === 0}
+                            >
+                                提交
+                            </Button>
+                        </div>
+                    </>
+                );
+            }
+            case 'request_help': {
+                const helpHint = humanRequest.helpType === 'request_login'
+                    ? '请在右侧浏览器面板中完成登录或验证操作，完成后点击“已完成”。'
+                    : '请根据提示提供必要的人工协助，完成后点击“已完成”。';
+                return (
+                    <>
+                        {promptBlock}
+                        <div className='mt-3 text-xs text-text-12-dark whitespace-pre-wrap'>{helpHint}</div>
+                        <div className='mt-6 flex justify-end gap-2'>
+                            <Button onClick={() => handleHelpResult(false)} disabled={isSubmittingHumanResponse}>
+                                仍需帮助
+                            </Button>
+                            <Button
+                                type='primary'
+                                onClick={() => handleHelpResult(true)}
+                                loading={isSubmittingHumanResponse}
+                            >
+                                已完成
+                            </Button>
+                        </div>
+                    </>
+                );
+            }
+            default:
+                return promptBlock;
+        }
+    };
+
     return (
         <>
             <Header />
@@ -855,6 +1146,19 @@ export default function main() {
                     )}
                 </div>
             </div>
+
+            <Modal
+                title='人工协助请求'
+                open={isHumanModalOpen && !!humanRequest}
+                onCancel={handleHumanModalCancel}
+                footer={null}
+                maskClosable={false}
+                closable={!isSubmittingHumanResponse}
+                destroyOnClose
+                centered
+            >
+                {renderHumanModalContent()}
+            </Modal>
 
         </>
     )
