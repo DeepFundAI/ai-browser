@@ -1,9 +1,11 @@
-import { Eko, Log, SimpleSseMcpClient, type LLMs, type StreamCallbackMessage } from "@jarvis-agent/core";
+import { Eko, Log, SimpleSseMcpClient, type LLMs, type StreamCallbackMessage, type AgentContext } from "@jarvis-agent/core";
 import { BrowserAgent, FileAgent } from "@jarvis-agent/electron";
 import type { EkoResult } from "@jarvis-agent/core/types";
 import { BrowserWindow, WebContentsView, app } from "electron";
 import path from "node:path";
+import { randomUUID } from "node:crypto";
 import { ConfigManager } from "../utils/config-manager";
+import type { HumanRequestMessage, HumanResponseMessage, HumanInteractionContext } from "../../../src/models/human-interaction";
 
 export class EkoService {
   private eko: Eko | null = null;
@@ -11,6 +13,18 @@ export class EkoService {
   private detailView: WebContentsView;
   private mcpClient!: SimpleSseMcpClient;
   private agents!: any[];
+
+  // Store pending human interaction requests
+  private pendingHumanRequests = new Map<string, {
+    resolve: (value: any) => void;
+    reject: (reason?: any) => void;
+  }>();
+
+  // Map toolId to requestId for human interactions
+  private toolIdToRequestId = new Map<string, string>();
+
+  // Store current human_interact toolId
+  private currentHumanInteractToolId: string | null = null;
 
   constructor(mainWindow: BrowserWindow, detailView: WebContentsView) {
     this.mainWindow = mainWindow;
@@ -30,6 +44,12 @@ export class EkoService {
         if (!this.mainWindow || this.mainWindow.isDestroyed()) {
           Log.warn('Main window destroyed, skipping message processing');
           return Promise.resolve();
+        }
+
+        // Capture human_interact tool's toolId when tool is being used
+        if (message.type === 'tool_use' && message.toolName === 'human_interact' && message.toolId) {
+          this.currentHumanInteractToolId = message.toolId;
+          Log.info('Captured human_interact toolId:', message.toolId);
         }
 
         return new Promise((resolve) => {
@@ -72,10 +92,68 @@ export class EkoService {
         } else {
           resolve();
         }
-        })  
+        })
       },
-      onHuman: (message: any) => {
-        console.log('EkoService human callback:', message);
+
+      // Human interaction callbacks
+      onHumanConfirm: async (agentContext: AgentContext, prompt: string): Promise<boolean> => {
+        const result = await this.requestHumanInteraction(agentContext, {
+          interactType: 'confirm',
+          prompt
+        });
+        return Boolean(result);
+      },
+
+      onHumanInput: async (agentContext: AgentContext, prompt: string): Promise<string> => {
+        const result = await this.requestHumanInteraction(agentContext, {
+          interactType: 'input',
+          prompt
+        });
+        return String(result ?? '');
+      },
+
+      onHumanSelect: async (
+        agentContext: AgentContext,
+        prompt: string,
+        options: string[],
+        multiple: boolean
+      ): Promise<string[]> => {
+        const result = await this.requestHumanInteraction(agentContext, {
+          interactType: 'select',
+          prompt,
+          selectOptions: options,
+          selectMultiple: multiple
+        });
+        return Array.isArray(result) ? result : [];
+      },
+
+      onHumanHelp: async (
+        agentContext: AgentContext,
+        helpType: 'request_login' | 'request_assistance',
+        prompt: string
+      ): Promise<boolean> => {
+        // Get current page information for context
+        let context: HumanInteractionContext | undefined;
+        try {
+          const url = this.detailView.webContents.getURL();
+          if (url && url.startsWith('http')) {
+            const hostname = new URL(url).hostname;
+            context = {
+              siteName: hostname,
+              actionUrl: url
+            };
+          }
+        } catch (error) {
+          Log.error('Failed to get URL for human help context:', error);
+        }
+
+        const result = await this.requestHumanInteraction(agentContext, {
+          interactType: 'request_help',
+          prompt,
+          helpType,
+          context
+        });
+        return Boolean(result);
       }
     };
   }
@@ -142,7 +220,7 @@ export class EkoService {
     // Abort all running tasks before reloading
     if (this.eko) {
       const allTaskIds = this.eko.getAllTaskId();
-      allTaskIds.forEach(taskId => {
+      allTaskIds.forEach((taskId: any) => {
         try {
           this.eko!.abortTask(taskId, 'config-reload');
         } catch (error) {
@@ -150,6 +228,9 @@ export class EkoService {
         }
       });
     }
+
+    // Reject all pending human interactions
+    this.rejectAllHumanRequests(new Error('EkoService configuration reloaded'));
 
     // Get new LLMs configuration
     const configManager = ConfigManager.getInstance();
@@ -318,17 +399,153 @@ export class EkoService {
     }
 
     const allTaskIds = this.eko.getAllTaskId();
-    const abortPromises = allTaskIds.map(taskId => this.eko!.abortTask(taskId, 'window-closing'));
+    const abortPromises = allTaskIds.map((taskId: any) => this.eko!.abortTask(taskId, 'window-closing'));
 
     await Promise.all(abortPromises);
+
+    // Reject all pending human interactions (also clears toolId mappings)
+    this.rejectAllHumanRequests(new Error('All tasks aborted'));
+
     Log.info('All tasks aborted');
+  }
+
+  /**
+   * Request human interaction
+   * Sends interaction request to frontend and waits for user response
+   */
+  private requestHumanInteraction(
+    agentContext: AgentContext,
+    payload: Omit<HumanRequestMessage, 'type' | 'requestId' | 'timestamp'>
+  ): Promise<any> {
+    const requestId = randomUUID();
+    const message: HumanRequestMessage = {
+      type: 'human_interaction',
+      requestId,
+      taskId: agentContext?.context?.taskId,
+      agentName: agentContext?.agent?.name,
+      timestamp: new Date(),
+      ...payload
+    };
+
+    return new Promise((resolve, reject) => {
+      // Store promise resolver/rejector
+      this.pendingHumanRequests.set(requestId, { resolve, reject });
+
+      // Map toolId to requestId for frontend response matching
+      if (this.currentHumanInteractToolId) {
+        this.toolIdToRequestId.set(this.currentHumanInteractToolId, requestId);
+        Log.info('Mapped toolId to requestId:', {
+          toolId: this.currentHumanInteractToolId,
+          requestId
+        });
+        // Clear after mapping
+        this.currentHumanInteractToolId = null;
+      }
+
+      // Listen for task abort signal
+      const controllerSignal = agentContext?.context?.controller?.signal;
+      if (controllerSignal) {
+        controllerSignal.addEventListener('abort', () => {
+          this.pendingHumanRequests.delete(requestId);
+          reject(new Error('Task aborted during human interaction'));
+        });
+      }
+
+      // Send request to frontend as a special message
+      if (!this.mainWindow || this.mainWindow.isDestroyed()) {
+        this.pendingHumanRequests.delete(requestId);
+        reject(new Error('Main window destroyed, cannot request human interaction'));
+        return;
+      }
+
+      Log.info('Requesting human interaction:', { requestId, interactType: payload.interactType, prompt: payload.prompt });
+      this.mainWindow.webContents.send('eko-stream-message', message);
+    });
+  }
+
+  /**
+   * Handle human response from frontend
+   * Called via IPC when user completes interaction
+   */
+  public handleHumanResponse(response: HumanResponseMessage): boolean {
+    Log.info('Received human response:', response);
+
+    // First try direct requestId match
+    let pending = this.pendingHumanRequests.get(response.requestId);
+    let actualRequestId = response.requestId;
+
+    // If not found, try to find via toolId mapping (frontend might send toolId as requestId)
+    if (!pending) {
+      const mappedRequestId = this.toolIdToRequestId.get(response.requestId);
+      if (mappedRequestId) {
+        pending = this.pendingHumanRequests.get(mappedRequestId);
+        actualRequestId = mappedRequestId;
+        Log.info('Found requestId via toolId mapping:', {
+          toolId: response.requestId,
+          actualRequestId: mappedRequestId
+        });
+      }
+    }
+
+    if (!pending) {
+      Log.error(`Human interaction request ${response.requestId} not found or already processed`);
+      return false;
+    }
+
+    // Clean up both maps
+    this.pendingHumanRequests.delete(actualRequestId);
+    this.toolIdToRequestId.delete(response.requestId);
+
+    if (response.success) {
+      // Resolve promise, AI continues execution
+      pending.resolve(response.result);
+
+      // Send result message to frontend to update card state
+      if (!this.mainWindow || this.mainWindow.isDestroyed()) {
+        Log.warn('Main window destroyed, cannot send interaction result');
+        return true;
+      }
+
+      this.mainWindow.webContents.send('eko-stream-message', {
+        type: 'human_interaction_result',
+        requestId: response.requestId,
+        result: response.result,
+        timestamp: new Date()
+      });
+    } else {
+      // Reject promise, AI handles error
+      pending.reject(new Error(response.error || 'Human interaction cancelled'));
+    }
+
+    return true;
+  }
+
+  /**
+   * Reject all pending human interaction requests
+   * Used when config reloads or service shuts down
+   */
+  private rejectAllHumanRequests(error: Error): void {
+    if (this.pendingHumanRequests.size === 0) {
+      return;
+    }
+
+    Log.info(`Rejecting ${this.pendingHumanRequests.size} pending human interaction requests`);
+
+    for (const pending of this.pendingHumanRequests.values()) {
+      pending.reject(error);
+    }
+
+    this.pendingHumanRequests.clear();
+    this.toolIdToRequestId.clear();
+    this.currentHumanInteractToolId = null;
   }
 
   /**
    * Destroy service
    */
   destroy() {
-    console.log('EkoService destroyed');
+    Log.info('EkoService destroyed');
+    this.rejectAllHumanRequests(new Error('EkoService destroyed'));
     this.eko = null;
   }
 }

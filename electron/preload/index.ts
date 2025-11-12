@@ -40,6 +40,9 @@ const api = {
   ekoCancelTask: (taskId: string) => ipcRenderer.invoke('eko:cancel-task', taskId),
   onEkoStreamMessage: (callback: (message: any) => void) => ipcRenderer.on('eko-stream-message', (_, message) => callback(message)),
 
+  // Human interaction APIs
+  sendHumanResponse: (response: any) => ipcRenderer.invoke('eko:human-response', response),
+
   // Model configuration APIs
   getUserModelConfigs: () => ipcRenderer.invoke('config:get-user-configs'),
   saveUserModelConfigs: (configs: any) => ipcRenderer.invoke('config:save-user-configs', configs),

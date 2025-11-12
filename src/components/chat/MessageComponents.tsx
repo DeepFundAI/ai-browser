@@ -3,6 +3,8 @@ import { Typography, Button } from "antd";
 import ReactMarkdown from "react-markdown";
 import { Executing, Browser, Search, DataAnalysis, ExpandCollapse, DeepThinking, FinishStatus, RuningStatus, Atlas } from '../../icons/deepfundai-icons';
 import { DisplayMessage, AgentGroupMessage, ToolAction, AgentMessage } from '../../models';
+import type { HumanRequestMessage, HumanResponseMessage } from '../../models/human-interaction';
+import { HumanInteractionCard } from './HumanInteractionCard';
 import { useTranslation } from 'react-i18next';
 
 const { Text } = Typography;
@@ -10,6 +12,7 @@ const { Text } = Typography;
 interface MessageDisplayProps {
   message: DisplayMessage;
   onToolClick?: (message: ToolAction) => void;
+  onHumanResponse?: (response: HumanResponseMessage) => void;
 }
 
 // Workflow display component
@@ -135,12 +138,43 @@ const StepAgentDisplay = ({ agent, stepNumber }: { agent: any; stepNumber: numbe
 // Tool related components
 const ToolDisplay = ({
   message,
-  onToolClick
+  onToolClick,
+  onHumanResponse
 }: {
   message: ToolAction;
   onToolClick: (message: ToolAction) => void;
+  onHumanResponse?: (response: HumanResponseMessage) => void;
 }) => {
   const { t } = useTranslation('chat');
+
+  // Special handling for human_interact tool
+  if (message.toolName === 'human_interact' && message.params) {
+    // Convert ToolAction to HumanRequestMessage format
+    const humanMessage: HumanRequestMessage = {
+      type: 'human_interaction',
+      requestId: message.id, // Use toolId as requestId
+      taskId: message.params.taskId,
+      agentName: message.agentName,
+      interactType: message.params.interactType || 'request_help',
+      prompt: message.params.prompt || '',
+      selectOptions: message.params.selectOptions,
+      selectMultiple: message.params.selectMultiple,
+      helpType: message.params.helpType,
+      context: message.params.context,
+      timestamp: message.timestamp
+    };
+
+    return (
+      <HumanInteractionCard
+        message={humanMessage}
+        onResponse={(response) => {
+          if (onHumanResponse) {
+            onHumanResponse(response);
+          }
+        }}
+      />
+    );
+  }
 
   // Tool icon mapping (can do approximate matching based on common tool names)
   const getToolIcon = (toolName?: string) => {
@@ -163,7 +197,15 @@ const ToolDisplay = ({
 };
 
 // Message content component
-const MessageContent = ({ message, onToolClick }: { message: DisplayMessage, onToolClick }) => {
+const MessageContent = ({
+  message,
+  onToolClick,
+  onHumanResponse
+}: {
+  message: DisplayMessage;
+  onToolClick?: (message: ToolAction) => void;
+  onHumanResponse?: (response: HumanResponseMessage) => void;
+}) => {
   // User message
   if (message.type === 'user') {
     return (
@@ -173,23 +215,30 @@ const MessageContent = ({ message, onToolClick }: { message: DisplayMessage, onT
     );
   }
 
-
   if (message.type === 'workflow') {
     return <WorkflowDisplay workflow={message.workflow} />;
   }
 
   if (message.type === 'agent_group') {
-    return <AgentGroupDisplay agentMessage={message} onToolClick={onToolClick} />
+    return <AgentGroupDisplay agentMessage={message} onToolClick={onToolClick} onHumanResponse={onHumanResponse} />
   }
 
   return null;
 };
 
 // Message content component
-const AgentMessageContent = ({ message, onToolClick }: { message: AgentMessage, onToolClick }) => {
+const AgentMessageContent = ({
+  message,
+  onToolClick,
+  onHumanResponse
+}: {
+  message: AgentMessage;
+  onToolClick?: (message: ToolAction) => void;
+  onHumanResponse?: (response: HumanResponseMessage) => void;
+}) => {
 
   if (message.type === 'tool') {
-    return <ToolDisplay message={message} onToolClick={onToolClick} />;
+    return <ToolDisplay message={message} onToolClick={onToolClick!} onHumanResponse={onHumanResponse} />;
   }
 
   if (message.type === 'text') {
@@ -209,11 +258,11 @@ const AgentMessageContent = ({ message, onToolClick }: { message: AgentMessage, 
 
 
 // Single message component
-const MessageItem = ({ message, onToolClick }: MessageDisplayProps) => {
+const MessageItem = ({ message, onToolClick, onHumanResponse }: MessageDisplayProps) => {
   const isUser = message.type === 'user';
 
   // Get message content
-  const messageContent = <MessageContent message={message} onToolClick={onToolClick} />;
+  const messageContent = <MessageContent message={message} onToolClick={onToolClick} onHumanResponse={onHumanResponse} />;
 
   // If message content is empty, don't display the entire message item
   if (!messageContent) {
@@ -235,10 +284,12 @@ const MessageItem = ({ message, onToolClick }: MessageDisplayProps) => {
 // Agent grouped message display component
 const AgentGroupDisplay = ({
   agentMessage,
-  onToolClick
+  onToolClick,
+  onHumanResponse
 }: {
   agentMessage: AgentGroupMessage;
   onToolClick?: (message: ToolAction) => void;
+  onHumanResponse?: (response: HumanResponseMessage) => void;
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -277,7 +328,7 @@ const AgentGroupDisplay = ({
             return (
               <div key={message.id} className="agent-step">
                 <div className="pl-6 mb-3 text-sm">
-                  <AgentMessageContent message={message} onToolClick={onToolClick} />
+                  <AgentMessageContent message={message} onToolClick={onToolClick} onHumanResponse={onHumanResponse} />
                 </div>
               </div>
             );
@@ -291,15 +342,24 @@ const AgentGroupDisplay = ({
 // Message list component
 const MessageListComponent = ({
   messages,
-  onToolClick
+  onToolClick,
+  onHumanResponse
 }: {
   messages: DisplayMessage[];
   onToolClick?: (message: ToolAction) => void;
+  onHumanResponse?: (response: HumanResponseMessage) => void;
 }) => {
 
   return (
     <div className="message-list space-y-2">
-      {messages.map((message) => <MessageItem message={message} key={message.id} onToolClick={onToolClick} />)}
+      {messages.map((message) => (
+        <MessageItem
+          message={message}
+          key={message.id}
+          onToolClick={onToolClick}
+          onHumanResponse={onHumanResponse}
+        />
+      ))}
     </div>
   );
 };

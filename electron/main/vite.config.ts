@@ -30,6 +30,7 @@ export default defineConfig({
         'node:child_process',
         'node:process',
         'node:buffer',
+        'node:crypto',
         'fs',
         'fs/promises',
         'path',
