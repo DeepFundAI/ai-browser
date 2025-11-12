@@ -7,6 +7,7 @@ import { MessageList } from '@/components/chat/MessageComponents';
 import { uuidv4 } from '@/common/utils';
 import { StepUpDown, SendMessage, CancleTask } from '@/icons/deepfundai-icons';
 import { Task, ToolAction } from '@/models';
+import type { HumanResponseMessage } from '@/models/human-interaction';
 import { MessageProcessor } from '@/utils/messageTransform';
 import { useTaskManager } from '@/hooks/useTaskManager';
 import { useHistoryStore } from '@/stores/historyStore';
@@ -285,6 +286,8 @@ export default function main() {
         try {
             const result = await window.api.ekoCancelTask(currentTaskId);
             updateTask(currentTaskId, { status: 'abort' });
+            // Clear ekoRequest when task is terminated
+            setEkoRequest(null);
             console.log(`Task terminated, reason: ${reason}`, result);
             return true; // Termination successful
         } catch (error) {
@@ -685,6 +688,9 @@ export default function main() {
             }
             console.error('Failed to send message:', error);
             antdMessage.error(t('failed_send_message'));
+        } finally {
+            // Clear ekoRequest to allow next message
+            setEkoRequest(null);
         }
     }
 
@@ -703,6 +709,20 @@ export default function main() {
             antdMessage.error(t('terminate_failed'));
         }
     };
+
+    /**
+     * Handle human interaction response
+     * Called when user completes interaction in HumanInteractionCard
+     */
+    const handleHumanResponse = useCallback(async (response: HumanResponseMessage) => {
+        try {
+            console.log('[Main] Sending human response:', response);
+            await window.api.sendHumanResponse(response);
+        } catch (error) {
+            console.error('[Main] Failed to send human response:', error);
+            antdMessage.error(t('human_response_failed') || 'Failed to send response');
+        }
+    }, [antdMessage, t]);
 
     return (
         <>
@@ -725,7 +745,11 @@ export default function main() {
                             className='flex-1 h-full overflow-x-hidden overflow-y-auto px-4 pt-5'
                             onScroll={handleScroll}
                         >
-                            <MessageList messages={messages} onToolClick={handleToolClick} />
+                            <MessageList
+                                messages={messages}
+                                onToolClick={handleToolClick}
+                                onHumanResponse={handleHumanResponse}
+                            />
                         </div>
                         {/* Question input box */}
                         <div className='h-30 gradient-border relative'>

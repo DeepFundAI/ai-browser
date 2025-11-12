@@ -1,5 +1,6 @@
 import { ipcMain } from "electron";
 import { windowContextManager } from "../services/window-context-manager";
+import type { HumanResponseMessage } from "../../../src/models/human-interaction";
 
 /**
  * Register all Eko service related IPC handlers
@@ -72,6 +73,22 @@ export function registerEkoHandlers() {
       return { success: true, result };
     } catch (error: any) {
       console.error('IPC eko:cancel-task error:', error);
+      throw error;
+    }
+  });
+
+  // Handle human interaction response
+  ipcMain.handle('eko:human-response', async (event, response: HumanResponseMessage) => {
+    try {
+      console.log('IPC eko:human-response received:', response);
+      const context = windowContextManager.getContext(event.sender.id);
+      if (!context || !context.ekoService) {
+        throw new Error('EkoService not found for this window');
+      }
+      const result = context.ekoService.handleHumanResponse(response);
+      return { success: result };
+    } catch (error: any) {
+      console.error('IPC eko:human-response error:', error);
       throw error;
     }
   });
