@@ -93,5 +93,48 @@ export function registerEkoHandlers() {
     }
   });
 
+  // Get task context (workflow + contextParams) for restoration
+  ipcMain.handle('eko:get-task-context', async (event, taskId: string) => {
+    try {
+      console.log('IPC eko:get-task-context received:', taskId);
+      const context = windowContextManager.getContext(event.sender.id);
+      if (!context || !context.ekoService) {
+        throw new Error('EkoService not found for this window');
+      }
+      const taskContext = context.ekoService.getTaskContext(taskId);
+      return taskContext;
+    } catch (error: any) {
+      console.error('IPC eko:get-task-context error:', error);
+      throw error;
+    }
+  });
+
+  // Restore task from saved workflow and contextParams
+  ipcMain.handle('eko:restore-task', async (
+    event,
+    workflow: any,
+    contextParams?: Record<string, any>,
+    chainPlanRequest?: any,
+    chainPlanResult?: string
+  ) => {
+    try {
+      console.log('IPC eko:restore-task received:', workflow.taskId);
+      const context = windowContextManager.getContext(event.sender.id);
+      if (!context || !context.ekoService) {
+        throw new Error('EkoService not found for this window');
+      }
+      const taskId = await context.ekoService.restoreTask(
+        workflow,
+        contextParams,
+        chainPlanRequest,
+        chainPlanResult
+      );
+      return { success: true, taskId };
+    } catch (error: any) {
+      console.error('IPC eko:restore-task error:', error);
+      throw error;
+    }
+  });
+
   console.log('[IPC] Eko service handlers registered');
 }

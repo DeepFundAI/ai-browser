@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { Typography, Button } from "antd";
+import { Typography, Button, Spin } from "antd";
+import { LoadingOutlined } from '@ant-design/icons';
 import ReactMarkdown from "react-markdown";
 import { Executing, Browser, Search, DataAnalysis, ExpandCollapse, DeepThinking, FinishStatus, RuningStatus, Atlas } from '../../icons/deepfundai-icons';
-import { DisplayMessage, AgentGroupMessage, ToolAction, AgentMessage } from '../../models';
+import { DisplayMessage, AgentGroupMessage, ToolAction, AgentMessage, FileAttachment } from '../../models';
 import type { HumanRequestMessage, HumanResponseMessage } from '../../models/human-interaction';
 import { HumanInteractionCard } from './HumanInteractionCard';
 import { useTranslation } from 'react-i18next';
+import { uuidv4 } from '@/common/utils';
 
 const { Text } = Typography;
 
@@ -13,6 +15,7 @@ interface MessageDisplayProps {
   message: DisplayMessage;
   onToolClick?: (message: ToolAction) => void;
   onHumanResponse?: (response: HumanResponseMessage) => void;
+  onFileClick?: (file: FileAttachment) => void;
 }
 
 // Workflow display component
@@ -139,11 +142,13 @@ const StepAgentDisplay = ({ agent, stepNumber }: { agent: any; stepNumber: numbe
 const ToolDisplay = ({
   message,
   onToolClick,
-  onHumanResponse
+  onHumanResponse,
+  onFileClick
 }: {
   message: ToolAction;
   onToolClick: (message: ToolAction) => void;
   onHumanResponse?: (response: HumanResponseMessage) => void;
+  onFileClick?: (file: FileAttachment) => void;
 }) => {
   const { t } = useTranslation('chat');
 
@@ -185,13 +190,92 @@ const ToolDisplay = ({
     return <Executing />;
   };
 
+  // Check if tool is currently executing
+  const isExecuting = message.status === 'streaming' || message.status === 'use' || message.status === 'running';
+
+  // Extract file information from file_write result
+  const getFileInfo = () => {
+    if (message.toolName === 'file_write' && message.status === 'completed' && message.result) {
+      try {
+        let fileInfo = message.result;
+
+        // Handle AI SDK wrapped result structure
+        if (fileInfo?.content && Array.isArray(fileInfo.content) && fileInfo.content.length > 0) {
+          const firstContent = fileInfo.content[0];
+          if (firstContent.type === 'text' && firstContent.text) {
+            try {
+              fileInfo = JSON.parse(firstContent.text);
+            } catch (parseError) {
+              console.error('Failed to parse file_write result content:', parseError);
+              return null;
+            }
+          }
+        }
+
+        // Require fileName and previewUrl for file link display
+        if (fileInfo?.fileName && fileInfo?.previewUrl) {
+          return fileInfo;
+        }
+      } catch (e) {
+        console.error('Failed to extract file info from file_write result:', e);
+      }
+    }
+    return null;
+  };
+
+  const fileInfo = getFileInfo();
+
+  // Handle file link click
+  const handleFileLinkClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!fileInfo || !onFileClick) return;
+
+    // Determine file type based on extension
+    const getFileType = (fileName: string): 'markdown' | 'code' | 'text' | 'other' => {
+      const ext = fileName.split('.').pop()?.toLowerCase();
+      if (ext === 'md') return 'markdown';
+      if (['js', 'ts', 'jsx', 'tsx', 'py', 'java', 'cpp', 'c', 'go', 'rs'].includes(ext || '')) return 'code';
+      if (['txt', 'log'].includes(ext || '')) return 'text';
+      return 'other';
+    };
+
+    // Construct FileAttachment object
+    const fileAttachment: FileAttachment = {
+      id: uuidv4(),
+      name: fileInfo.fileName,
+      path: fileInfo.filePath,
+      url: fileInfo.previewUrl || `file://${fileInfo.filePath}`,
+      type: getFileType(fileInfo.fileName),
+      size: fileInfo.size,
+      createdAt: new Date()
+    };
+
+    onFileClick(fileAttachment);
+  };
+
   return (
-    <div
-      className="inline-flex items-center gap-2 px-3 py-2 bg-tool-call rounded-md border text-xs border-border-message text-text-12-dark cursor-pointer hover:bg-opacity-80 transition-colors"
-      onClick={() => onToolClick(message)}
-    >
-      {getToolIcon(message.toolName)}
-      <span>{t('executing_tool', { toolName: message.toolName || 'tool' })}</span>
+    <div className="inline-flex items-center gap-2">
+      <div
+        className="inline-flex items-center gap-2 px-3 py-2 bg-tool-call rounded-md border text-xs border-border-message text-text-12-dark cursor-pointer hover:bg-opacity-80 transition-colors"
+        onClick={() => onToolClick(message)}
+      >
+        {getToolIcon(message.toolName)}
+        <span>{t('executing_tool', { toolName: message.toolName || 'tool' })}</span>
+        {/* Only show loading indicator when executing */}
+        {isExecuting && (
+          <Spin indicator={<LoadingOutlined spin style={{ color: '#3b82f6', fontSize: 14 }} />} size="small" />
+        )}
+      </div>
+
+      {/* Display file link for file_write tool when completed - on the same line */}
+      {fileInfo && (
+        <div
+          className="text-xs text-blue-400 hover:text-blue-300 cursor-pointer transition-colors flex items-center gap-1"
+          onClick={handleFileLinkClick}
+        >
+          📄 {fileInfo.fileName}
+        </div>
+      )}
     </div>
   );
 };
@@ -200,17 +284,19 @@ const ToolDisplay = ({
 const MessageContent = ({
   message,
   onToolClick,
-  onHumanResponse
+  onHumanResponse,
+  onFileClick
 }: {
   message: DisplayMessage;
   onToolClick?: (message: ToolAction) => void;
   onHumanResponse?: (response: HumanResponseMessage) => void;
+  onFileClick?: (file: FileAttachment) => void;
 }) => {
   // User message
   if (message.type === 'user') {
     return (
-      <div className="px-4 py-3 rounded-lg bg-message border border-border-message">
-        <span className="text-base">{message.content}</span>
+      <div className="px-4 py-3 rounded-lg bg-message border border-border-message break-words">
+        <span className="text-base whitespace-pre-wrap">{message.content}</span>
       </div>
     );
   }
@@ -220,7 +306,7 @@ const MessageContent = ({
   }
 
   if (message.type === 'agent_group') {
-    return <AgentGroupDisplay agentMessage={message} onToolClick={onToolClick} onHumanResponse={onHumanResponse} />
+    return <AgentGroupDisplay agentMessage={message} onToolClick={onToolClick} onHumanResponse={onHumanResponse} onFileClick={onFileClick} />
   }
 
   return null;
@@ -230,15 +316,17 @@ const MessageContent = ({
 const AgentMessageContent = ({
   message,
   onToolClick,
-  onHumanResponse
+  onHumanResponse,
+  onFileClick
 }: {
   message: AgentMessage;
   onToolClick?: (message: ToolAction) => void;
   onHumanResponse?: (response: HumanResponseMessage) => void;
+  onFileClick?: (file: FileAttachment) => void;
 }) => {
 
   if (message.type === 'tool') {
-    return <ToolDisplay message={message} onToolClick={onToolClick!} onHumanResponse={onHumanResponse} />;
+    return <ToolDisplay message={message} onToolClick={onToolClick!} onHumanResponse={onHumanResponse} onFileClick={onFileClick} />;
   }
 
   if (message.type === 'text') {
@@ -258,11 +346,11 @@ const AgentMessageContent = ({
 
 
 // Single message component
-const MessageItem = ({ message, onToolClick, onHumanResponse }: MessageDisplayProps) => {
+const MessageItem = ({ message, onToolClick, onHumanResponse, onFileClick }: MessageDisplayProps) => {
   const isUser = message.type === 'user';
 
   // Get message content
-  const messageContent = <MessageContent message={message} onToolClick={onToolClick} onHumanResponse={onHumanResponse} />;
+  const messageContent = <MessageContent message={message} onToolClick={onToolClick} onHumanResponse={onHumanResponse} onFileClick={onFileClick} />;
 
   // If message content is empty, don't display the entire message item
   if (!messageContent) {
@@ -273,7 +361,7 @@ const MessageItem = ({ message, onToolClick, onHumanResponse }: MessageDisplayPr
     <div className='message-item mb-4'>
       {/* Outer container for left/right alignment */}
       <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
-        <div className='text-text-01-dark w-full'>
+        <div className={`text-text-01-dark ${isUser ? 'max-w-[80%]' : 'w-full'}`}>
           {messageContent}
         </div>
       </div>
@@ -285,11 +373,13 @@ const MessageItem = ({ message, onToolClick, onHumanResponse }: MessageDisplayPr
 const AgentGroupDisplay = ({
   agentMessage,
   onToolClick,
-  onHumanResponse
+  onHumanResponse,
+  onFileClick
 }: {
   agentMessage: AgentGroupMessage;
   onToolClick?: (message: ToolAction) => void;
   onHumanResponse?: (response: HumanResponseMessage) => void;
+  onFileClick?: (file: FileAttachment) => void;
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -328,7 +418,7 @@ const AgentGroupDisplay = ({
             return (
               <div key={message.id} className="agent-step">
                 <div className="pl-6 mb-3 text-sm">
-                  <AgentMessageContent message={message} onToolClick={onToolClick} onHumanResponse={onHumanResponse} />
+                  <AgentMessageContent message={message} onToolClick={onToolClick} onHumanResponse={onHumanResponse} onFileClick={onFileClick} />
                 </div>
               </div>
             );
@@ -343,11 +433,13 @@ const AgentGroupDisplay = ({
 const MessageListComponent = ({
   messages,
   onToolClick,
-  onHumanResponse
+  onHumanResponse,
+  onFileClick
 }: {
   messages: DisplayMessage[];
   onToolClick?: (message: ToolAction) => void;
   onHumanResponse?: (response: HumanResponseMessage) => void;
+  onFileClick?: (file: FileAttachment) => void;
 }) => {
 
   return (
@@ -358,6 +450,7 @@ const MessageListComponent = ({
           key={message.id}
           onToolClick={onToolClick}
           onHumanResponse={onHumanResponse}
+          onFileClick={onFileClick}
         />
       ))}
     </div>

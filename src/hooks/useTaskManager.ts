@@ -11,7 +11,7 @@ interface UseTaskManagerReturn {
 
   // Task operations
   setCurrentTaskId: (taskId: string) => void;
-  updateTask: (taskId: string, updates: Partial<Task>) => void;
+  updateTask: (taskId: string, updates: Partial<Task>, forceUpdate?: boolean) => void;
   createTask: (taskId: string, initialData: Partial<Task>) => void;
   updateMessages: (taskId: string, messages: DisplayMessage[]) => void;
   addToolHistory: (taskId: string, toolData: any) => void;
@@ -44,8 +44,10 @@ export const useTaskManager = (): UseTaskManagerReturn => {
   }, []);
 
   // Update task
-  const updateTask = useCallback((taskId: string, updates: Partial<Task>) => {
-    if (!taskId || isHistoryMode) return;
+  const updateTask = useCallback((taskId: string, updates: Partial<Task>, forceUpdate = false) => {
+    if (!taskId) return;
+    // Skip update in history mode unless forceUpdate is true
+    if (isHistoryMode && !forceUpdate) return;
 
     setTasks(prevTasks => {
       const existingTaskIndex = prevTasks.findIndex(task => task.id === taskId);
@@ -168,8 +170,8 @@ export const useTaskManager = (): UseTaskManagerReturn => {
   // Exit history mode
   const exitHistoryMode = useCallback(() => {
     setIsHistoryMode(false);
-    setCurrentTaskId('');
-    setTasks([]);
+    // Note: Don't clear tasks and currentTaskId when exiting history mode
+    // They will be set by the caller (e.g., handleContinueConversation)
   }, []);
 
   // Reset all state

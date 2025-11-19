@@ -7,7 +7,7 @@ import { Task } from '@/models';
 export class TaskStorage {
   private db: IDBDatabase | null = null;
   private readonly DB_NAME = 'aif10-agent';
-  private readonly DB_VERSION = 3; // Upgrade version to support scheduled task execution history
+  private readonly DB_VERSION = 4; // Upgrade version to support context restoration (workflow, contextParams, lastUrl, files)
   private readonly STORE_NAME = 'tasks';
 
   /**

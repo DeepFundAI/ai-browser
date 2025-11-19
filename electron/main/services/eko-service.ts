@@ -391,6 +391,92 @@ export class EkoService {
   }
 
   /**
+   * Get task context (for restoring conversation)
+   * Returns workflow, contextParams, and chain history needed to restore the task
+   */
+  getTaskContext(taskId: string): {
+    workflow: any;
+    contextParams: Record<string, any>;
+    chainPlanRequest?: any;
+    chainPlanResult?: string;
+  } | null {
+    if (!this.eko) {
+      Log.error('Eko service not initialized');
+      return null;
+    }
+
+    const context = this.eko.getTask(taskId);
+    if (!context) {
+      Log.error(`Task ${taskId} not found in Eko`);
+      return null;
+    }
+
+    // Extract workflow and convert variables Map to plain object
+    const workflow = context.workflow;
+    const contextParams: Record<string, any> = {};
+
+    // Convert Map to plain object for serialization
+    context.variables.forEach((value, key) => {
+      contextParams[key] = value;
+    });
+
+    // Extract chain history (critical for replan to maintain conversation context)
+    const chainPlanRequest = context.chain?.planRequest;
+    const chainPlanResult = context.chain?.planResult;
+
+    Log.info('Extracted task context:', {
+      taskId,
+      hasWorkflow: !!workflow,
+      contextParamsCount: Object.keys(contextParams).length,
+      hasChainHistory: !!(chainPlanRequest && chainPlanResult)
+    });
+
+    return {
+      workflow,
+      contextParams,
+      chainPlanRequest,
+      chainPlanResult
+    };
+  }
+
+  /**
+   * Restore task from saved workflow and contextParams
+   * Used to continue conversation from history
+   */
+  async restoreTask(
+    workflow: any,
+    contextParams?: Record<string, any>,
+    chainPlanRequest?: any,
+    chainPlanResult?: string
+  ): Promise<string> {
+    if (!this.eko) {
+      throw new Error('Eko service not initialized');
+    }
+
+    try {
+      Log.info('Restoring task from workflow:', workflow.taskId);
+
+      // Use Eko's initContext to restore the task
+      const context = await this.eko.initContext(workflow, contextParams);
+
+      // Restore chain history (critical for replan to maintain conversation context)
+      if (chainPlanRequest && chainPlanResult) {
+        context.chain.planRequest = chainPlanRequest;
+        context.chain.planResult = chainPlanResult;
+        Log.info('Chain history restored successfully');
+      } else {
+        Log.warn('No chain history to restore - replan will treat as new task');
+      }
+
+      Log.info('Task restored successfully:', workflow.taskId);
+      return workflow.taskId;
+    } catch (error: any) {
+      Log.error('Failed to restore task:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Abort all running tasks
    */
   async abortAllTasks(): Promise<void> {
@@ -422,7 +508,7 @@ export class EkoService {
       type: 'human_interaction',
       requestId,
       taskId: agentContext?.context?.taskId,
-      agentName: agentContext?.agent?.name,
+      agentName: agentContext?.agent?.Name,
       timestamp: new Date(),
       ...payload
     };

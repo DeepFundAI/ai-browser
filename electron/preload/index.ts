@@ -43,6 +43,11 @@ const api = {
   // Human interaction APIs
   sendHumanResponse: (response: any) => ipcRenderer.invoke('eko:human-response', response),
 
+  // Task restoration APIs (for continuing conversation from history)
+  ekoGetTaskContext: (taskId: string) => ipcRenderer.invoke('eko:get-task-context', taskId),
+  ekoRestoreTask: (workflow: any, contextParams?: Record<string, any>, chainPlanRequest?: any, chainPlanResult?: string) =>
+    ipcRenderer.invoke('eko:restore-task', workflow, contextParams, chainPlanRequest, chainPlanResult),
+
   // Model configuration APIs
   getUserModelConfigs: () => ipcRenderer.invoke('config:get-user-configs'),
   saveUserModelConfigs: (configs: any) => ipcRenderer.invoke('config:save-user-configs', configs),
@@ -60,10 +65,11 @@ const api = {
 
   // Detail view control APIs
   setDetailViewVisible: (visible: boolean) => ipcRenderer.invoke('set-detail-view-visible', visible),
+  navigateDetailView: (url: string) => ipcRenderer.invoke('navigate-detail-view', url),
   // URL retrieval and monitoring APIs
   getCurrentUrl: () => ipcRenderer.invoke('get-current-url'),
   onUrlChange: (callback: (url: string) => void) => {
-    ipcRenderer.on('url-changed', (event, url) => callback(url));
+    ipcRenderer.on('url-changed', (_event, url) => callback(url));
   },
   // Screenshot related APIs
   getMainViewScreenshot: () => ipcRenderer.invoke('get-main-view-screenshot'),

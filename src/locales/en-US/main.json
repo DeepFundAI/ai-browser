@@ -19,6 +19,20 @@
   "failed_update_task_status": "Failed to update task status",
   "no_task_running": "No task currently running",
   "failed_send_message": "Failed to send message",
+  "no_task_to_continue": "No task to continue",
+  "task_missing_context": "Task missing context information, unable to restore conversation",
+  "conversation_continued": "Conversation restored, you can continue chatting",
+  "continue_conversation_failed": "Failed to restore conversation",
+  "continue_conversation": "Continue Conversation",
+  "file_attachments_title": "All Files in This Task ({{count}})",
+  "no_files_in_filter": "No files in this category",
+  "file_filter": {
+    "all": "All",
+    "markdown": "Documents",
+    "code": "Code Files",
+    "text": "Text",
+    "other": "Other"
+  },
   "tool_operations": {
     "browsing_web_page": "Browsing web page",
     "writing_file": "Writing file",
