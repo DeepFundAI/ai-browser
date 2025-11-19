@@ -85,8 +85,8 @@ export default function FileView() {
     };
 
     // Listen for file update events from main thread
-    if (window.api?.onFileUpdated) {
-      window.api.onFileUpdated(handleFileUpdated);
+    if ((window.api as any)?.onFileUpdated) {
+      (window.api as any).onFileUpdated(handleFileUpdated);
     }
 
     // Set loading state on initialization
@@ -249,7 +249,7 @@ export default function FileView() {
             </div>
           )}
         </Card>) : (<>
-        <iframe src={fileState.url} className='h-full bg-white' frameborder="0"></iframe>
+        <iframe src={fileState.url} className='h-full bg-white'></iframe>
         </>)}
         
       </Content>

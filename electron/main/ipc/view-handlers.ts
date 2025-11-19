@@ -54,5 +54,24 @@ export function registerViewHandlers() {
     }
   });
 
+  // Navigate detail view to specified URL
+  ipcMain.handle('navigate-detail-view', async (event, url: string) => {
+    try {
+      console.log('IPC navigate-detail-view received:', url);
+      const context = windowContextManager.getContext(event.sender.id);
+      if (!context || !context.detailView) {
+        throw new Error('DetailView not found for this window');
+      }
+
+      // Load URL in detail view
+      await context.detailView.webContents.loadURL(url);
+
+      return { success: true, url };
+    } catch (error: any) {
+      console.error('IPC navigate-detail-view error:', error);
+      throw error;
+    }
+  });
+
   console.log('[IPC] View control handlers registered');
 }

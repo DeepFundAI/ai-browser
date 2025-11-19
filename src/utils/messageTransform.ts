@@ -170,7 +170,7 @@ export class MessageProcessor {
   private handleToolMessage(message: any) {
     const agentKey = `${message.taskId}-${message.nodeId}-${this.executionId}`;
     let agentGroup = this.agentGroups.get(agentKey);
-    
+
     if (!agentGroup) {
       // If no corresponding agent group, create one
       agentGroup = {
@@ -208,11 +208,11 @@ export class MessageProcessor {
         toolAction.params = message.params;
       }
       if (message.type === 'tool_result') {
-        toolAction.result = message.result;
+        toolAction.result = message.result || message.toolResult;
         toolAction.status = 'completed';
       }
       }
-      
+
     }
   }
 
@@ -279,6 +279,13 @@ export class MessageProcessor {
   // Get current message list
   public getMessages(): DisplayMessage[] {
     return [...this.messages];
+  }
+
+  // Set messages (for restoring from history)
+  public setMessages(messages: DisplayMessage[]): void {
+    this.messages = [...messages];
+    // Note: workflowMessages and agentGroups are not restored from history
+    // They will be rebuilt when new stream messages arrive
   }
 
   // Clear messages

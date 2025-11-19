@@ -15,11 +15,11 @@ importers:
         specifier: 5.x
         version: 5.6.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@jarvis-agent/core':
-        specifier: ^0.1.3
-        version: 0.1.3(ai@5.0.76(zod@4.1.12))
+        specifier: ^0.1.4
+        version: 0.1.4(ai@5.0.76(zod@4.1.12))
       '@jarvis-agent/electron':
-        specifier: ^0.1.7
-        version: 0.1.7(ai@5.0.76(zod@4.1.12))(electron@33.4.11)
+        specifier: ^0.1.9
+        version: 0.1.9(ai@5.0.76(zod@4.1.12))(electron@33.4.11)
       '@jest/globals':
         specifier: ^30.1.2
         version: 30.2.0
@@ -898,11 +898,11 @@ packages:
     resolution: {integrity: sha512-ZXRY4jNvVgSVQ8DL3LTcakaAtXwTVUxE81hslsyD2AtoXW/wVob10HkOJ1X/pAlcI7D+2YoZKg5do8G/w6RYgA==}
     engines: {node: '>=8'}
 
-  '@jarvis-agent/core@0.1.3':
-    resolution: {integrity: sha512-IhxnfhmTamdZzUM0u8WKTViwCD2Uz7XRudOznjC5LPi60IwoP1/F81By2j1fZjPsymI5S6SceNFzs5HdPWC7ZQ==}
+  '@jarvis-agent/core@0.1.4':
+    resolution: {integrity: sha512-nJuIfsCNuHWGL2I+eupF/2raFzbXS3N/seU39eyyCdqgoVhP2UfqC6I6n9kqdz/AL0hSVkOLJl7K96mAgEuQag==}
 
-  '@jarvis-agent/electron@0.1.7':
-    resolution: {integrity: sha512-saiRLYl+Pk7GMoS5kRhY+u1aBV9rG5uE4ajbRoqgLKvvHBPftl6tivD/N3yEZH1C756QQC1a+kfZOPHjRr2/Aw==}
+  '@jarvis-agent/electron@0.1.9':
+    resolution: {integrity: sha512-OtZp5FJ10jYnPqVqzMq6EgaE9PPoGzLZ2mQSzxpPBqMZgZI0fZHpt9518iQVKOQfIMJgNGMwWd1B9c6YkJAfxg==}
     peerDependencies:
       electron: '>=20.0.0'
 
@@ -6274,7 +6274,7 @@ snapshots:
 
   '@istanbuljs/schema@0.1.3': {}
 
-  '@jarvis-agent/core@0.1.3(ai@5.0.76(zod@4.1.12))':
+  '@jarvis-agent/core@0.1.4(ai@5.0.76(zod@4.1.12))':
     dependencies:
       '@ai-sdk/amazon-bedrock': 3.0.43(zod@4.1.12)
       '@ai-sdk/anthropic': 2.0.33(zod@4.1.12)
@@ -6290,9 +6290,9 @@ snapshots:
     transitivePeerDependencies:
       - ai
 
-  '@jarvis-agent/electron@0.1.7(ai@5.0.76(zod@4.1.12))(electron@33.4.11)':
+  '@jarvis-agent/electron@0.1.9(ai@5.0.76(zod@4.1.12))(electron@33.4.11)':
     dependencies:
-      '@jarvis-agent/core': 0.1.3(ai@5.0.76(zod@4.1.12))
+      '@jarvis-agent/core': 0.1.4(ai@5.0.76(zod@4.1.12))
       electron: 33.4.11
       glob: 11.0.2
     transitivePeerDependencies:

@@ -19,6 +19,20 @@
   "failed_update_task_status": "更新任务状态失败",
   "no_task_running": "当前没有正在运行的任务",
   "failed_send_message": "发送消息失败",
+  "no_task_to_continue": "没有可继续的任务",
+  "task_missing_context": "任务缺少上下文信息，无法恢复会话",
+  "conversation_continued": "会话已恢复，可以继续对话",
+  "continue_conversation_failed": "恢复会话失败",
+  "continue_conversation": "继续对话",
+  "file_attachments_title": "此任务中的所有文件 ({{count}})",
+  "no_files_in_filter": "该类型下没有文件",
+  "file_filter": {
+    "all": "全部",
+    "markdown": "文档",
+    "code": "代码文件",
+    "text": "文本",
+    "other": "其他"
+  },
   "tool_operations": {
     "browsing_web_page": "浏览网页",
     "writing_file": "写入文件",

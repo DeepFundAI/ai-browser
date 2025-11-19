@@ -6,13 +6,15 @@ import { EkoResult, StreamCallbackMessage } from '@jarvis-agent/core/dist/types'
 import { MessageList } from '@/components/chat/MessageComponents';
 import { uuidv4 } from '@/common/utils';
 import { StepUpDown, SendMessage, CancleTask } from '@/icons/deepfundai-icons';
-import { Task, ToolAction } from '@/models';
+import { Task, ToolAction, FileAttachment } from '@/models';
 import type { HumanResponseMessage } from '@/models/human-interaction';
 import { MessageProcessor } from '@/utils/messageTransform';
 import { useTaskManager } from '@/hooks/useTaskManager';
 import { useHistoryStore } from '@/stores/historyStore';
 import { scheduledTaskStorage } from '@/lib/scheduled-task-storage';
 import { useTranslation } from 'react-i18next';
+import path from 'path';
+import { FileAttachmentList } from '@/components/chat/FileAttachmentList';
 
 
 export default function main() {
@@ -30,6 +32,7 @@ export default function main() {
     // Use task management Hook
     const {
         tasks,
+        currentTask,
         messages,
         currentTaskId,
         isHistoryMode,
@@ -40,6 +43,7 @@ export default function main() {
         addToolHistory,
         replaceTaskId,
         enterHistoryMode,
+        exitHistoryMode,
     } = useTaskManager();
 
     // Use Zustand history state management
@@ -48,6 +52,8 @@ export default function main() {
     const [showDetail, setShowDetail] = useState(false);
     const [query, setQuery] = useState('');
     const [currentUrl, setCurrentUrl] = useState<string>('');
+    // Flag to indicate if viewing file attachment (allows detail view in history mode)
+    const [isViewingAttachment, setIsViewingAttachment] = useState(false);
     // Current tool information state
     const [currentTool, setCurrentTool] = useState<{
         toolName: string;
@@ -88,10 +94,18 @@ export default function main() {
         taskIdRef.current = currentTaskId;
     }, [currentTaskId]);
 
+    // Reset viewing attachment flag when detail panel is closed
+    useEffect(() => {
+        if (!showDetail) {
+            setIsViewingAttachment(false);
+        }
+    }, [showDetail]);
+
     // Monitor detail panel display status changes, synchronize control of detail view
     useEffect(() => {
         if (window.api && (window.api as any).setDetailViewVisible) {
-            const showDetailView = isHistoryMode ? false : showDetail;
+            // Allow detail view in history mode when viewing attachments
+            const showDetailView = isHistoryMode ? isViewingAttachment : showDetail;
             (window.api as any).setDetailViewVisible(showDetailView);
         }
 
@@ -99,7 +113,7 @@ export default function main() {
         if (!showDetail && window.api && (window.api as any).hideHistoryView) {
             (window.api as any).hideHistoryView();
         }
-    }, [showDetail]);
+    }, [showDetail, isHistoryMode, isViewingAttachment]);
 
     // Cleanup logic when page is destroyed
     useEffect(() => {
@@ -136,6 +150,11 @@ export default function main() {
             (window.api as any).onUrlChange((url: string) => {
                 setCurrentUrl(url);
                 console.log('URL changed:', url);
+
+                // Save URL to current task (only in active mode)
+                if (currentTaskId && !isHistoryMode) {
+                    updateTask(currentTaskId, { lastUrl: url });
+                }
             });
         }
 
@@ -231,7 +250,7 @@ export default function main() {
         if (!isTaskDetailMode || !window.api) return;
 
         const handleTaskExecutionComplete = async (event: any) => {
-            const { taskId, executionId, status, endTime } = event;
+            const { taskId, status, endTime } = event;
 
             try {
                 const endTimeDate = endTime ? new Date(endTime) : new Date();
@@ -438,6 +457,16 @@ export default function main() {
                         timestamp: new Date(),
                         agentName: message.agentName
                     });
+
+                    // Collect file attachments when file_write completes
+                    if (message.toolName === 'file_write') {
+                        console.log('file_write tool completed, toolResult:', message.toolResult);
+                        if (message.toolResult) {
+                            handleFileAttachment(message.toolResult);
+                        } else {
+                            console.warn('file_write completed but toolResult is empty');
+                        }
+                    }
                 }
             }
         },
@@ -507,6 +536,129 @@ export default function main() {
         }
     };
 
+    // Detect file type based on extension
+    const detectFileType = (fileName: string): FileAttachment['type'] => {
+        const ext = path.extname(fileName).toLowerCase();
+
+        // Markdown files
+        if (['.md', '.markdown'].includes(ext)) {
+            return 'markdown';
+        }
+
+        // Code files (programming languages, html, css, etc.)
+        const codeExtensions = [
+            '.js', '.ts', '.tsx', '.jsx',       // JavaScript/TypeScript
+            '.py', '.pyw',                       // Python
+            '.java', '.kt', '.scala',            // JVM languages
+            '.cpp', '.cc', '.cxx', '.c', '.h',  // C/C++
+            '.go',                               // Go
+            '.rs',                               // Rust
+            '.rb',                               // Ruby
+            '.php',                              // PHP
+            '.swift',                            // Swift
+            '.dart',                             // Dart
+            '.html', '.htm',                     // HTML
+            '.css', '.scss', '.sass', '.less',   // CSS
+            '.vue', '.svelte',                   // Frontend frameworks
+            '.sh', '.bash', '.zsh',              // Shell scripts
+            '.sql',                              // SQL
+        ];
+        if (codeExtensions.includes(ext)) {
+            return 'code';
+        }
+
+        // Text files (config, data, logs, etc.)
+        const textExtensions = [
+            '.txt', '.text',
+            '.json', '.jsonc',
+            '.xml',
+            '.yaml', '.yml',
+            '.csv', '.tsv',
+            '.log',
+            '.ini', '.cfg', '.conf',
+            '.env',
+            '.gitignore', '.dockerignore',
+        ];
+        if (textExtensions.includes(ext)) {
+            return 'text';
+        }
+
+        // Other types
+        return 'other';
+    };
+
+    // Handle file attachment collection from file_write tool result
+    const handleFileAttachment = (toolResult: any) => {
+        try {
+            console.log('[handleFileAttachment] Called with toolResult:', toolResult);
+            console.log('[handleFileAttachment] Current taskId:', taskIdRef.current);
+            console.log('[handleFileAttachment] isHistoryMode:', isHistoryMode);
+
+            // Parse toolResult structure (AI SDK wraps the result in content array)
+            let fileInfo: any = toolResult;
+
+            // If toolResult has content array (AI SDK format), extract the actual data
+            if (toolResult?.content && Array.isArray(toolResult.content) && toolResult.content.length > 0) {
+                const firstContent = toolResult.content[0];
+                if (firstContent.type === 'text' && firstContent.text) {
+                    try {
+                        // Parse JSON string to get actual file info
+                        fileInfo = JSON.parse(firstContent.text);
+                        console.log('[handleFileAttachment] Parsed fileInfo from content:', fileInfo);
+                    } catch (e) {
+                        console.error('[handleFileAttachment] Failed to parse content.text as JSON:', e);
+                        return;
+                    }
+                }
+            }
+
+            // Extract file information from toolResult (returned by jarvis-agent@0.1.9)
+            const { filePath, fileName, previewUrl, size } = fileInfo;
+
+            if (!fileName || !previewUrl) {
+                console.warn('[handleFileAttachment] toolResult missing required fields:', fileInfo);
+                return;
+            }
+
+            // Create file attachment object
+            const fileAttachment: FileAttachment = {
+                id: uuidv4(),
+                name: fileName,
+                path: filePath || fileName,
+                url: previewUrl,
+                type: detectFileType(fileName),
+                size: size,
+                createdAt: new Date()
+            };
+
+            console.log('[handleFileAttachment] Created file attachment:', fileAttachment);
+
+            // Save to current task
+            if (taskIdRef.current) {
+                const currentTask = tasks.find(t => t.id === taskIdRef.current);
+                console.log('[handleFileAttachment] Current task found:', !!currentTask);
+                const existingFiles = currentTask?.files || [];
+                console.log('[handleFileAttachment] Existing files count:', existingFiles.length);
+
+                // Check if file already exists (avoid duplicates by URL)
+                const fileExists = existingFiles.some(f => f.url === previewUrl);
+                if (!fileExists) {
+                    console.log('[handleFileAttachment] Adding new file attachment to task');
+                    updateTask(taskIdRef.current, {
+                        files: [...existingFiles, fileAttachment]
+                    });
+                    console.log('[handleFileAttachment] File attachment collected:', fileName, previewUrl);
+                } else {
+                    console.log('[handleFileAttachment] File already exists, skipping:', previewUrl);
+                }
+            } else {
+                console.warn('[handleFileAttachment] No current taskId, cannot save file attachment');
+            }
+        } catch (error) {
+            console.error('[handleFileAttachment] Failed to handle file attachment:', error);
+        }
+    };
+
     // Handle tool call click, show historical screenshot
     const handleToolClick = async (message: ToolAction) => {
         console.log('Tool call clicked:', message);
@@ -532,6 +684,9 @@ export default function main() {
 
     // Switch to specified history index
     const switchToHistoryIndex = async (newIndex: number) => {
+        // Reset viewing attachment flag when switching to history screenshots
+        setIsViewingAttachment(false);
+
         // If switching to the last tool, set to -1 to indicate latest state
         if ((newIndex >= toolHistory.length - 1) && !isHistoryMode) {
             setCurrentHistoryIndex(-1);
@@ -556,6 +711,16 @@ export default function main() {
                 } catch (error) {
                     console.error('Failed to show history view:', error);
                 }
+            } else {
+                // If no screenshot available, hide history view
+                console.warn('No screenshot available for history index:', newIndex);
+                try {
+                    if (window.api && (window.api as any).hideHistoryView) {
+                        await (window.api as any).hideHistoryView();
+                    }
+                } catch (error) {
+                    console.error('Failed to hide history view:', error);
+                }
             }
         }
     };
@@ -575,6 +740,18 @@ export default function main() {
             enterHistoryMode(task);
             setToolHistory(task.toolHistory || []);
 
+            // Restore lastUrl if available
+            if (task.lastUrl && window.api && (window.api as any).getCurrentUrl) {
+                try {
+                    // Note: We can't navigate to the URL directly in history mode
+                    // Just set the URL state for display
+                    setCurrentUrl(task.lastUrl);
+                    console.log('Restored lastUrl:', task.lastUrl);
+                } catch (error) {
+                    console.error('Failed to restore lastUrl:', error);
+                }
+            }
+
             // Clear current tool state
             setShowDetail(false);
             setCurrentTool(null);
@@ -584,6 +761,80 @@ export default function main() {
         } catch (error) {
             console.error('Failed to load history task:', error);
             antdMessage.error(t('load_history_failed'));
+        }
+    };
+
+    // Handle continue conversation from history mode
+    const handleContinueConversation = async () => {
+        if (!currentTask) {
+            antdMessage.error(t('no_task_to_continue'));
+            return;
+        }
+
+        try {
+            console.log('Continuing conversation from history task:', currentTask.id);
+
+            // 1. Check if task has workflow and contextParams
+            if (!currentTask.workflow) {
+                antdMessage.error(t('task_missing_context'));
+                console.error('Task missing workflow:', currentTask);
+                return;
+            }
+
+            // 2. Restore task context in EkoService (with chain history for replan)
+            const result = await (window.api as any).ekoRestoreTask(
+                currentTask.workflow,
+                currentTask.contextParams || {},
+                currentTask.chainPlanRequest,
+                currentTask.chainPlanResult
+            );
+
+            if (!result || !result.success) {
+                throw new Error('Failed to restore task context');
+            }
+
+            console.log('Task context restored successfully:', result.taskId);
+
+            // 3. Exit history mode (keeps tasks array intact)
+            exitHistoryMode();
+
+            // Reset viewing attachment flag when exiting history mode
+            setIsViewingAttachment(false);
+
+            // 4. Set as current active task (currentTask is already in tasks from enterHistoryMode)
+            setCurrentTaskId(currentTask.id);
+            taskIdRef.current = currentTask.id;
+
+            // 5. Update task status to running (use forceUpdate to bypass isHistoryMode check)
+            // Note: forceUpdate is needed because isHistoryMode state update is async
+            updateTask(currentTask.id, { status: 'running' }, true);
+
+            // 6. Restore lastUrl if available
+            if (currentTask.lastUrl && window.api) {
+                try {
+                    // In active mode, we can navigate to the URL
+                    setCurrentUrl(currentTask.lastUrl);
+                    setShowDetail(true);
+                    console.log('Restored and navigated to lastUrl:', currentTask.lastUrl);
+                } catch (error) {
+                    console.error('Failed to navigate to lastUrl:', error);
+                }
+            }
+
+            // 7. Restore tool history
+            setToolHistory(currentTask.toolHistory || []);
+
+            // 8. Restore historical messages to MessageProcessor
+            // CRITICAL: This prevents message loss when sending new messages
+            if (currentTask.messages && currentTask.messages.length > 0) {
+                messageProcessorRef.current.setMessages(currentTask.messages);
+                console.log('Restored historical messages to MessageProcessor:', currentTask.messages.length);
+            }
+
+            antdMessage.success(t('conversation_continued'));
+        } catch (error) {
+            console.error('Failed to continue conversation:', error);
+            antdMessage.error(t('continue_conversation_failed'));
         }
     };
 
@@ -691,6 +942,27 @@ export default function main() {
         } finally {
             // Clear ekoRequest to allow next message
             setEkoRequest(null);
+
+            // Save task context (workflow + contextParams + chain history) after task completion
+            // This enables conversation continuation from history
+            if (result && taskIdRef.current && window.api && (window.api as any).ekoGetTaskContext) {
+                try {
+                    const taskContext = await (window.api as any).ekoGetTaskContext(taskIdRef.current);
+                    if (taskContext && taskContext.workflow && taskContext.contextParams) {
+                        updateTask(taskIdRef.current, {
+                            workflow: taskContext.workflow,
+                            contextParams: taskContext.contextParams,
+                            chainPlanRequest: taskContext.chainPlanRequest,
+                            chainPlanResult: taskContext.chainPlanResult
+                        });
+                        console.log('Task context saved for future restoration', {
+                            hasChainHistory: !!(taskContext.chainPlanRequest && taskContext.chainPlanResult)
+                        });
+                    }
+                } catch (error) {
+                    console.error('Failed to save task context:', error);
+                }
+            }
         }
     }
 
@@ -724,6 +996,61 @@ export default function main() {
         }
     }, [antdMessage, t]);
 
+    /**
+     * Handle file attachment click
+     * Open file preview in detail view
+     */
+    const handleFileClick = useCallback(async (file: FileAttachment) => {
+        console.log('[handleFileClick] File clicked:', file);
+        console.log('[handleFileClick] Current showDetail state:', showDetail);
+
+        try {
+            // Reset to real-time view mode first
+            setCurrentHistoryIndex(-1);
+
+            // Check if detail panel is currently hidden
+            const wasHidden = !showDetail;
+
+            // Mark as viewing attachment to allow detail view in history mode
+            setIsViewingAttachment(true);
+
+            // Show detail panel
+            setShowDetail(true);
+
+            // Ensure detail view is visible first
+            if (window.api && (window.api as any).setDetailViewVisible) {
+                console.log('[handleFileClick] Setting detail view visible');
+                await (window.api as any).setDetailViewVisible(true);
+            }
+
+            // Hide history screenshot view if visible (after detail view is shown)
+            if (window.api && (window.api as any).hideHistoryView) {
+                console.log('[handleFileClick] Hiding history view');
+                await (window.api as any).hideHistoryView();
+            }
+
+            // If panel was hidden, need longer delay for layout to complete
+            const delayTime = wasHidden ? 300 : 100;
+            console.log('[handleFileClick] Waiting for view to be ready, delay:', delayTime);
+            await new Promise(resolve => setTimeout(resolve, delayTime));
+
+            // Navigate detail view to file URL
+            if (window.api && (window.api as any).navigateDetailView) {
+                console.log('[handleFileClick] Navigating detail view to:', file.url);
+                await (window.api as any).navigateDetailView(file.url);
+                console.log('[handleFileClick] Navigation completed');
+            }
+
+            // Update current URL state
+            setCurrentUrl(file.url);
+
+            antdMessage.success(`正在预览文件：${file.name}`);
+        } catch (error) {
+            console.error('[handleFileClick] Failed to open file:', error);
+            antdMessage.error(`打开文件失败：${file.name}`);
+        }
+    }, [antdMessage, showDetail]);
+
     return (
         <>
             <Header />
@@ -732,10 +1059,19 @@ export default function main() {
                     <div className='w-[636px] mx-auto flex flex-col gap-2 pt-7 pb-4 h-full relative'>
                         {/* Task title and history button */}
                         <div className='absolute top-0 left-0 w-full flex items-center justify-between'>
-                            <div className='line-clamp-1 text-xl font-semibold flex-1'>
+                            <div className='line-clamp-1 text-xl font-semibold flex-1 flex items-center gap-3'>
                                 {currentTaskId && tasks.find(task => task.id === currentTaskId)?.name}
                                 {isHistoryMode && (
-                                    <span className='ml-2 text-sm text-gray-500'>{t('history_task_readonly')}</span>
+                                    <>
+                                        <span className='text-sm text-gray-500'>{t('history_task_readonly')}</span>
+                                        <Button
+                                            type="primary"
+                                            size="small"
+                                            onClick={handleContinueConversation}
+                                        >
+                                            {t('continue_conversation')}
+                                        </Button>
+                                    </>
                                 )}
                             </div>
                         </div>
@@ -749,8 +1085,20 @@ export default function main() {
                                 messages={messages}
                                 onToolClick={handleToolClick}
                                 onHumanResponse={handleHumanResponse}
+                                onFileClick={handleFileClick}
                             />
                         </div>
+
+                        {/* File attachments list - fixed position above input */}
+                        {currentTask && currentTask.files && currentTask.files.length > 0 && (
+                            <div className='px-4'>
+                                <FileAttachmentList
+                                    files={currentTask.files}
+                                    onFileClick={handleFileClick}
+                                />
+                            </div>
+                        )}
+
                         {/* Question input box */}
                         <div className='h-30 gradient-border relative'>
                             <Input.TextArea

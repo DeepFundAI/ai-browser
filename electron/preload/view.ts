@@ -109,6 +109,9 @@ const api = {
   captureWindowSync: (winNo: number, scale = 1) => ipcRenderer.sendSync('native:captureWindow:sync', winNo, scale),
   requestCapturePermission: () => ipcRenderer.invoke('native:requestCapturePermission'),
   onFileUpdated: (callback: (status: string, content: string) => void) => ipcRenderer.on('file-updated', (_, status, content) => callback(status, content)),
+
+  // Generic invoke method (for config and other features)
+  invoke: (channel: string, ...args: any[]) => ipcRenderer.invoke(channel, ...args),
 };
 
 // Use `contextBridge` APIs to expose Electron APIs to
@@ -128,7 +131,7 @@ if (process.contextIsolated) {
   window.api = api;
 }
 
-ipcRenderer.on("call-view-func", async (event, { payload, replyChannel }) => {
+ipcRenderer.on("call-view-func", async (_event, { payload, replyChannel }) => {
   let func;
   try {
     // @ts-ignore (define in dts) Use eval to maintain execution context
