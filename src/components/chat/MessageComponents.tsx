@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Typography, Button, Spin } from "antd";
+import { Button, Spin } from "antd";
 import { LoadingOutlined } from '@ant-design/icons';
 import ReactMarkdown from "react-markdown";
 import { Executing, Browser, Search, DataAnalysis, ExpandCollapse, DeepThinking, FinishStatus, RuningStatus, Atlas } from '../../icons/deepfundai-icons';
@@ -8,25 +8,19 @@ import type { HumanRequestMessage, HumanResponseMessage } from '../../models/hum
 import { HumanInteractionCard } from './HumanInteractionCard';
 import { useTranslation } from 'react-i18next';
 import { uuidv4 } from '@/common/utils';
-import { useTypewriter } from 'react-simple-typewriter';
-
-const { Text } = Typography;
 
 interface MessageDisplayProps {
   message: DisplayMessage;
   onToolClick?: (message: ToolAction) => void;
   onHumanResponse?: (response: HumanResponseMessage) => void;
   onFileClick?: (file: FileAttachment) => void;
-  enableTypewriter?: boolean;
 }
 
 // Workflow display component
 const WorkflowDisplay = ({
-  workflow,
-  enableTypewriter = false
+  workflow
 }: {
   workflow: any;
-  enableTypewriter?: boolean;
 }) => {
   if (!workflow) return null;
 
@@ -45,7 +39,6 @@ const WorkflowDisplay = ({
         <ThinkingDisplay
           content={workflow.thought}
           isCompleted={isThoughtCompleted}
-          enableTypewriter={enableTypewriter}
         />
       )}
 
@@ -56,8 +49,6 @@ const WorkflowDisplay = ({
             <StepAgentDisplay
               key={agent.id || index}
               agent={agent}
-              stepNumber={index + 1}
-              enableTypewriter={enableTypewriter}
             />
           ))}
         </div>
@@ -84,26 +75,16 @@ const renderNodeText = (node: any, t: any): string => {
 // Thinking display component
 const ThinkingDisplay = ({
   content,
-  isCompleted = false,
-  enableTypewriter = false
+  isCompleted = false
 }: {
   content: string;
   isCompleted?: boolean;
-  enableTypewriter?: boolean;
 }) => {
   const { t } = useTranslation('chat');
   const [collapsed, setCollapsed] = useState(false);
 
-  // Use typewriter effect for AI thinking
-  const [typedText] = useTypewriter({
-    words: [content],
-    loop: 1,
-    typeSpeed: 20, // milliseconds per character (slower = more realistic)
-    deleteSpeed: 0,
-    delaySpeed: 0,
-  });
-
-  const displayText = (enableTypewriter && !isCompleted) ? typedText : content;
+  // Data-driven: content is already streaming from PlaybackEngine
+  const displayText = content;
 
   return (
     <div className="bg-thinking rounded-lg p-4">
@@ -140,26 +121,14 @@ const ThinkingDisplay = ({
 
 // STEP format Agent display component
 const StepAgentDisplay = ({
-  agent,
-  stepNumber,
-  enableTypewriter = false
+  agent
 }: {
   agent: any;
-  stepNumber: number;
-  enableTypewriter?: boolean;
 }) => {
   const { t } = useTranslation('chat');
 
-  // Apply typewriter to agent task
-  const [taskTyped] = useTypewriter({
-    words: [agent.task || ''],
-    loop: 1,
-    typeSpeed: 20,
-    deleteSpeed: 0,
-    delaySpeed: 0,
-  });
-
-  const displayTask = enableTypewriter ? taskTyped : agent.task;
+  // Data-driven: agent.task is already streaming from PlaybackEngine
+  const displayTask = agent.task;
 
   return (
     <div className="step-agent-display text-base">
@@ -182,7 +151,6 @@ const StepAgentDisplay = ({
               key={nodeIndex}
               node={node}
               nodeIndex={nodeIndex}
-              enableTypewriter={enableTypewriter}
               t={t}
             />
           ))}
@@ -192,29 +160,18 @@ const StepAgentDisplay = ({
   );
 };
 
-// Step node display with typewriter
+// Step node display
 const StepNodeDisplay = ({
   node,
   nodeIndex,
-  enableTypewriter,
   t
 }: {
   node: any;
   nodeIndex: number;
-  enableTypewriter: boolean;
   t: any;
 }) => {
-  const nodeText = renderNodeText(node, t);
-
-  const [typedText] = useTypewriter({
-    words: [nodeText],
-    loop: 1,
-    typeSpeed: 20,
-    deleteSpeed: 0,
-    delaySpeed: 0,
-  });
-
-  const displayText = enableTypewriter ? typedText : nodeText;
+  // Data-driven: nodeText is already complete from data
+  const displayText = renderNodeText(node, t);
 
   return (
     <div className="step-item flex items-center justify-start gap-2 mt-3">
@@ -375,27 +332,12 @@ const MessageContent = ({
   message,
   onToolClick,
   onHumanResponse,
-  onFileClick,
-  enableTypewriter = false
-}: {
-  message: DisplayMessage;
-  onToolClick?: (message: ToolAction) => void;
-  onHumanResponse?: (response: HumanResponseMessage) => void;
-  onFileClick?: (file: FileAttachment) => void;
-  enableTypewriter?: boolean;
-}) => {
-  // Use typewriter effect for user messages
-  const [userTypedText] = useTypewriter({
-    words: message.type === 'user' ? [message.content] : [''],
-    loop: 1,
-    typeSpeed: 15, // milliseconds per character (faster than AI)
-    deleteSpeed: 0,
-    delaySpeed: 0,
-  });
-
+  onFileClick
+}: MessageDisplayProps) => {
+  // Data-driven: message.content is already streaming from PlaybackEngine
   // User message
   if (message.type === 'user') {
-    const displayContent = (enableTypewriter && message.type === 'user') ? userTypedText : message.content;
+    const displayContent = message.content;
 
     return (
       <div className="px-4 py-3 rounded-lg bg-message border border-border-message break-words">
@@ -407,7 +349,7 @@ const MessageContent = ({
   }
 
   if (message.type === 'workflow') {
-    return <WorkflowDisplay workflow={message.workflow} enableTypewriter={enableTypewriter} />;
+    return <WorkflowDisplay workflow={message.workflow} />;
   }
 
   if (message.type === 'agent_group') {
@@ -455,8 +397,7 @@ const MessageItem = ({
   message,
   onToolClick,
   onHumanResponse,
-  onFileClick,
-  enableTypewriter = false
+  onFileClick
 }: MessageDisplayProps) => {
   const isUser = message.type === 'user';
 
@@ -467,7 +408,6 @@ const MessageItem = ({
       onToolClick={onToolClick}
       onHumanResponse={onHumanResponse}
       onFileClick={onFileClick}
-      enableTypewriter={enableTypewriter}
     />
   );
 
@@ -553,39 +493,26 @@ const MessageListComponent = ({
   messages,
   onToolClick,
   onHumanResponse,
-  onFileClick,
-  isPlaybackMode = false
+  onFileClick
 }: {
   messages: DisplayMessage[];
   onToolClick?: (message: ToolAction) => void;
   onHumanResponse?: (response: HumanResponseMessage) => void;
   onFileClick?: (file: FileAttachment) => void;
-  isPlaybackMode?: boolean;
 }) => {
-  // In playback mode, only apply typewriter effect to the last (newest) message
-  const lastMessageIndex = messages.length - 1;
-
+  // Data-driven: messages grow during playback, just render them
   return (
     <div className="message-list space-y-2">
-      {messages.map((message, index) => {
-        // Only enable typewriter for the last message during playback
-        const shouldEnableTypewriter = isPlaybackMode && index === lastMessageIndex;
-
-        return (
-          <div
-            key={`${message.id}-${index}-${shouldEnableTypewriter}`}
-            className={shouldEnableTypewriter ? 'playback-message-enter' : ''}
-          >
-            <MessageItem
-              message={message}
-              onToolClick={onToolClick}
-              onHumanResponse={onHumanResponse}
-              onFileClick={onFileClick}
-              enableTypewriter={shouldEnableTypewriter}
-            />
-          </div>
-        );
-      })}
+      {messages.map((message, index) => (
+        <div key={`${message.id}-${index}`}>
+          <MessageItem
+            message={message}
+            onToolClick={onToolClick}
+            onHumanResponse={onHumanResponse}
+            onFileClick={onFileClick}
+          />
+        </div>
+      ))}
     </div>
   );
 };

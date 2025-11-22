@@ -29,6 +29,9 @@ package-mac-signed.sh
 /.next/
 /out/
 
+# dev static assets
+/public/static/*
+
 # production
 /dist
 
