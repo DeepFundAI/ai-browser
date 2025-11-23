@@ -220,6 +220,9 @@ export default function main() {
         }
 
         try {
+            // Stop playback before continuing conversation
+            playback.stop();
+
             // Check if task has workflow
             if (!currentTask.workflow) {
                 antdMessage.error(t('task_missing_context'));
@@ -265,7 +268,7 @@ export default function main() {
             console.error('Failed to continue conversation:', error);
             antdMessage.error(t('continue_conversation_failed'));
         }
-    }, [currentTask, handleContinueConversationBase, antdMessage, t, setIsViewingAttachment,
+    }, [currentTask, playback, handleContinueConversationBase, antdMessage, t, setIsViewingAttachment,
         setCurrentTaskId, taskIdRef, setCurrentUrl, setShowDetail, setToolHistory, messageProcessorRef]);
 
     // Synchronize taskIdRef
