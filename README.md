@@ -85,6 +85,64 @@ The built application will include your API configuration, so end users don't ne
 - **Speech & TTS**: Voice recognition and text-to-speech integration
 - **File Management**: Advanced file operations and management
 
+## RoadMap
+
+### ✅ Completed Features
+
+**v0.0.1 - v0.0.4: Core Functionality**
+- AI-powered browser with automated task execution
+- Multiple AI provider support (DeepSeek, Qwen, Google Gemini, Claude, OpenRouter)
+- Multi-modal AI capabilities (vision and text processing)
+- Scheduled tasks system with custom intervals
+- File management capabilities
+- UI configuration for API keys and models
+
+**v0.0.5 - v0.0.7: UI/UX Enhancements**
+- Purple theme redesign with improved UI/UX
+- Agent Configuration system (custom prompts, MCP tools management)
+- Toolbox page (centralized feature hub)
+- Internationalization support (English/Chinese)
+- WebGL animated background with gradient fallback
+- Improved modal sizes and layout optimization
+
+**v0.0.8 - v0.0.10: Advanced Features**
+- Human interaction support (AI can ask questions during execution)
+- Task continuation with file attachment management
+- Atomic fragment-based history playback with typewriter effects
+- Advanced playback controls (play/pause/restart/speed adjustment)
+- Context restoration and session management
+- Optimized auto-scroll behavior for messages
+- Enhanced message display and rendering
+
+### 🚀 Future Plans
+
+**Phase 1: Enhanced User Experience**
+- Voice input support (speech-to-text integration)
+- Theme customization system (multiple color schemes)
+- Dark/Light mode toggle
+- Enhanced accessibility features
+
+**Phase 2: Workflow Enhancement**
+- Workflow configuration export/import functionality
+- Refactored scheduled task steps based on workflow configuration
+- Visual workflow editor with drag-and-drop interface
+- Step management (reorder, add, remove, edit workflow steps)
+- Workflow templates and presets
+
+**Phase 3: Plugin Ecosystem**
+- MCP plugin marketplace
+- Community plugin sharing platform
+- Plugin version management system
+- One-click plugin installation and updates
+- Plugin development toolkit and documentation
+
+**Phase 4: Advanced Capabilities**
+- Multi-tab browser support
+- Collaborative task execution
+- Cloud sync for tasks and configurations
+- Mobile companion app
+- Performance optimization and caching improvements
+
 ## Screenshots
 
 ### Start
