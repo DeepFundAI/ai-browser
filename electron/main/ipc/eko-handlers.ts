@@ -46,21 +46,6 @@ export function registerEkoHandlers() {
     }
   });
 
-  // Get task status
-  ipcMain.handle('eko:getTaskStatus', async (event, taskId: string) => {
-    try {
-      console.log('IPC eko:getTaskStatus received:', taskId);
-      const context = windowContextManager.getContext(event.sender.id);
-      if (!context || !context.ekoService) {
-        throw new Error('EkoService not found for this window');
-      }
-      return await context.ekoService.getTaskStatus(taskId);
-    } catch (error: any) {
-      console.error('IPC eko:getTaskStatus error:', error);
-      throw error;
-    }
-  });
-
   // Cancel task
   ipcMain.handle('eko:cancel-task', async (event, taskId: string) => {
     try {

@@ -1,77 +1,68 @@
 import { ipcMain } from "electron";
 import { windowContextManager } from "../services/window-context-manager";
 
-/**
- * Register all view control related IPC handlers
- * Handles screenshot, visibility control, and URL operations
- * All handlers support window isolation through windowContextManager
- */
 export function registerViewHandlers() {
-  // Get main view screenshot
   ipcMain.handle('get-main-view-screenshot', async (event) => {
-    const context = windowContextManager.getContext(event.sender.id);
-    if (!context || !context.detailView) {
-      throw new Error('DetailView not found for this window');
-    }
-
-    const image = await context.detailView.webContents.capturePage();
-    return {
-      imageBase64: image.toDataURL(),
-      imageType: "image/jpeg",
-    };
-  });
-
-  // Set detail view visibility
-  ipcMain.handle('set-detail-view-visible', async (event, visible: boolean) => {
     try {
-      console.log('IPC set-detail-view-visible received:', visible);
       const context = windowContextManager.getContext(event.sender.id);
       if (!context || !context.detailView) {
-        throw new Error('DetailView not found for this window');
+        console.error('[ViewHandlers] DetailView not found');
+        return null;
+      }
+
+      const image = await context.detailView.webContents.capturePage();
+      return {
+        imageBase64: image.toDataURL(),
+        imageType: "image/jpeg",
+      };
+    } catch (error: any) {
+      console.error('[ViewHandlers] get-main-view-screenshot error:', error);
+      return null;
+    }
+  });
+
+  ipcMain.handle('set-detail-view-visible', async (event, visible: boolean) => {
+    try {
+      const context = windowContextManager.getContext(event.sender.id);
+      if (!context || !context.detailView) {
+        console.error('[ViewHandlers] DetailView not found');
+        return { success: false, error: 'DetailView not found for this window' };
       }
 
       context.detailView.setVisible(visible);
-
       return { success: true, visible };
     } catch (error: any) {
-      console.error('IPC set-detail-view-visible error:', error);
-      throw error;
+      console.error('[ViewHandlers] set-detail-view-visible error:', error);
+      return { success: false, error: error.message };
     }
   });
 
-  // Get current URL from detail view
   ipcMain.handle('get-current-url', async (event) => {
     try {
-      console.log('IPC get-current-url received');
       const context = windowContextManager.getContext(event.sender.id);
       if (!context || !context.detailView) {
         return '';
       }
       return context.detailView.webContents.getURL();
     } catch (error: any) {
-      console.error('IPC get-current-url error:', error);
+      console.error('[ViewHandlers] get-current-url error:', error);
       return '';
     }
   });
 
-  // Navigate detail view to specified URL
   ipcMain.handle('navigate-detail-view', async (event, url: string) => {
     try {
-      console.log('IPC navigate-detail-view received:', url);
       const context = windowContextManager.getContext(event.sender.id);
       if (!context || !context.detailView) {
-        throw new Error('DetailView not found for this window');
+        console.error('[ViewHandlers] DetailView not found');
+        return { success: false, error: 'DetailView not found for this window' };
       }
 
-      // Load URL in detail view
       await context.detailView.webContents.loadURL(url);
-
       return { success: true, url };
     } catch (error: any) {
-      console.error('IPC navigate-detail-view error:', error);
-      throw error;
+      console.error('[ViewHandlers] navigate-detail-view error:', error);
+      return { success: false, error: error.message };
     }
   });
-
-  console.log('[IPC] View control handlers registered');
 }
