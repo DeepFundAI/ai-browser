@@ -1,84 +1,64 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 
+// Log IPC errors, return original response for frontend handling
+async function safeInvoke<T = any>(channel: string, ...args: any[]): Promise<T> {
+  const response = await ipcRenderer.invoke(channel, ...args);
+
+  if (response && typeof response === 'object' && 'success' in response && !response.success) {
+    console.error(`[IPC:${channel}] Error:`, response.error);
+  }
+
+  return response;
+}
+
 // Custom APIs for renderer
 const api = {
-  // App information
-  getAppVersion: () => ipcRenderer.invoke('get-app-version'),
-  getPlatform: () => ipcRenderer.invoke('get-platform'),
-
-  // Window controls
-  onNewTab: (callback: () => void) => ipcRenderer.on('new-tab', callback),
-  onCloseTab: (callback: () => void) => ipcRenderer.on('close-tab', callback),
-  onNavigateBack: (callback: () => void) => ipcRenderer.on('navigate-back', callback),
-  onNavigateForward: (callback: () => void) => ipcRenderer.on('navigate-forward', callback),
-  onReloadPage: (callback: () => void) => ipcRenderer.on('reload-page', callback),
-  onShowAbout: (callback: () => void) => ipcRenderer.on('show-about', callback),
-
   // Remove listeners
   removeAllListeners: (channel: string) => ipcRenderer.removeAllListeners(channel),
-
-  getHiddenWindowSourceId: () => ipcRenderer.invoke('get-hidden-window-source-id'),
-  
-  // Voice text transmission related APIs
-  sendVoiceTextToChat: (text: string) => ipcRenderer.invoke('send-voice-text-to-chat', text),
-  onVoiceTextReceived: (callback: (text: string) => void) => ipcRenderer.on('voice-text-received', (_, text) => callback(text)),
   
   // TTS subtitle related APIs
   sendTTSSubtitle: (text: string, isStart: boolean) => ipcRenderer.invoke('send-tts-subtitle', text, isStart),
-  onTTSSubtitleReceived: (callback: (text: string, isStart: boolean) => void) => 
-    ipcRenderer.on('tts-subtitle-received', (_, text, isStart) => callback(text, isStart)),
-  
-  // View window controls
-  showViewWindow: () => ipcRenderer.invoke('show-view-window'),
   
   // EkoService related APIs
-  ekoRun: (message: string) => ipcRenderer.invoke('eko:run', message),
-  ekoModify: (taskId: string, message: string) => ipcRenderer.invoke('eko:modify', taskId, message),
-  ekoExecute: (taskId: string) => ipcRenderer.invoke('eko:execute', taskId),
-  ekoGetTaskStatus: (taskId: string) => ipcRenderer.invoke('eko:getTaskStatus', taskId),
-  ekoCancelTask: (taskId: string) => ipcRenderer.invoke('eko:cancel-task', taskId),
+  ekoRun: (message: string) => safeInvoke('eko:run', message),
+  ekoModify: (taskId: string, message: string) => safeInvoke('eko:modify', taskId, message),
+  ekoExecute: (taskId: string) => safeInvoke('eko:execute', taskId),
+  ekoCancelTask: (taskId: string) => safeInvoke('eko:cancel-task', taskId),
   onEkoStreamMessage: (callback: (message: any) => void) => ipcRenderer.on('eko-stream-message', (_, message) => callback(message)),
 
-  // Human interaction APIs
-  sendHumanResponse: (response: any) => ipcRenderer.invoke('eko:human-response', response),
+  sendHumanResponse: (response: any) => safeInvoke('eko:human-response', response),
 
-  // Task restoration APIs (for continuing conversation from history)
-  ekoGetTaskContext: (taskId: string) => ipcRenderer.invoke('eko:get-task-context', taskId),
+  ekoGetTaskContext: (taskId: string) => safeInvoke('eko:get-task-context', taskId),
   ekoRestoreTask: (workflow: any, contextParams?: Record<string, any>, chainPlanRequest?: any, chainPlanResult?: string) =>
-    ipcRenderer.invoke('eko:restore-task', workflow, contextParams, chainPlanRequest, chainPlanResult),
+    safeInvoke('eko:restore-task', workflow, contextParams, chainPlanRequest, chainPlanResult),
 
   // Model configuration APIs
-  getUserModelConfigs: () => ipcRenderer.invoke('config:get-user-configs'),
-  saveUserModelConfigs: (configs: any) => ipcRenderer.invoke('config:save-user-configs', configs),
-  getModelConfig: (provider: 'deepseek' | 'qwen' | 'google' | 'anthropic' | 'openrouter') => ipcRenderer.invoke('config:get-model-config', provider),
-  getApiKeySource: (provider: 'deepseek' | 'qwen' | 'google' | 'anthropic' | 'openrouter') => ipcRenderer.invoke('config:get-api-key-source', provider),
-  getSelectedProvider: () => ipcRenderer.invoke('config:get-selected-provider'),
-  setSelectedProvider: (provider: 'deepseek' | 'qwen' | 'google' | 'anthropic' | 'openrouter') => ipcRenderer.invoke('config:set-selected-provider', provider),
+  getUserModelConfigs: () => safeInvoke('config:get-user-configs'),
+  saveUserModelConfigs: (configs: any) => safeInvoke('config:save-user-configs', configs),
+  getModelConfig: (provider: 'deepseek' | 'qwen' | 'google' | 'anthropic' | 'openrouter') => safeInvoke('config:get-model-config', provider),
+  getApiKeySource: (provider: 'deepseek' | 'qwen' | 'google' | 'anthropic' | 'openrouter') => safeInvoke('config:get-api-key-source', provider),
+  getSelectedProvider: () => safeInvoke('config:get-selected-provider'),
+  setSelectedProvider: (provider: 'deepseek' | 'qwen' | 'google' | 'anthropic' | 'openrouter') => safeInvoke('config:set-selected-provider', provider),
 
   // Agent configuration APIs
-  getAgentConfig: () => ipcRenderer.invoke('agent:get-config'),
-  saveAgentConfig: (config: any) => ipcRenderer.invoke('agent:save-config', config),
-  getMcpTools: () => ipcRenderer.invoke('agent:get-mcp-tools'),
-  setMcpToolEnabled: (toolName: string, enabled: boolean) => ipcRenderer.invoke('agent:set-mcp-tool-enabled', toolName, enabled),
-  reloadAgentConfig: () => ipcRenderer.invoke('agent:reload-config'),
+  getAgentConfig: () => safeInvoke('agent:get-config'),
+  saveAgentConfig: (config: any) => safeInvoke('agent:save-config', config),
+  getMcpTools: () => safeInvoke('agent:get-mcp-tools'),
+  setMcpToolEnabled: (toolName: string, enabled: boolean) => safeInvoke('agent:set-mcp-tool-enabled', toolName, enabled),
+  reloadAgentConfig: () => safeInvoke('agent:reload-config'),
 
   // Detail view control APIs
-  setDetailViewVisible: (visible: boolean) => ipcRenderer.invoke('set-detail-view-visible', visible),
-  navigateDetailView: (url: string) => ipcRenderer.invoke('navigate-detail-view', url),
-  // URL retrieval and monitoring APIs
-  getCurrentUrl: () => ipcRenderer.invoke('get-current-url'),
-  onUrlChange: (callback: (url: string) => void) => {
-    ipcRenderer.on('url-changed', (_event, url) => callback(url));
-  },
-  // Screenshot related APIs
-  getMainViewScreenshot: () => ipcRenderer.invoke('get-main-view-screenshot'),
-  // History view management APIs
-  showHistoryView: (screenshot: string) => ipcRenderer.invoke('show-history-view', screenshot),
-  hideHistoryView: () => ipcRenderer.invoke('hide-history-view'),
+  setDetailViewVisible: (visible: boolean) => safeInvoke('set-detail-view-visible', visible),
+  navigateDetailView: (url: string) => safeInvoke('navigate-detail-view', url),
+  getCurrentUrl: () => safeInvoke('get-current-url'),
+  onUrlChange: (callback: (url: string) => void) => ipcRenderer.on('url-changed', (_event, url) => callback(url)),
 
-  // Generic invoke method (for scheduler and other new features)
-  invoke: (channel: string, ...args: any[]) => ipcRenderer.invoke(channel, ...args),
+  getMainViewScreenshot: () => safeInvoke('get-main-view-screenshot'),
+  showHistoryView: (screenshot: string) => safeInvoke('show-history-view', screenshot),
+  hideHistoryView: () => safeInvoke('hide-history-view'),
+
+  invoke: (channel: string, ...args: any[]) => safeInvoke(channel, ...args),
 
   // Scheduled task execution completion listener
   onTaskExecutionComplete: (callback: (event: any) => void) =>

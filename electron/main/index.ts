@@ -37,47 +37,53 @@ console.log("main: isDev:", isDev);
 console.log("NODE_ENV:", global.process.env.NODE_ENV);
 console.log("isPackaged:", app.isPackaged);
 
-// Log unhandled errors
-process.on("uncaughtException", async (error) => {
-  console.log("Uncaught Exception:", error);
+// Log unhandled errors for debugging
+process.on("uncaughtException", (error) => {
+  console.error("Uncaught Exception:", error);
 });
 
-process.on("unhandledRejection", async (error) => {
-  console.log("Unhandled Rejection:", error);
+process.on("unhandledRejection", (error) => {
+  console.error("Unhandled Rejection:", error);
 });
 
+// Configure custom app paths if APP_PATH_ROOT is specified
 (() => {
-  const root =
-    global.process.env.APP_PATH_ROOT ?? import.meta.env.VITE_APP_PATH_ROOT;
+  const root = global.process.env.APP_PATH_ROOT ?? import.meta.env.VITE_APP_PATH_ROOT;
 
-  if (root === undefined) {
-    console.log(
-      "no given APP_PATH_ROOT or VITE_APP_PATH_ROOT. default path is used."
-    );
+  if (!root) {
+    console.log("No APP_PATH_ROOT or VITE_APP_PATH_ROOT specified, using default paths");
     return;
   }
 
   if (!path.isAbsolute(root)) {
-    console.log("APP_PATH_ROOT must be absolute path.");
+    console.error("APP_PATH_ROOT must be an absolute path");
     global.process.exit(1);
   }
 
-  console.log(`APP_PATH_ROOT: ${root}`);
+  console.log(`Configuring custom APP_PATH_ROOT: ${root}`);
 
   const subdirName = pkg.name;
 
-  for (const [key, val] of [
+  // Set app paths
+  const pathConfigs: Array<[Parameters<typeof app.setPath>[0], string]> = [
     ["appData", ""],
     ["userData", subdirName],
     ["sessionData", subdirName],
-  ] as const) {
+  ];
+
+  pathConfigs.forEach(([key, val]) => {
     app.setPath(key, path.join(root, val));
-  }
+  });
 
   app.setAppLogsPath(path.join(root, subdirName, "Logs"));
 })();
 
 console.log("appPath:", app.getAppPath());
+
+const pathKeys: Array<Parameters<typeof app.getPath>[0]> = [
+  "home", "appData", "userData", "sessionData", "logs", "temp"
+];
+pathKeys.forEach((key) => console.log(`${key}:`, app.getPath(key)));
 
 // Register custom protocol scheme before app ready
 protocol.registerSchemesAsPrivileged([
@@ -92,16 +98,6 @@ protocol.registerSchemesAsPrivileged([
     }
   }
 ]);
-
-const keys: Parameters<typeof app.getPath>[number][] = [
-  "home",
-  "appData",
-  "userData",
-  "sessionData",
-  "logs",
-  "temp",
-];
-keys.forEach((key) => console.log(`${key}:`, app.getPath(key)));
 
 // Initialize server manager
 const serverManager = new ServerManager();
@@ -123,80 +119,17 @@ let ekoService: EkoService;
 let mainWindowManager: MainWindowManager;
 
 /**
- * Initialize main window and all related components
- * Including: detailView, ekoService, windowContext registration
+ * Setup main window close event handler
+ * Handles task termination and window hiding/closing based on platform
  */
-async function initializeMainWindow(): Promise<BrowserWindow> {
-  console.log('[Main] Starting main window initialization...');
-
-  // Create main window (includes transition page and service waiting logic)
-  mainWindow = await mainWindowManager.createMainWindow();
-
-  mainWindow.contentView.setBounds({
-    x: 0,
-    y: 0,
-    width: mainWindow.getBounds().width,
-    height: mainWindow.getBounds().height,
-  });
-
-  // Create detail panel area
-  detailView = createView(`https://www.google.com`, "view", '1');
-  mainWindow.contentView.addChildView(detailView);
-  detailView.setBounds({
-    x: 818,
-    y: 264,
-    width: 748,
-    height: 560,
-  });
-
-  // Set detail view hidden by default
-  detailView.setVisible(false);
-
-  detailView.webContents.setWindowOpenHandler(({url}) => {
-    detailView.webContents.loadURL(url);
-    return {
-      action: "deny",
-    }
-  })
-
-  // Listen for detail view URL changes
-  detailView.webContents.on('did-navigate', (_event, url) => {
-    console.log('detail view did-navigate:', url);
-    mainWindow?.webContents.send('url-changed', url);
-  });
-
-  detailView.webContents.on('did-navigate-in-page', (_event, url) => {
-    console.log('detail view did-navigate-in-page:', url);
-    mainWindow?.webContents.send('url-changed', url);
-  });
-
-  // Initialize EkoService
-  ekoService = new EkoService(mainWindow, detailView);
-
-  // Register main window to windowContextManager
-  const mainWindowContext: WindowContext = {
-    window: mainWindow,
-    detailView,
-    historyView,
-    ekoService,
-    webContentsId: mainWindow.webContents.id,
-    windowType: 'main'
-  };
-  windowContextManager.registerWindow(mainWindowContext);
-  console.log('[Main] Main window registered to WindowContextManager');
-
-  // Listen for window close event (close: triggered before closing, can be prevented)
-  // Unified handling for Mac and Windows: check task status, prompt user
-  mainWindow.on('close', async (event) => {
-    // Check if any task is running
-    const hasRunningTask = ekoService.hasRunningTask();
+function setupMainWindowCloseHandler(window: BrowserWindow, service: EkoService): void {
+  window.on('close', async (event) => {
+    const hasRunningTask = service.hasRunningTask();
 
     if (hasRunningTask) {
-      // Prevent default close behavior
       event.preventDefault();
 
-      // Show confirmation dialog
-      const { response } = await dialog.showMessageBox(mainWindow, {
+      const { response } = await dialog.showMessageBox(window, {
         type: 'warning',
         title: 'Task Running',
         message: 'A task is currently running. Closing the window will cause the task to fail',
@@ -209,108 +142,108 @@ async function initializeMainWindow(): Promise<BrowserWindow> {
       });
 
       if (response === 1) {
-        // Stop task
-        console.log('[Main] User chose to stop task');
+        const allTaskIds = service['eko']?.getAllTaskId() || [];
+        await service.abortAllTasks();
 
-        // Get all task IDs
-        const allTaskIds = ekoService['eko']?.getAllTaskId() || [];
-
-        // Abort all tasks
-        await ekoService.abortAllTasks();
-
-        // Send abort event (frontend will listen and update IndexedDB)
         allTaskIds.forEach(taskId => {
-          mainWindow.webContents.send('task-aborted-by-system', {
+          window.webContents.send('task-aborted-by-system', {
             taskId,
             reason: 'User closed window, task terminated',
             timestamp: new Date().toISOString()
           });
         });
 
-        // Delay to ensure message delivery and processing
         await new Promise(resolve => setTimeout(resolve, 1000));
 
-        if (process.platform === 'darwin') {
-          // Mac: actually close window
-          mainWindow.destroy();
-        } else {
-          // Windows/Linux: hide window
-          mainWindow.hide();
-        }
+        process.platform === 'darwin' ? window.destroy() : window.hide();
       }
-      // response === 0: cancel close, do nothing
-    } else {
-      // No task running
-      if (process.platform !== 'darwin') {
-        // Windows/Linux: hide to tray
-        event.preventDefault();
-        mainWindow.hide();
-        console.log('[Main] Main window hidden to tray');
-      }
-      // Mac: use default behavior (close window but keep app running)
+    } else if (process.platform !== 'darwin') {
+      event.preventDefault();
+      window.hide();
     }
   });
+}
 
-  // Listen for window closed event (closed: triggered after window is closed)
-  // Clean up context
+/**
+ * Initialize main window and all related components
+ * Including: detailView, ekoService, windowContext registration
+ */
+async function initializeMainWindow(): Promise<BrowserWindow> {
+  mainWindow = await mainWindowManager.createMainWindow();
+
+  const windowBounds = mainWindow.getBounds();
+  mainWindow.contentView.setBounds({
+    x: 0,
+    y: 0,
+    width: windowBounds.width,
+    height: windowBounds.height,
+  });
+
+  detailView = createView(`https://www.google.com`, "view", '1');
+  mainWindow.contentView.addChildView(detailView);
+  detailView.setBounds({ x: 818, y: 264, width: 748, height: 560 });
+  detailView.setVisible(false);
+
+  detailView.webContents.setWindowOpenHandler(({ url }) => {
+    detailView.webContents.loadURL(url);
+    return { action: "deny" };
+  });
+
+  const handleUrlChange = (_event: any, url: string) => {
+    mainWindow?.webContents.send('url-changed', url);
+  };
+
+  detailView.webContents.on('did-navigate', handleUrlChange);
+  detailView.webContents.on('did-navigate-in-page', handleUrlChange);
+
+  ekoService = new EkoService(mainWindow, detailView);
+
+  windowContextManager.registerWindow({
+    window: mainWindow,
+    detailView,
+    historyView,
+    ekoService,
+    webContentsId: mainWindow.webContents.id,
+    windowType: 'main'
+  });
+
+  setupMainWindowCloseHandler(mainWindow, ekoService);
+
   mainWindow.on('closed', () => {
-    console.log('[Main] Main window closed, cleaning up context');
     try {
       if (mainWindow && !mainWindow.isDestroyed() && mainWindow.webContents) {
         windowContextManager.unregisterWindow(mainWindow.webContents.id);
       }
     } catch (error) {
-      console.error('[Main] Failed to clean up main window context:', error);
+      console.error('[Main] Failed to clean up window context:', error);
     }
   });
 
-  console.log('[Main] Main window initialization completed');
   return mainWindow;
 }
 
 (async () => {
   await app.whenReady();
-  console.log("App is ready");
 
-  // Register global client protocol
   registerClientProtocol(protocol);
 
   if (isDev) {
-    const iconPath = path.join(cwd(), "assets/icons/logo.png");
-    console.log("Setting app icon:", iconPath);
-    app.dock?.setIcon(iconPath);
+    app.dock?.setIcon(path.join(cwd(), "assets/icons/logo.png"));
   }
 
-  // Load any existing cookies from ElectronStore, set as cookie
   await initCookies();
 
-  // Initialize main window manager
   mainWindowManager = new MainWindowManager(serverManager);
-
-  // Initialize main window and all related components
   mainWindow = await initializeMainWindow();
 
-  // Create system tray
   createTray(mainWindow);
-  console.log('[Main] System tray created');
-
-  // Start task scheduler
   taskScheduler.start();
-  console.log('[Main] TaskScheduler started');
 
-  // macOS activate event handler
   app.on("activate", async () => {
-    // Check if main window exists (regardless of task windows)
-    const hasMainWindow = mainWindow && !mainWindow.isDestroyed();
-
-    if (!hasMainWindow) {
-      // Create main window if it doesn't exist (even if task windows exist)
-      console.log('[Main] App activated, main window does not exist, creating main window');
+    if (!mainWindow || mainWindow.isDestroyed()) {
       mainWindow = await initializeMainWindow();
       setupMenu(mainWindow);
     } else {
-      // Main window exists, show and focus
-      console.log('[Main] App activated, main window exists, showing and focusing');
       mainWindow.show();
       mainWindow.focus();
     }
@@ -319,16 +252,9 @@ async function initializeMainWindow(): Promise<BrowserWindow> {
   return mainWindow;
 })().then((win) => setupMenu(win));
 
-// Don't quit app when all windows are closed, keep running in background (for scheduled tasks)
-// User needs to use "Quit" option in tray menu to actually quit the app
 app.on("window-all-closed", () => {
-  console.log('[Main] All windows closed, app continues running in background');
-  // Don't call app.quit(), let app continue running
-  // Scheduled tasks will continue executing in background
+  // Keep app running in background for scheduled tasks
 });
 
-// Register all IPC handlers
 registerAllIpcHandlers();
-
 reloadOnChange();
-// setupAutoUpdater();

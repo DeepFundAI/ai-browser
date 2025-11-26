@@ -1,7 +1,3 @@
-/**
- * Window state enumeration
- */
-
 export enum WindowState {
   LOADING = 'loading',
   READY = 'ready',

@@ -226,14 +226,9 @@ export const useScheduledTaskStore = create<ScheduledTaskState>((set, get) => ({
    * Execute task immediately
    */
   executeTaskNow: async (task) => {
-    try {
-      if (typeof window !== 'undefined' && (window as any).api) {
-        const result = await (window as any).api.invoke('scheduler:execute-now', task);
-        logger.debug('Task execution result', 'ScheduledTaskStore', result);
-      }
-    } catch (error) {
-      logger.error('Failed to execute task', error, 'ScheduledTaskStore');
-      throw error;
+    if (typeof window !== 'undefined' && (window as any).api) {
+      const result = await (window as any).api.invoke('scheduler:execute-now', task);
+      logger.debug('Task execution result', 'ScheduledTaskStore', result);
     }
   },
 
@@ -242,37 +237,26 @@ export const useScheduledTaskStore = create<ScheduledTaskState>((set, get) => ({
    * Called when App starts, loads all enabled scheduled tasks and registers them to the scheduler
    */
   initializeScheduler: async () => {
-    try {
-      logger.info('Starting scheduler initialization', 'ScheduledTaskStore');
+    logger.info('Starting scheduler initialization', 'ScheduledTaskStore');
 
-      // Load all scheduled tasks
-      await scheduledTaskStorage.init();
-      const allTasks = await scheduledTaskStorage.getAllScheduledTasks();
-      const enabledTasks = allTasks.filter(task => task.enabled);
+    await scheduledTaskStorage.init();
+    const allTasks = await scheduledTaskStorage.getAllScheduledTasks();
+    const enabledTasks = allTasks.filter(task => task.enabled);
 
-      logger.info(`Found ${allTasks.length} scheduled tasks, ${enabledTasks.length} enabled`, 'ScheduledTaskStore');
+    logger.info(`Found ${allTasks.length} scheduled tasks, ${enabledTasks.length} enabled`, 'ScheduledTaskStore');
 
-      // Register to scheduler
-      if (typeof window !== 'undefined' && (window as any).api) {
-        for (const task of enabledTasks) {
-          try {
-            const result = await (window as any).api.invoke('scheduler:add-task', task);
-            if (result.success) {
-              logger.info(`✓ Registered task: ${task.name}`, 'ScheduledTaskStore', result.nextExecuteAt);
-            } else {
-              logger.warn(`✗ Failed to register task: ${task.name}`, 'ScheduledTaskStore', result.message);
-            }
-          } catch (error) {
-            logger.error(`Exception registering task: ${task.name}`, error, 'ScheduledTaskStore');
-          }
+    if (typeof window !== 'undefined' && (window as any).api) {
+      for (const task of enabledTasks) {
+        const result = await (window as any).api.invoke('scheduler:add-task', task);
+        if (result?.success) {
+          logger.info(`✓ Registered task: ${task.name}`, 'ScheduledTaskStore', result.data?.nextExecuteAt);
+        } else {
+          logger.warn(`✗ Failed to register task: ${task.name}`, 'ScheduledTaskStore', result?.error);
         }
-
-        logger.info('Scheduler initialization completed', 'ScheduledTaskStore');
-      } else {
-        logger.warn('Window API not available, cannot initialize scheduler', 'ScheduledTaskStore');
       }
-    } catch (error) {
-      logger.error('Failed to initialize scheduler', error, 'ScheduledTaskStore');
+      logger.info('Scheduler initialization completed', 'ScheduledTaskStore');
+    } else {
+      logger.warn('Window API not available, cannot initialize scheduler', 'ScheduledTaskStore');
     }
   },
 

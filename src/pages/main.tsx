@@ -151,6 +151,8 @@ export default function main() {
         getToolStatus,
     } = useMessageHandlers({
         isHistoryMode,
+        isTaskDetailMode,
+        scheduledTaskId: scheduledTaskIdFromUrl,
         taskIdRef,
         messageProcessorRef,
         currentTaskId,
@@ -158,6 +160,7 @@ export default function main() {
         showDetailAgents,
         toolHistory,
         updateTask,
+        createTask,
         replaceTaskId,
         setCurrentTaskId,
         setCurrentTool,
@@ -219,57 +222,56 @@ export default function main() {
             return;
         }
 
-        try {
-            // Stop playback before continuing conversation
-            playback.stop();
+        // Stop playback before continuing conversation
+        playback.stop();
 
-            // Check if task has workflow
-            if (!currentTask.workflow) {
-                antdMessage.error(t('task_missing_context'));
-                console.error('Task missing workflow:', currentTask);
-                return;
-            }
-
-            // Restore task context
-            const result = await (window.api as any).ekoRestoreTask(
-                currentTask.workflow,
-                currentTask.contextParams || {},
-                currentTask.chainPlanRequest,
-                currentTask.chainPlanResult
-            );
-
-            if (!result || !result.success) {
-                throw new Error('Failed to restore task context');
-            }
-
-            // Call base handler (exits history mode, generates execution ID)
-            await handleContinueConversationBase(currentTask);
-
-            // Update UI states
-            setIsViewingAttachment(false);
-            setCurrentTaskId(currentTask.id);
-            taskIdRef.current = currentTask.id;
-
-            // Restore lastUrl if available (but don't auto-expand detail panel)
-            if (currentTask.lastUrl) {
-                setCurrentUrl(currentTask.lastUrl);
-            }
-
-            // Restore tool history
-            setToolHistory(currentTask.toolHistory || []);
-
-            // Restore historical messages to MessageProcessor
-            if (currentTask.messages && currentTask.messages.length > 0) {
-                messageProcessorRef.current.setMessages(currentTask.messages);
-            }
-
-            antdMessage.success(t('conversation_continued'));
-        } catch (error) {
-            console.error('Failed to continue conversation:', error);
-            antdMessage.error(t('continue_conversation_failed'));
+        // Check if task has workflow
+        if (!currentTask.workflow) {
+            antdMessage.error(t('task_missing_context'));
+            console.error('Task missing workflow:', currentTask);
+            return;
         }
+
+        // Restore task context
+        const result = await (window.api as any).ekoRestoreTask(
+            currentTask.workflow,
+            currentTask.contextParams || {},
+            currentTask.chainPlanRequest,
+            currentTask.chainPlanResult
+        );
+
+        if (!result?.success) {
+            antdMessage.error(t('continue_conversation_failed'));
+            return;
+        }
+
+        // Call base handler (exits history mode, generates execution ID)
+        await handleContinueConversationBase(currentTask);
+
+        // Update UI states
+        setIsViewingAttachment(false);
+        setCurrentTaskId(currentTask.id);
+        taskIdRef.current = currentTask.id;
+
+        // Reset detail panel: hide playback screenshot
+        setCurrentHistoryIndex(-1);
+        await (window.api as any).hideHistoryView?.();
+
+        // Restore lastUrl and navigate detail view to initial address
+        setShowDetail(false);
+        await (window.api as any).setDetailViewVisible?.(false);
+
+        // Restore tool history
+        setToolHistory(currentTask.toolHistory || []);
+
+        // Restore historical messages to MessageProcessor
+        if (currentTask.messages && currentTask.messages.length > 0) {
+            messageProcessorRef.current.setMessages(currentTask.messages);
+        }
+
+        antdMessage.success(t('conversation_continued'));
     }, [currentTask, playback, handleContinueConversationBase, antdMessage, t, setIsViewingAttachment,
-        setCurrentTaskId, taskIdRef, setCurrentUrl, setShowDetail, setToolHistory, messageProcessorRef]);
+        setCurrentTaskId, taskIdRef, setCurrentUrl, setShowDetail, setToolHistory, setCurrentHistoryIndex, messageProcessorRef]);
 
     // Synchronize taskIdRef
     useEffect(() => {

@@ -1,115 +1,104 @@
 import { ipcMain } from "electron";
 import { windowContextManager } from "../services/window-context-manager";
 import type { HumanResponseMessage } from "../../../src/models/human-interaction";
+import { successResponse, errorResponse } from "../utils/ipc-response";
 
-/**
- * Register all Eko service related IPC handlers
- * All handlers support window isolation through windowContextManager
- */
 export function registerEkoHandlers() {
-  // Run new task
   ipcMain.handle('eko:run', async (event, message: string) => {
-    const context = windowContextManager.getContext(event.sender.id);
-    if (!context || !context.ekoService) {
-      throw new Error('EkoService not found for this window');
+    try {
+      const context = windowContextManager.getContext(event.sender.id);
+      if (!context || !context.ekoService) {
+        console.error('[EkoHandlers] EkoService not found');
+        return errorResponse('EkoService not found for this window');
+      }
+      const result = await context.ekoService.run(message);
+      return successResponse({ result });
+    } catch (error: any) {
+      console.error('[EkoHandlers] run error:', error);
+      return errorResponse(error);
     }
-    return await context.ekoService.run(message);
   });
 
-  // Modify existing task
   ipcMain.handle('eko:modify', async (event, taskId: string, message: string) => {
     try {
-      console.log('IPC eko:modify received:', taskId, message);
+      console.log('[EkoHandlers] modify received:', taskId, message);
       const context = windowContextManager.getContext(event.sender.id);
       if (!context || !context.ekoService) {
-        throw new Error('EkoService not found for this window');
+        console.error('[EkoHandlers] EkoService not found');
+        return errorResponse('EkoService not found for this window');
       }
-      return await context.ekoService.modify(taskId, message);
+      const result = await context.ekoService.modify(taskId, message);
+      return successResponse({ result });
     } catch (error: any) {
-      console.error('IPC eko:modify error:', error);
-      throw error;
+      console.error('[EkoHandlers] modify error:', error);
+      return errorResponse(error);
     }
   });
 
-  // Execute task
   ipcMain.handle('eko:execute', async (event, taskId: string) => {
     try {
-      console.log('IPC eko:execute received:', taskId);
+      console.log('[EkoHandlers] execute received:', taskId);
       const context = windowContextManager.getContext(event.sender.id);
       if (!context || !context.ekoService) {
-        throw new Error('EkoService not found for this window');
+        console.error('[EkoHandlers] EkoService not found');
+        return errorResponse('EkoService not found for this window');
       }
-      return await context.ekoService.execute(taskId);
+      const result = await context.ekoService.execute(taskId);
+      return successResponse({ result });
     } catch (error: any) {
-      console.error('IPC eko:execute error:', error);
-      throw error;
+      console.error('[EkoHandlers] execute error:', error);
+      return errorResponse(error);
     }
   });
 
-  // Get task status
-  ipcMain.handle('eko:getTaskStatus', async (event, taskId: string) => {
-    try {
-      console.log('IPC eko:getTaskStatus received:', taskId);
-      const context = windowContextManager.getContext(event.sender.id);
-      if (!context || !context.ekoService) {
-        throw new Error('EkoService not found for this window');
-      }
-      return await context.ekoService.getTaskStatus(taskId);
-    } catch (error: any) {
-      console.error('IPC eko:getTaskStatus error:', error);
-      throw error;
-    }
-  });
-
-  // Cancel task
   ipcMain.handle('eko:cancel-task', async (event, taskId: string) => {
     try {
-      console.log('IPC eko:cancel-task received:', taskId);
+      console.log('[EkoHandlers] cancel-task received:', taskId);
       const context = windowContextManager.getContext(event.sender.id);
       if (!context || !context.ekoService) {
-        throw new Error('EkoService not found for this window');
+        console.error('[EkoHandlers] EkoService not found');
+        return errorResponse('EkoService not found for this window');
       }
       const result = await context.ekoService.cancleTask(taskId);
-      return { success: true, result };
+      return successResponse({ result });
     } catch (error: any) {
-      console.error('IPC eko:cancel-task error:', error);
-      throw error;
+      console.error('[EkoHandlers] cancel-task error:', error);
+      return errorResponse(error);
     }
   });
 
-  // Handle human interaction response
   ipcMain.handle('eko:human-response', async (event, response: HumanResponseMessage) => {
     try {
-      console.log('IPC eko:human-response received:', response);
+      console.log('[EkoHandlers] human-response received:', response);
       const context = windowContextManager.getContext(event.sender.id);
       if (!context || !context.ekoService) {
-        throw new Error('EkoService not found for this window');
+        console.error('[EkoHandlers] EkoService not found');
+        return errorResponse('EkoService not found for this window');
       }
       const result = context.ekoService.handleHumanResponse(response);
-      return { success: result };
+      return successResponse({ result });
     } catch (error: any) {
-      console.error('IPC eko:human-response error:', error);
-      throw error;
+      console.error('[EkoHandlers] human-response error:', error);
+      return errorResponse(error);
     }
   });
 
-  // Get task context (workflow + contextParams) for restoration
   ipcMain.handle('eko:get-task-context', async (event, taskId: string) => {
     try {
-      console.log('IPC eko:get-task-context received:', taskId);
+      console.log('[EkoHandlers] get-task-context received:', taskId);
       const context = windowContextManager.getContext(event.sender.id);
       if (!context || !context.ekoService) {
-        throw new Error('EkoService not found for this window');
+        console.error('[EkoHandlers] EkoService not found');
+        return errorResponse('EkoService not found for this window');
       }
       const taskContext = context.ekoService.getTaskContext(taskId);
-      return taskContext;
+      return successResponse({ taskContext });
     } catch (error: any) {
-      console.error('IPC eko:get-task-context error:', error);
-      throw error;
+      console.error('[EkoHandlers] get-task-context error:', error);
+      return errorResponse(error);
     }
   });
 
-  // Restore task from saved workflow and contextParams
   ipcMain.handle('eko:restore-task', async (
     event,
     workflow: any,
@@ -118,10 +107,11 @@ export function registerEkoHandlers() {
     chainPlanResult?: string
   ) => {
     try {
-      console.log('IPC eko:restore-task received:', workflow.taskId);
+      console.log('[EkoHandlers] restore-task received:', workflow.taskId);
       const context = windowContextManager.getContext(event.sender.id);
       if (!context || !context.ekoService) {
-        throw new Error('EkoService not found for this window');
+        console.error('[EkoHandlers] EkoService not found');
+        return errorResponse('EkoService not found for this window');
       }
       const taskId = await context.ekoService.restoreTask(
         workflow,
@@ -129,10 +119,10 @@ export function registerEkoHandlers() {
         chainPlanRequest,
         chainPlanResult
       );
-      return { success: true, taskId };
+      return successResponse({ taskId });
     } catch (error: any) {
-      console.error('IPC eko:restore-task error:', error);
-      throw error;
+      console.error('[EkoHandlers] restore-task error:', error);
+      return errorResponse(error);
     }
   });
 

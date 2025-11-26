@@ -86,46 +86,47 @@ export const ModelConfigBar: React.FC = () => {
   }, [selectedProvider, configs]);
 
   const loadConfigs = async () => {
-    try {
-      const userConfigs = await window.api.getUserModelConfigs();
-      const provider = await window.api.getSelectedProvider();
-      const source = await window.api.getApiKeySource(provider);
+    const configsResponse = await window.api.getUserModelConfigs();
+    const providerResponse = await window.api.getSelectedProvider();
 
-      setConfigs(userConfigs);
-      setSelectedProvider(provider);
-      setApiKeySource(source);
-    } catch (error) {
-      console.error('Failed to load model configs:', error);
+    if (configsResponse?.success && configsResponse.data?.configs) {
+      setConfigs(configsResponse.data.configs);
+    }
+
+    const provider = providerResponse?.success && providerResponse.data?.provider
+      ? providerResponse.data.provider
+      : 'deepseek';
+    setSelectedProvider(provider);
+
+    const sourceResponse = await window.api.getApiKeySource(provider);
+    if (sourceResponse?.success && sourceResponse.data?.source) {
+      setApiKeySource(sourceResponse.data.source);
     }
   };
 
   const handleProviderChange = async (value: ProviderType) => {
-    try {
-      setSelectedProvider(value);
-      await window.api.setSelectedProvider(value);
-      const source = await window.api.getApiKeySource(value);
-      setApiKeySource(source);
-    } catch (error) {
-      console.error('Failed to change provider:', error);
-      message.error(t('provider_change_failed'));
+    setSelectedProvider(value);
+    await window.api.setSelectedProvider(value);
+    const sourceResponse = await window.api.getApiKeySource(value);
+    if (sourceResponse?.success && sourceResponse.data?.source) {
+      setApiKeySource(sourceResponse.data.source);
     }
   };
 
   const handleModelChange = async (value: string) => {
-    try {
-      setSelectedModel(value);
-      const updatedConfigs = {
-        ...configs,
-        [selectedProvider]: {
-          ...configs[selectedProvider],
-          model: value,
-        },
-      };
-      await window.api.saveUserModelConfigs(updatedConfigs);
+    setSelectedModel(value);
+    const updatedConfigs = {
+      ...configs,
+      [selectedProvider]: {
+        ...configs[selectedProvider],
+        model: value,
+      },
+    };
+    const response = await window.api.saveUserModelConfigs(updatedConfigs);
+    if (response?.success) {
       setConfigs(updatedConfigs);
       message.success(t('model_updated'));
-    } catch (error) {
-      console.error('Failed to update model:', error);
+    } else {
       message.error(t('model_update_failed'));
     }
   };
@@ -141,27 +142,25 @@ export const ModelConfigBar: React.FC = () => {
   };
 
   const handleSaveApiKey = async () => {
-    // Validate API Key is not empty
     if (!tempApiKey || tempApiKey.trim() === '') {
       message.warning(t('api_key_empty_warning'));
       return;
     }
 
-    try {
-      const updatedConfigs = {
-        ...configs,
-        [selectedProvider]: {
-          ...configs[selectedProvider],
-          apiKey: tempApiKey.trim(),
-        },
-      };
-      await window.api.saveUserModelConfigs(updatedConfigs);
+    const updatedConfigs = {
+      ...configs,
+      [selectedProvider]: {
+        ...configs[selectedProvider],
+        apiKey: tempApiKey.trim(),
+      },
+    };
+    const response = await window.api.saveUserModelConfigs(updatedConfigs);
+    if (response?.success) {
       setConfigs(updatedConfigs);
       setIsEditingApiKey(false);
       setApiKeySource('user');
       message.success(t('api_key_saved'));
-    } catch (error) {
-      console.error('Failed to save API key:', error);
+    } else {
       message.error(t('api_key_save_failed'));
     }
   };

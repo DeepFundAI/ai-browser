@@ -17,24 +17,19 @@ export default function Home() {
     // Note: Use main process state flag to prevent duplicate initialization due to route switching
     useEffect(() => {
         const initScheduler = async () => {
-            try {
-                // Check if main process is already initialized
-                if (typeof window !== 'undefined' && (window as any).api) {
-                    const isInitialized = await (window as any).api.invoke('scheduler:is-initialized')
+            if (typeof window !== 'undefined' && (window as any).api) {
+                const response = await (window as any).api.invoke('scheduler:is-initialized')
 
-                    if (isInitialized) {
-                        return
-                    }
-
-                    // Load and register all enabled tasks from storage
-                    const { initializeScheduler } = useScheduledTaskStore.getState()
-                    await initializeScheduler()
-
-                    // Mark main process as initialized
-                    await (window as any).api.invoke('scheduler:mark-initialized')
+                if (response?.success && response.data?.isInitialized) {
+                    return
                 }
-            } catch (error) {
-                console.error('[Home] Failed to initialize scheduler:', error)
+
+                // Load and register all enabled tasks from storage
+                const { initializeScheduler } = useScheduledTaskStore.getState()
+                await initializeScheduler()
+
+                // Mark main process as initialized
+                await (window as any).api.invoke('scheduler:mark-initialized')
             }
         }
 

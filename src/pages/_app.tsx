@@ -16,15 +16,11 @@ export default function MyApp({ Component, pageProps }: AppProps) {
   useEffect(() => {
     const loadSavedLanguage = async () => {
       if (typeof window !== 'undefined' && (window as any).api) {
-        try {
-          const savedLanguage = await (window as any).api.invoke('config:get-language');
-          if (savedLanguage) {
-            await i18n.changeLanguage(savedLanguage);
-            setLanguage(savedLanguage);
-            console.log(`[App] Loaded saved language: ${savedLanguage}`);
-          }
-        } catch (error) {
-          console.error('[App] Failed to load saved language:', error);
+        const response = await (window as any).api.invoke('config:get-language');
+        if (response?.success && response.data?.language) {
+          await i18n.changeLanguage(response.data.language);
+          setLanguage(response.data.language);
+          console.log(`[App] Loaded saved language: ${response.data.language}`);
         }
       }
     };

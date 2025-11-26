@@ -2,34 +2,25 @@ import { ipcMain } from 'electron';
 import { ConfigManager } from '../utils/config-manager';
 import { windowContextManager } from '../services/window-context-manager';
 import mcpToolManager from '../../../src/services/mcp';
+import { successResponse, errorResponse } from '../utils/ipc-response';
 
-/**
- * Register agent configuration related IPC handlers
- */
 export function registerAgentHandlers() {
   const configManager = ConfigManager.getInstance();
 
-  /**
-   * Get agent configuration
-   */
   ipcMain.handle('agent:get-config', async () => {
     try {
       const agentConfig = configManager.getAgentConfig();
-      return { success: true, data: agentConfig };
+      return successResponse({ agentConfig });
     } catch (error: any) {
-      console.error('Failed to get agent config:', error);
-      return { success: false, error: error.message };
+      console.error('[AgentHandlers] get-config error:', error);
+      return errorResponse(error);
     }
   });
 
-  /**
-   * Save agent configuration and reload all EkoServices
-   */
   ipcMain.handle('agent:save-config', async (_, config) => {
     try {
       configManager.saveAgentConfig(config);
 
-      // Reload all window contexts
       const contexts = windowContextManager.getAllContexts();
       contexts.forEach(context => {
         if (context.ekoService) {
@@ -37,54 +28,38 @@ export function registerAgentHandlers() {
         }
       });
 
-      return { success: true };
+      return successResponse();
     } catch (error: any) {
-      console.error('Failed to save agent config:', error);
-      return { success: false, error: error.message };
+      console.error('[AgentHandlers] save-config error:', error);
+      return errorResponse(error);
     }
   });
 
-  /**
-   * Get all available MCP tools with their status
-   */
   ipcMain.handle('agent:get-mcp-tools', async () => {
     try {
-      // Get all tools with their enabled status
       const tools = mcpToolManager.getAllToolsWithStatus();
-      return { success: true, data: tools };
+      return successResponse({ tools });
     } catch (error: any) {
-      console.error('Failed to get MCP tools:', error);
-      return { success: false, error: error.message };
+      console.error('[AgentHandlers] get-mcp-tools error:', error);
+      return errorResponse(error);
     }
   });
 
-  /**
-   * Update MCP tool enabled status
-   */
   ipcMain.handle('agent:set-mcp-tool-enabled', async (_, toolName: string, enabled: boolean) => {
     try {
-      // Update tool status in McpToolManager
       mcpToolManager.setToolEnabled(toolName, enabled);
-
-      // Update config in ConfigManager
       configManager.setMcpToolConfig(toolName, { enabled });
-
-      return { success: true };
+      return successResponse();
     } catch (error: any) {
-      console.error('Failed to set MCP tool status:', error);
-      return { success: false, error: error.message };
+      console.error('[AgentHandlers] set-mcp-tool-enabled error:', error);
+      return errorResponse(error);
     }
   });
 
-  /**
-   * Reload agent configuration from storage
-   */
   ipcMain.handle('agent:reload-config', async () => {
     try {
-      // Get latest config
       const agentConfig = configManager.getAgentConfig();
 
-      // Update MCP tools status
       const availableTools = mcpToolManager.getAllToolNames();
       availableTools.forEach((toolName: string) => {
         const toolConfig = agentConfig.mcpTools[toolName];
@@ -93,7 +68,6 @@ export function registerAgentHandlers() {
         }
       });
 
-      // Reload all EkoServices
       const contexts = windowContextManager.getAllContexts();
       contexts.forEach(context => {
         if (context.ekoService) {
@@ -101,10 +75,10 @@ export function registerAgentHandlers() {
         }
       });
 
-      return { success: true, data: agentConfig };
+      return successResponse({ agentConfig });
     } catch (error: any) {
-      console.error('Failed to reload agent config:', error);
-      return { success: false, error: error.message };
+      console.error('[AgentHandlers] reload-config error:', error);
+      return errorResponse(error);
     }
   });
 
