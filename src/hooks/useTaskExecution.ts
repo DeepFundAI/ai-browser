@@ -87,10 +87,13 @@ export const useTaskExecution = ({
         : window.api.ekoModify(taskIdRef.current, message.trim());
 
       setEkoRequest(req);
-      result = await req;
+      const response = await req;
 
-      if (result && taskIdRef.current) {
-        updateTask(taskIdRef.current, { status: result.stopReason });
+      if (response?.success && response.data?.result) {
+        result = response.data.result;
+        if (taskIdRef.current) {
+          updateTask(taskIdRef.current, { status: result.stopReason });
+        }
       }
 
     } catch (error) {
@@ -106,14 +109,17 @@ export const useTaskExecution = ({
       // Save task context for conversation continuation
       if (result && taskIdRef.current && (window.api as any).ekoGetTaskContext) {
         try {
-          const taskContext = await (window.api as any).ekoGetTaskContext(taskIdRef.current);
-          if (taskContext?.workflow && taskContext.contextParams) {
-            updateTask(taskIdRef.current, {
-              workflow: taskContext.workflow,
-              contextParams: taskContext.contextParams,
-              chainPlanRequest: taskContext.chainPlanRequest,
-              chainPlanResult: taskContext.chainPlanResult
-            });
+          const response = await (window.api as any).ekoGetTaskContext(taskIdRef.current);
+          if (response?.success && response.data) {
+            const { workflow, contextParams, chainPlanRequest, chainPlanResult } = response.data;
+            if (workflow && contextParams) {
+              updateTask(taskIdRef.current, {
+                workflow,
+                contextParams,
+                chainPlanRequest,
+                chainPlanResult
+              });
+            }
           }
         } catch (error) {
           console.error('[useTaskExecution] Failed to save task context:', error);

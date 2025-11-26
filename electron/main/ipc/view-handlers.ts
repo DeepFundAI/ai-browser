@@ -1,5 +1,6 @@
 import { ipcMain } from "electron";
 import { windowContextManager } from "../services/window-context-manager";
+import { successResponse, errorResponse } from "../utils/ipc-response";
 
 export function registerViewHandlers() {
   ipcMain.handle('get-main-view-screenshot', async (event) => {
@@ -7,17 +8,17 @@ export function registerViewHandlers() {
       const context = windowContextManager.getContext(event.sender.id);
       if (!context || !context.detailView) {
         console.error('[ViewHandlers] DetailView not found');
-        return null;
+        return errorResponse('DetailView not found');
       }
 
       const image = await context.detailView.webContents.capturePage();
-      return {
+      return successResponse({
         imageBase64: image.toDataURL(),
         imageType: "image/jpeg",
-      };
+      });
     } catch (error: any) {
       console.error('[ViewHandlers] get-main-view-screenshot error:', error);
-      return null;
+      return errorResponse(error);
     }
   });
 
@@ -26,14 +27,14 @@ export function registerViewHandlers() {
       const context = windowContextManager.getContext(event.sender.id);
       if (!context || !context.detailView) {
         console.error('[ViewHandlers] DetailView not found');
-        return { success: false, error: 'DetailView not found for this window' };
+        return errorResponse('DetailView not found for this window');
       }
 
       context.detailView.setVisible(visible);
-      return { success: true, visible };
+      return successResponse({ visible });
     } catch (error: any) {
       console.error('[ViewHandlers] set-detail-view-visible error:', error);
-      return { success: false, error: error.message };
+      return errorResponse(error);
     }
   });
 
@@ -41,12 +42,12 @@ export function registerViewHandlers() {
     try {
       const context = windowContextManager.getContext(event.sender.id);
       if (!context || !context.detailView) {
-        return '';
+        return successResponse({ url: '' });
       }
-      return context.detailView.webContents.getURL();
+      return successResponse({ url: context.detailView.webContents.getURL() });
     } catch (error: any) {
       console.error('[ViewHandlers] get-current-url error:', error);
-      return '';
+      return errorResponse(error);
     }
   });
 
@@ -55,14 +56,14 @@ export function registerViewHandlers() {
       const context = windowContextManager.getContext(event.sender.id);
       if (!context || !context.detailView) {
         console.error('[ViewHandlers] DetailView not found');
-        return { success: false, error: 'DetailView not found for this window' };
+        return errorResponse('DetailView not found for this window');
       }
 
       await context.detailView.webContents.loadURL(url);
-      return { success: true, url };
+      return successResponse({ url });
     } catch (error: any) {
       console.error('[ViewHandlers] navigate-detail-view error:', error);
-      return { success: false, error: error.message };
+      return errorResponse(error);
     }
   });
 }

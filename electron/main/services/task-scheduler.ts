@@ -1,5 +1,6 @@
 import { taskWindowManager } from "./task-window-manager";
 import { ipcMain } from "electron";
+import { successResponse, errorResponse } from "../utils/ipc-response";
 
 interface QueuedTask {
   taskId: string;
@@ -29,10 +30,10 @@ export class TaskScheduler {
     ipcMain.handle('scheduler:add-task', async (_event, task: any) => this.scheduleTask(task));
     ipcMain.handle('scheduler:remove-task', async (_event, taskId: string) => this.removeScheduledTask(taskId));
     ipcMain.handle('scheduler:execute-now', async (_event, task: any) => this.executeTaskNow(task));
-    ipcMain.handle('scheduler:is-initialized', async () => this.isInitialized);
+    ipcMain.handle('scheduler:is-initialized', async () => successResponse({ isInitialized: this.isInitialized }));
     ipcMain.handle('scheduler:mark-initialized', async () => {
       this.isInitialized = true;
-      return { success: true };
+      return successResponse();
     });
   }
 
@@ -58,21 +59,21 @@ export class TaskScheduler {
     return { success: true, message: 'Scheduler stopped successfully' };
   }
 
-  scheduleTask(task: any): { success: boolean; message: string; nextExecuteAt?: Date } {
+  scheduleTask(task: any) {
     if (!this.isRunning) {
-      return { success: false, message: 'Scheduler not started' };
+      return errorResponse('Scheduler not started');
     }
 
     const { id, name, steps, schedule } = task;
     const nextExecuteAt = this.calculateNextExecuteTime(schedule);
 
     if (!nextExecuteAt) {
-      return { success: false, message: 'Invalid schedule configuration' };
+      return errorResponse('Invalid schedule configuration');
     }
 
     const delay = nextExecuteAt.getTime() - Date.now();
     if (delay < 0) {
-      return { success: false, message: 'Calculated execution time has expired' };
+      return errorResponse('Calculated execution time has expired');
     }
 
     if (this.scheduledTimers.has(id)) {
@@ -89,23 +90,23 @@ export class TaskScheduler {
     }, delay);
 
     this.scheduledTimers.set(id, timer);
-    return { success: true, message: 'Task scheduled successfully', nextExecuteAt };
+    return successResponse({ message: 'Task scheduled successfully', nextExecuteAt });
   }
 
-  removeScheduledTask(taskId: string): { success: boolean; message: string } {
+  removeScheduledTask(taskId: string) {
     const timer = this.scheduledTimers.get(taskId);
 
     if (!timer) {
-      return { success: false, message: 'Task schedule not found' };
+      return errorResponse('Task schedule not found');
     }
 
     clearTimeout(timer);
     this.scheduledTimers.delete(taskId);
 
-    return { success: true, message: 'Task schedule removed' };
+    return successResponse({ message: 'Task schedule removed' });
   }
 
-  async executeTaskNow(task: any): Promise<{ success: boolean; message: string; executionId?: string }> {
+  async executeTaskNow(task: any) {
     const { id, name, steps } = task;
     return this.executeTask(id, name, steps);
   }
@@ -114,19 +115,20 @@ export class TaskScheduler {
     taskId: string,
     taskName: string,
     steps: Array<{ id: string; name: string; content: string; order: number }>
-  ): Promise<{ success: boolean; message: string; executionId?: string }> {
+  ) {
     try {
       if (!taskWindowManager.canRunNewTask()) {
         this.taskQueue.push({ taskId, taskName, steps, scheduledTime: new Date() });
-        return { success: true, message: 'Task added to queue' };
+        return successResponse({ message: 'Task added to queue' });
       }
 
       const executionId = this.generateExecutionId();
       await this.runTaskInNewWindow(taskId, taskName, steps, executionId);
 
-      return { success: true, message: 'Task execution started', executionId };
+      return successResponse({ message: 'Task execution started', executionId });
     } catch (error: any) {
-      return { success: false, message: error.message };
+      console.error('[TaskScheduler] executeTask error:', error);
+      return errorResponse(error);
     }
   }
 

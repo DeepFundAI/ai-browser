@@ -14,7 +14,6 @@ export async function reloadOnChange() {
   try {
     const watcher = fs.watch(dir, { signal, recursive: true });
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     for await (const _event of watcher) {
       if (!isQuited) {
         isQuited = true;
@@ -23,13 +22,7 @@ export async function reloadOnChange() {
       }
     }
   } catch (err) {
-    if (!(err instanceof Error)) {
-      throw err;
-    }
-
-    if (err.name === 'AbortError') {
-      console.log('abort watching:', dir);
-      return;
-    }
+    if (err instanceof Error && err.name === 'AbortError') return;
+    console.error('[Reload] Watch error:', err);
   }
 }

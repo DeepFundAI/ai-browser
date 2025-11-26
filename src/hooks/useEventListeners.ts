@@ -66,7 +66,11 @@ export const useEventListeners = ({
     if (!window.api) return;
 
     // Get initial URL
-    (window.api as any).getCurrentUrl?.().then(setCurrentUrl);
+    (window.api as any).getCurrentUrl?.().then((response: any) => {
+      if (response?.success && response.data?.url) {
+        setCurrentUrl(response.data.url);
+      }
+    });
 
     // Monitor URL changes
     (window.api as any).onUrlChange?.((url: string) => {

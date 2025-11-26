@@ -37,40 +37,28 @@ export default function AgentConfigModal({ visible, onClose }: AgentConfigModalP
 
   const loadConfiguration = async () => {
     setLoading(true);
-    try {
-      // Load agent config
-      const agentResult = await window.api.getAgentConfig();
-      if (agentResult.success) {
-        setConfig(agentResult.data);
-      }
-
-      // Load MCP tools
-      const toolsResult = await window.api.getMcpTools();
-      if (toolsResult.success) {
-        setMcpTools(toolsResult.data);
-      }
-    } catch (error: any) {
-      message.error(t('load_error') + error.message);
-    } finally {
-      setLoading(false);
+    const agentResult = await window.api.getAgentConfig();
+    if (agentResult?.success && agentResult.data?.agentConfig) {
+      setConfig(agentResult.data.agentConfig);
     }
+
+    const toolsResult = await window.api.getMcpTools();
+    if (toolsResult?.success && toolsResult.data?.tools) {
+      setMcpTools(toolsResult.data.tools);
+    }
+    setLoading(false);
   };
 
   const handleSave = async () => {
     setSaving(true);
-    try {
-      const result = await window.api.saveAgentConfig(config);
-      if (result.success) {
-        message.success(t('save_success'));
-        onClose();
-      } else {
-        message.error(t('save_error'));
-      }
-    } catch (error: any) {
-      message.error(t('save_error') + ': ' + error.message);
-    } finally {
-      setSaving(false);
+    const result = await window.api.saveAgentConfig(config);
+    if (result?.success) {
+      message.success(t('save_success'));
+      onClose();
+    } else {
+      message.error(t('save_error'));
     }
+    setSaving(false);
   };
 
   const handleReload = async () => {

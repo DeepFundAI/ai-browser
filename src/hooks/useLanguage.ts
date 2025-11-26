@@ -27,11 +27,7 @@ export const useLanguage = () => {
 
     // Notify Electron main process (if needed for menu, etc.)
     if (typeof window !== 'undefined' && (window as any).api) {
-      try {
-        await (window as any).api.invoke('language-changed', lang);
-      } catch (error) {
-        console.error('[useLanguage] Failed to notify main process:', error);
-      }
+      await (window as any).api.invoke('language-changed', lang);
     }
   };
 

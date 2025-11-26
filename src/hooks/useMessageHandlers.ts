@@ -123,14 +123,17 @@ export const useMessageHandlers = ({
     try {
       if (!window.api) return;
 
-      let result: any = null;
+      let screenshot: string | undefined;
       if (showDetailAgents.includes(message.agentName)) {
-        result = await (window.api as any).getMainViewScreenshot?.();
+        const result = await (window.api as any).getMainViewScreenshot?.();
+        if (result?.success && result.data?.imageBase64) {
+          screenshot = result.data.imageBase64;
+        }
       }
 
       const toolMessage = {
         ...message,
-        screenshot: result?.imageBase64,
+        screenshot,
         toolSequence: toolHistory.length + 1
       };
 

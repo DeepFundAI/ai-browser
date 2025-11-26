@@ -4,14 +4,8 @@ import { app } from "electron";
 import fs from "fs";
 import { store } from "./store";
 
-/**
- * Supported providers
- */
 export type ProviderType = 'deepseek' | 'qwen' | 'google' | 'anthropic' | 'openrouter';
 
-/**
- * Model configuration interface
- */
 export interface ModelConfig {
   provider: string;
   model: string;
@@ -19,9 +13,6 @@ export interface ModelConfig {
   baseURL?: string;
 }
 
-/**
- * User model configurations stored in electron-store
- */
 export interface UserModelConfigs {
   deepseek?: {
     apiKey?: string;
@@ -47,9 +38,6 @@ export interface UserModelConfigs {
   selectedProvider?: ProviderType;
 }
 
-/**
- * Agent configuration interface
- */
 export interface AgentConfig {
   browserAgent: {
     enabled: boolean;
@@ -59,7 +47,6 @@ export interface AgentConfig {
     enabled: boolean;
     customPrompt: string;
   };
-  // MCP Tools configuration - dynamically managed
   mcpTools: {
     [toolName: string]: {
       enabled: boolean;
@@ -68,9 +55,6 @@ export interface AgentConfig {
   };
 }
 
-/**
- * Configuration Manager for handling environment variables in both development and production
- */
 export class ConfigManager {
   private static instance: ConfigManager;
   private initialized = false;
@@ -84,18 +68,11 @@ export class ConfigManager {
     return ConfigManager.instance;
   }
 
-  /**
-   * Initialize configuration with bundled configuration support
-   * Priority: Bundled .env.production > System env > Default values
-   */
   public initialize(): void {
-    if (this.initialized) {
-      return;
-    }
+    if (this.initialized) return;
 
     const isDev = !app.isPackaged;
 
-    // Development: load from .env.local
     if (isDev) {
       const envLocalPath = path.join(process.cwd(), '.env.local');
       if (fs.existsSync(envLocalPath)) {
@@ -106,7 +83,6 @@ export class ConfigManager {
       }
     }
 
-    // Production: try to load bundled .env.production
     const bundledConfigPath = path.join(app.getAppPath(), '../../.env.production');
 
     if (fs.existsSync(bundledConfigPath)) {
@@ -120,16 +96,10 @@ export class ConfigManager {
     this.initialized = true;
   }
 
-  /**
-   * Get API key with fallback
-   */
   public getApiKey(key: string, defaultValue: string = ''): string {
     return process.env[key] || defaultValue;
   }
 
-  /**
-   * Check if required API keys are configured
-   */
   public validateApiKeys(): { isValid: boolean; missingKeys: string[] } {
     const requiredKeys = ['DEEPSEEK_API_KEY', 'BAILIAN_API_KEY'];
     const missingKeys = requiredKeys.filter(key => !this.getApiKey(key));
@@ -140,9 +110,6 @@ export class ConfigManager {
     };
   }
 
-  /**
-   * Log available API keys for debugging (masked)
-   */
   private logAvailableKeys(): void {
     const availableKeys = ['DEEPSEEK_API_KEY', 'BAILIAN_API_KEY', 'OPENROUTER_API_KEY']
       .filter(key => process.env[key])
@@ -154,31 +121,21 @@ export class ConfigManager {
       console.warn('[ConfigManager] No API keys found! Please configure your API keys in .env.production before building.');
     }
 
-    // Validate required keys
     const validation = this.validateApiKeys();
     if (!validation.isValid) {
       console.warn('[ConfigManager] Missing required API keys:', validation.missingKeys);
     }
   }
 
-  /**
-   * Get user model configurations from electron-store
-   */
   public getUserModelConfigs(): UserModelConfigs {
     return store.get('modelConfigs', {}) as UserModelConfigs;
   }
 
-  /**
-   * Save user model configurations to electron-store
-   */
   public saveUserModelConfigs(configs: UserModelConfigs): void {
     store.set('modelConfigs', configs);
     console.log('[ConfigManager] User model configurations saved');
   }
 
-  /**
-   * Get final model configuration with priority: user config > env > default
-   */
   public getModelConfig(provider: ProviderType): ModelConfig | null {
     const userConfigs = this.getUserModelConfigs();
 
@@ -225,18 +182,13 @@ export class ConfigManager {
     }
   }
 
-  /**
-   * Get API key source info (for UI display)
-   */
   public getApiKeySource(provider: ProviderType): 'user' | 'env' | 'none' {
     const userConfigs = this.getUserModelConfigs();
 
-    // Check user config first (highest priority)
     if (userConfigs[provider]?.apiKey) {
       return 'user';
     }
 
-    // Then check environment variables
     const envKeys: Record<ProviderType, string> = {
       deepseek: 'DEEPSEEK_API_KEY',
       qwen: 'QWEN_API_KEY',
@@ -253,34 +205,21 @@ export class ConfigManager {
     return 'none';
   }
 
-  /**
-   * Get selected provider (with fallback)
-   */
   public getSelectedProvider(): ProviderType {
     const userConfigs = this.getUserModelConfigs();
     return userConfigs.selectedProvider || 'deepseek';
   }
 
-  /**
-   * Set selected provider
-   */
   public setSelectedProvider(provider: ProviderType): void {
     const userConfigs = this.getUserModelConfigs();
     userConfigs.selectedProvider = provider;
     this.saveUserModelConfigs(userConfigs);
   }
 
-  /**
-   * Get maxTokens for specific model
-   */
   private getMaxTokensForModel(provider: ProviderType, model: string): number {
-    // Define maxTokens for different models
     const tokenLimits: Record<string, number> = {
-      // Deepseek
       'deepseek-chat': 8192,
       'deepseek-reasoner': 65536,
-
-      // Google
       'gemini-2.0-flash-thinking-exp-01-21': 65536,
       'gemini-1.5-flash-latest': 8192,
       'gemini-2.0-flash-exp': 8192,
@@ -289,8 +228,6 @@ export class ConfigManager {
       'gemini-1.5-pro-latest': 8192,
       'gemini-1.5-pro-002': 8192,
       'gemini-exp-1206': 8192,
-
-      // Anthropic
       'claude-3-7-sonnet-20250219': 128000,
       'claude-3-5-sonnet-latest': 8000,
       'claude-3-5-sonnet-20240620': 8000,
@@ -298,21 +235,14 @@ export class ConfigManager {
       'claude-3-opus-latest': 8000,
       'claude-3-sonnet-20240229': 8000,
       'claude-3-haiku-20240307': 8000,
-
-      // Qwen
       'qwen-max': 8192,
       'qwen-plus': 8192,
       'qwen-vl-max': 8192,
     };
 
-    // Return specific token limit or default based on provider
     return tokenLimits[model] || (provider === 'openrouter' ? 8000 : 8192);
   }
 
-  /**
-   * Get LLMs configuration for Eko framework
-   * Returns configured LLMs object based on selected provider
-   */
   public getLLMsConfig(): any {
     const selectedProvider = this.getSelectedProvider();
     const providerConfig = this.getModelConfig(selectedProvider);
@@ -325,7 +255,6 @@ export class ConfigManager {
     const logInfo = (msg: string, ...args: any[]) => console.log(`[ConfigManager] ${msg}`, ...args);
     const maxTokens = this.getMaxTokensForModel(selectedProvider, providerConfig.model);
 
-    // Build default LLM based on selected provider
     let defaultLLM: any;
 
     switch (selectedProvider) {
@@ -340,14 +269,10 @@ export class ConfigManager {
             mode: 'regular',
           },
           fetch: (url: string, options?: any) => {
-            // Intercept request and add thinking parameter for deepseek
             const body = JSON.parse((options?.body as string) || '{}');
             body.thinking = { type: "disabled" };
             logInfo('Deepseek request:', providerConfig.model);
-            return fetch(url, {
-              ...options,
-              body: JSON.stringify(body)
-            });
+            return fetch(url, { ...options, body: JSON.stringify(body) });
           }
         };
         break;
@@ -412,16 +337,9 @@ export class ConfigManager {
 
     logInfo(`Using provider: ${selectedProvider}, model: ${providerConfig.model}, maxTokens: ${maxTokens}`);
 
-    // Return LLMs configuration
-    return {
-      default: defaultLLM,
-    };
+    return { default: defaultLLM };
   }
 
-  /**
-   * Get agent configurations from electron-store
-   * Note: mcpTools will be merged with available tools dynamically
-   */
   public getAgentConfig(): AgentConfig {
     const defaultConfig: AgentConfig = {
       browserAgent: {
@@ -432,47 +350,32 @@ export class ConfigManager {
         enabled: true,
         customPrompt: ''
       },
-      mcpTools: {}  // Will be populated dynamically
+      mcpTools: {}
     };
 
     return store.get('agentConfig', defaultConfig) as AgentConfig;
   }
 
-  /**
-   * Save agent configurations to electron-store
-   */
   public saveAgentConfig(config: AgentConfig): void {
     store.set('agentConfig', config);
     console.log('[ConfigManager] Agent configurations saved');
   }
 
-  /**
-   * Get MCP tool configuration for a specific tool
-   * If not configured, returns enabled by default
-   */
   public getMcpToolConfig(toolName: string): { enabled: boolean; config?: Record<string, any> } {
     const agentConfig = this.getAgentConfig();
-    return agentConfig.mcpTools[toolName] || { enabled: true };  // Default to enabled
+    return agentConfig.mcpTools[toolName] || { enabled: true };
   }
 
-  /**
-   * Set MCP tool configuration
-   */
   public setMcpToolConfig(toolName: string, config: { enabled: boolean; config?: Record<string, any> }): void {
     const agentConfig = this.getAgentConfig();
     agentConfig.mcpTools[toolName] = config;
     this.saveAgentConfig(agentConfig);
   }
 
-  /**
-   * Get all MCP tools configuration
-   * Merges with available tools from McpToolManager
-   */
   public getAllMcpToolsConfig(availableTools: string[]): Record<string, { enabled: boolean; config?: Record<string, any> }> {
     const agentConfig = this.getAgentConfig();
     const result: Record<string, { enabled: boolean; config?: Record<string, any> }> = {};
 
-    // For each available tool, get its config (default to enabled if not configured)
     availableTools.forEach(toolName => {
       result[toolName] = agentConfig.mcpTools[toolName] || { enabled: true };
     });
@@ -480,9 +383,6 @@ export class ConfigManager {
     return result;
   }
 
-  /**
-   * Get enabled MCP tools list
-   */
   public getEnabledMcpTools(availableTools: string[]): string[] {
     const allConfigs = this.getAllMcpToolsConfig(availableTools);
     return Object.entries(allConfigs)
