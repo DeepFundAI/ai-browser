@@ -258,11 +258,8 @@ export default function main() {
         await (window.api as any).hideHistoryView?.();
 
         // Restore lastUrl and navigate detail view to initial address
-        if (currentTask.lastUrl) {
-            setCurrentUrl(currentTask.lastUrl);
-            await (window.api as any).setDetailViewVisible?.(true);
-            await (window.api as any).navigateDetailView?.(currentTask.lastUrl);
-        }
+        setShowDetail(false);
+        await (window.api as any).setDetailViewVisible?.(false);
 
         // Restore tool history
         setToolHistory(currentTask.toolHistory || []);
