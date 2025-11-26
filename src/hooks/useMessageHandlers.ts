@@ -8,6 +8,8 @@ import { detectFileType } from '@/utils/fileDetection';
 
 interface UseMessageHandlersOptions {
   isHistoryMode: boolean;
+  isTaskDetailMode: boolean;
+  scheduledTaskId?: string;
   taskIdRef: React.RefObject<string>;
   messageProcessorRef: React.RefObject<MessageProcessor>;
   currentTaskId: string;
@@ -15,6 +17,7 @@ interface UseMessageHandlersOptions {
   showDetailAgents: string[];
   toolHistory: any[];
   updateTask: (taskId: string, updates: Partial<Task>) => void;
+  createTask: (taskId: string, initialData: Partial<Task>) => void;
   replaceTaskId: (oldTaskId: string, newTaskId: string) => void;
   setCurrentTaskId: (taskId: string) => void;
   setCurrentTool: (tool: { toolName: string; operation: string; status: 'running' | 'completed' | 'error' } | null) => void;
@@ -28,6 +31,8 @@ interface UseMessageHandlersOptions {
  */
 export const useMessageHandlers = ({
   isHistoryMode,
+  isTaskDetailMode,
+  scheduledTaskId,
   taskIdRef,
   messageProcessorRef,
   currentTaskId,
@@ -35,6 +40,7 @@ export const useMessageHandlers = ({
   showDetailAgents,
   toolHistory,
   updateTask,
+  createTask,
   replaceTaskId,
   setCurrentTaskId,
   setCurrentTool,
@@ -175,22 +181,44 @@ export const useMessageHandlers = ({
     if (message.taskId && !currentTaskId && !message.taskId.startsWith('temp-')) {
       setCurrentTaskId(message.taskId);
     }
+
     const taskIdToUpdate = message.taskId || taskIdRef.current;
     if (taskIdToUpdate) {
-      const updates: Partial<Task> = {
-        messages: updatedMessages
-      };
+      const existingTask = tasks.find(task => task.id === taskIdToUpdate);
 
-      if (message.type === 'workflow' && message.workflow?.name) {
-        updates.name = message.workflow.name;
-        updates.workflow = message.workflow;
+      if (existingTask) {
+        const updates: Partial<Task> = {
+          messages: updatedMessages
+        };
+
+        if (message.type === 'workflow' && message.workflow?.name) {
+          updates.name = message.workflow.name;
+          updates.workflow = message.workflow;
+        }
+
+        if (message.type === 'error') {
+          updates.status = 'error';
+        }
+
+        updateTask(taskIdToUpdate, updates);
+      } else {
+        // Task doesn't exist, create it
+        const initialData: Partial<Task> = {
+          name: (message.type === 'workflow' && message.workflow?.name)
+            ? message.workflow.name
+            : `Task ${taskIdToUpdate.slice(0, 8)}`,
+          workflow: (message.type === 'workflow' && message.workflow) ? message.workflow : undefined,
+          messages: updatedMessages,
+          status: 'running',
+          taskType: isTaskDetailMode ? 'scheduled' : 'normal',
+          scheduledTaskId: isTaskDetailMode ? scheduledTaskId : undefined,
+          startTime: new Date(),
+        };
+
+        taskIdRef.current = taskIdToUpdate;
+        setCurrentTaskId(taskIdToUpdate);
+        createTask(taskIdToUpdate, initialData);
       }
-
-      if (message.type === 'error') {
-        updates.status = 'error';
-      }
-
-      updateTask(taskIdToUpdate, updates);
     }
 
     if (message.type.includes('tool')) {

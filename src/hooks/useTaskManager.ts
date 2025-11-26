@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { Task, DisplayMessage } from '@/models';
 import { taskStorage } from '@/services/task-storage';
 
@@ -30,14 +30,39 @@ export const useTaskManager = (): UseTaskManagerReturn => {
   const [currentTaskId, setCurrentTaskId] = useState<string>('');
   const [isHistoryMode, setIsHistoryMode] = useState<boolean>(false);
 
+  // Debounce timers for each task
+  const saveTaskTimers = useRef<Map<string, NodeJS.Timeout>>(new Map());
+
   // Computed properties
   const currentTask = tasks.find(task => task.id === currentTaskId);
   const messages = currentTask?.messages || [];
 
-  // Automatically save tasks to IndexedDB
-  const saveTask = useCallback(async (task: Task) => {
+  // Save task with debounce optimization
+  const saveTask = useCallback(async (task: Task, immediate = false) => {
     try {
-      await taskStorage.saveTask(task);
+      if (immediate) {
+        // Immediate save (when task ends)
+        const timer = saveTaskTimers.current.get(task.id);
+        if (timer) {
+          clearTimeout(timer);
+          saveTaskTimers.current.delete(task.id);
+        }
+        await taskStorage.saveTask(task);
+        return;
+      }
+
+      // Debounced save (during task execution)
+      const existingTimer = saveTaskTimers.current.get(task.id);
+      if (existingTimer) {
+        clearTimeout(existingTimer);
+      }
+
+      const timer = setTimeout(async () => {
+        await taskStorage.saveTask(task);
+        saveTaskTimers.current.delete(task.id);
+      }, 300); // 300ms debounce
+
+      saveTaskTimers.current.set(task.id, timer);
     } catch (error) {
       console.error('Failed to save task:', error);
     }
@@ -60,8 +85,11 @@ export const useTaskManager = (): UseTaskManagerReturn => {
         };
         updatedTasks[existingTaskIndex] = updatedTask;
 
-        // Asynchronous save
-        saveTask(updatedTask);
+        // Check if task has ended (status changed to done/error/abort)
+        const isTaskEnded = updates.status && ['done', 'error', 'abort'].includes(updates.status);
+
+        // Save immediately if task ended, otherwise use debounce
+        saveTask(updatedTask, isTaskEnded);
 
         return updatedTasks;
       }
