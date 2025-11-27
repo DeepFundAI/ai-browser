@@ -1,6 +1,6 @@
 # Configuration Guide
 
-This guide explains how to configure AI models and API keys for the Manus Electron application.
+This guide explains how to configure AI models and API keys for the AI Browser application.
 
 ## Configuration Strategy
 
@@ -41,7 +41,7 @@ The application supports the following AI providers:
 ### Configure AI Provider in the Application
 
 1. **Launch the Application**
-   - Open the Manus Electron application
+   - Open the AI Browser application
 
 2. **Access Model Settings**
    - On the home page, you'll see the model configuration panel
