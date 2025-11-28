@@ -195,6 +195,18 @@ Customize AI agent behavior with custom prompts and manage MCP tools for enhance
 
 Special thanks to [Eko](https://github.com/FellouAI/eko) - A production-ready agent framework that powers the AI capabilities of this project.
 
+## Community and Support
+
+⭐ If you find this project helpful, please consider giving it a star! Your support helps us grow and improve.
+
+- Report issues on [GitHub Issues](https://github.com/DeepFundAI/ai-browser/issues)
+- Join discussions and share feedback
+- Contribute to make AI Browser better
+
+### Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=DeepFundAI/ai-browser&type=Date)](https://star-history.com/#DeepFundAI/ai-browser&Date)
+
 ## Contributing
 
 Please ensure all API keys are properly configured in development environment files only. Never commit actual API keys to the repository.

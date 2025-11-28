@@ -189,6 +189,18 @@ pnpm run build
 
 特别感谢 [Eko](https://github.com/FellouAI/eko) - 一个生产就绪的 Agent 框架，为本项目提供了 AI 能力支持。
 
+## 社区与支持
+
+⭐ 如果你觉得这个项目有帮助，请考虑给它一个 star！你的支持帮助我们成长和改进。
+
+- 在 [GitHub Issues](https://github.com/DeepFundAI/ai-browser/issues) 上报告问题
+- 加入讨论并分享反馈
+- 贡献代码让 AI Browser 变得更好
+
+### Star 历史
+
+[![Star History Chart](https://api.star-history.com/svg?repos=DeepFundAI/ai-browser&type=Date)](https://star-history.com/#DeepFundAI/ai-browser&Date)
+
 ## 贡献
 
 请确保所有 API 密钥仅在开发环境文件中配置。永远不要将实际的 API 密钥提交到仓库中。
