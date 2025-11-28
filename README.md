@@ -198,3 +198,7 @@ Special thanks to [Eko](https://github.com/FellouAI/eko) - A production-ready ag
 ## Contributing
 
 Please ensure all API keys are properly configured in development environment files only. Never commit actual API keys to the repository.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

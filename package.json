@@ -3,7 +3,7 @@
   "version": "0.0.11",
   "description": "DeepFundAI Browser - AI-Powered Intelligent Browser",
   "author": "Shuai Liu <lsustc@mail.ustc.edu.cn>",
-  "private": true,
+  "license": "MIT",
   "scripts": {
     "postinstall": "electron-builder install-app-deps",
     "dev": "concurrently \"next dev -p 5173\" \"npm run build:deps:watch\" \"nodemon --exec electron ./dist/electron/main/index.mjs --watch electron\"",

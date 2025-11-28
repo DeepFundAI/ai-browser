@@ -14,7 +14,7 @@
 /.claude
 .npmrc
 CLAUDE.md
-/license
+/certificates
 .env.local
 .env.production
 package-mac-signed.sh
