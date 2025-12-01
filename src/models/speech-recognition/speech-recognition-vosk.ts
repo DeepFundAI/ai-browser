@@ -124,9 +124,11 @@ export class SpeechRecognitionVosk implements SpeechRecognitionBase {
                     console.log('🎤 Received recognition result event:', message);
                     const text = message.result?.text;
                     if (text && text.trim()) {
-                        console.log('🎤 Speech recognition result:', text);
-                        if (this.onRecognizedCallback) {
-                            this.onRecognizedCallback(text.trim());
+                        // Remove all spaces for Chinese text
+                        const cleanedText = text.replace(/\s+/g, '');
+                        console.log('🎤 Speech recognition result:', cleanedText);
+                        if (cleanedText && this.onRecognizedCallback) {
+                            this.onRecognizedCallback(cleanedText);
                         }
                     }
                 });
