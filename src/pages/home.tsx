@@ -1,17 +1,32 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Header from '@/components/Header'
-import { Input } from 'antd'
+import { Input, Button, App } from 'antd'
+import { AudioOutlined, AudioMutedOutlined } from '@ant-design/icons'
 import { ScheduledTaskModal, ScheduledTaskListPanel } from '@/components/scheduled-task'
 import { useScheduledTaskStore } from '@/stores/scheduled-task-store'
 import { ModelConfigBar } from '@/components/ModelConfigBar'
 import { ChromeBrowserBackground } from '@/components/fellou/ChromeBrowserBackground'
 import { useTranslation } from 'react-i18next'
+import { useVoiceInput } from '@/hooks/useVoiceInput'
 
 export default function Home() {
     const [query, setQuery] = useState('')
     const router = useRouter()
     const { t } = useTranslation('home')
+    const { message: antdMessage } = App.useApp()
+
+    // Voice input hook
+    const { isRecording, toggleRecording } = useVoiceInput({
+        onTextRecognized: (text) => {
+            // Append recognized text to input
+            setQuery(prev => prev ? `${prev} ${text}` : text);
+        },
+        onError: (error) => {
+            antdMessage.error(t('voice_input_error'));
+            console.error('Voice input error:', error);
+        },
+    })
 
     // Initialize scheduled task scheduler
     // Note: Use main process state flag to prevent duplicate initialization due to route switching
@@ -76,18 +91,29 @@ export default function Home() {
 
                             {/* Query input box */}
                             <div className='h-[160px] p-4'>
-                                <Input.TextArea
-                                    value={query}
-                                    onChange={(e) => setQuery(e.target.value)}
-                                    onKeyDown={handleKeyDown}
-                                    className='!h-full !bg-transparent !text-text-01-dark !placeholder-text-12-dark !py-3 !px-4 !border !border-solid'
-                                    placeholder={t('input_placeholder')}
-                                    autoSize={false}
-                                    style={{
-                                        borderColor: 'rgba(255, 255, 255, 0.2)',
-                                        borderWidth: '1px',
-                                    }}
-                                />
+                                <div className='relative h-full border border-solid border-white/20 rounded'>
+                                    <Input.TextArea
+                                        value={query}
+                                        onChange={(e) => setQuery(e.target.value)}
+                                        onKeyDown={handleKeyDown}
+                                        className='!h-full !bg-transparent !text-text-01-dark !placeholder-text-12-dark !py-3 !px-4 !pr-12 !border-none !outline-none focus:!shadow-none'
+                                        placeholder={t('input_placeholder')}
+                                        autoSize={false}
+                                    />
+                                    {/* Voice input button */}
+                                    <Button
+                                        type='text'
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            toggleRecording();
+                                        }}
+                                        className='!p-0 !w-8 !h-8 !min-w-0 !flex !items-center !justify-center !absolute !bottom-3 !right-3 !text-lg'
+                                        title={isRecording ? t('voice_input_stop') : t('voice_input_start')}
+                                    >
+                                        {isRecording ? <AudioOutlined /> : <AudioMutedOutlined />}
+                                    </Button>
+                                </div>
                             </div>
                         </div>
                     </div>

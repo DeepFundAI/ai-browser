@@ -171,8 +171,8 @@ export class SpeechRecognitionVosk implements SpeechRecognitionBase {
             console.log('🎤 Starting speech recognition...');
             console.log('🎤 Recognizer ID:', this.recognizer.id);
 
-            // Get microphone permission
-            const mediaStream = await navigator.mediaDevices.getUserMedia({
+            // Get microphone permission and save to instance variable
+            this.mediaStream = await navigator.mediaDevices.getUserMedia({
                 audio: {
                     echoCancellation: true,
                     noiseSuppression: true,
@@ -190,7 +190,7 @@ export class SpeechRecognitionVosk implements SpeechRecognitionBase {
             console.log('🎤 Configured sample rate:', AUDIO_CONFIG.sampleRate);
 
             // Create audio source
-            const source = this.audioContext.createMediaStreamSource(mediaStream);
+            const source = this.audioContext.createMediaStreamSource(this.mediaStream);
 
             // Create script processor node
             this.scriptProcessor = this.audioContext.createScriptProcessor(

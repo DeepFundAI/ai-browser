@@ -1,5 +1,8 @@
 {
   "greeting_name": "Hi, DavidSmith",
   "greeting_intro": "我是 Altas，一个由大语言模型驱动的机器人。我能为您做什么？",
-  "input_placeholder": "请输入您的任务"
+  "input_placeholder": "请输入您的任务",
+  "voice_input_start": "开始语音输入",
+  "voice_input_stop": "停止录音",
+  "voice_input_error": "语音识别失败"
 }

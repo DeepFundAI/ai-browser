@@ -42,5 +42,9 @@
     "reading_file": "读取文件",
     "searching": "搜索中",
     "executing": "正在执行 {{toolName}}"
-  }
+  },
+  "voice_input_start": "开始语音输入",
+  "voice_input_stop": "停止录音",
+  "voice_input_recording": "录音中...",
+  "voice_input_error": "语音识别失败"
 }
