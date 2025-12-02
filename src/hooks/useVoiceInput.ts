@@ -7,6 +7,7 @@ import {
 } from '@/services/speech-recognition';
 import { SpeechRecognitionConfig } from '@/models/speech-recognition/speech-recognition-base';
 import { logger } from '@/utils/logger';
+import { useLanguageStore } from '@/stores/languageStore';
 
 export type VoiceInputStatus = 'idle' | 'recording' | 'error';
 
@@ -25,6 +26,7 @@ export const useVoiceInput = ({ onTextRecognized, onError }: UseVoiceInputOption
   const isRecordingRef = useRef(false); // Track actual recording state
   const onTextRecognizedRef = useRef(onTextRecognized);
   const onErrorRef = useRef(onError);
+  const { language } = useLanguageStore();
 
   // Update refs when callbacks change
   useEffect(() => {
@@ -32,20 +34,29 @@ export const useVoiceInput = ({ onTextRecognized, onError }: UseVoiceInputOption
     onErrorRef.current = onError;
   }, [onTextRecognized, onError]);
 
-  // Initialize speech recognition on mount (only once)
+  // Initialize speech recognition and reinitialize when language changes
   useEffect(() => {
-    if (isInitialized.current) return;
-
-    const config: SpeechRecognitionConfig = {
-      provider: 'vosk',
-      modelType: 'small-cn'
-    };
-
     let mounted = true;
+    let initializationStarted = false;
 
     // Async initialization
     (async () => {
       try {
+        // Cleanup previous instance and wait for it to complete
+        await cleanupSpeechRecognition();
+
+        // Check if still mounted after cleanup
+        if (!mounted) return;
+
+        // Select model based on current language
+        const modelType = language === 'zh-CN' ? 'small-cn' : 'small-en';
+
+        const config: SpeechRecognitionConfig = {
+          provider: 'vosk',
+          modelType
+        };
+
+        initializationStarted = true;
         await initSpeechRecognitionWithProvider(config, (text: string) => {
           if (onTextRecognizedRef.current) {
             onTextRecognizedRef.current(text);
@@ -63,14 +74,15 @@ export const useVoiceInput = ({ onTextRecognized, onError }: UseVoiceInputOption
       }
     })();
 
-    // Cleanup on unmount
+    // Cleanup on unmount or language change
     return () => {
       mounted = false;
       isRecordingRef.current = false;
-      cleanupSpeechRecognition();
-      isInitialized.current = false;
+      if (initializationStarted) {
+        cleanupSpeechRecognition();
+      }
     };
-  }, []); // Empty dependency array - only run once
+  }, [language]); // Reinitialize when language changes
 
   /**
    * Start voice recording

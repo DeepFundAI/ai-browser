@@ -9,7 +9,7 @@ export interface SpeechRecognitionConfig {
     appId?: string;
     apiSecret?: string;
     xfApiKey?: string;
-    modelType?: 'small-cn' | 'standard-cn';
+    modelType?: 'small-cn' | 'small-en';
 }
 
 export interface SpeechRecognitionError {

@@ -7,12 +7,13 @@ import { logger } from "@/utils/logger";
 
 let speechRecognition: SpeechRecognitionBase | null = null;
 let initializationPromise: Promise<void> | null = null;
+let currentCleanup: Promise<void> | null = null;
 
 // New initialization function, supports multiple providers (async to wait for Vosk model loading)
 export async function initSpeechRecognitionWithProvider(config: SpeechRecognitionConfig, onRecognized?: (text: string) => void): Promise<void> {
-  // Return existing initialization promise if already initializing
-  if (initializationPromise) {
-    return initializationPromise;
+  // Wait for ongoing cleanup to complete
+  if (currentCleanup) {
+    await currentCleanup;
   }
 
   initializationPromise = (async () => {
@@ -78,7 +79,18 @@ export async function stopSpeechRecognition() {
 
 // Cleanup resources
 export async function cleanupSpeechRecognition() {
-  await speechRecognition?.cleanup();
-  speechRecognition = null;
-  initializationPromise = null;
+  if (currentCleanup) {
+    return currentCleanup;
+  }
+
+  currentCleanup = (async () => {
+    if (speechRecognition) {
+      await speechRecognition.cleanup();
+      speechRecognition = null;
+    }
+    initializationPromise = null;
+  })();
+
+  await currentCleanup;
+  currentCleanup = null;
 }

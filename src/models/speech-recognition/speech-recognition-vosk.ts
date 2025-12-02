@@ -3,7 +3,7 @@ import { SpeechRecognitionBase, SpeechRecognitionConfig } from "./speech-recogni
 // Model configuration
 const MODEL_CONFIG = {
     'small-cn': '/models/vosk-model-small-cn-0.22.tar.gz',
-    'standard-cn': '/models/vosk-model-cn-0.22.tar.gz'
+    'small-en': '/models/vosk-model-small-en-us-0.15.zip'
 } as const;
 
 // Audio configuration
@@ -51,9 +51,8 @@ export class SpeechRecognitionVosk implements SpeechRecognitionBase {
                 return;
             }
 
-            // 3. Load model
-            const modelPath = MODEL_CONFIG[this.config.modelType || 'small-cn'];
-            console.log(`🎤 Loading speech model: ${modelPath}`);
+            // Load model based on config
+            const modelPath = MODEL_CONFIG[this.config.modelType || 'small-en'];
 
             // Ensure Vosk is globally available
             const Vosk = (window as any).Vosk;
@@ -121,12 +120,11 @@ export class SpeechRecognitionVosk implements SpeechRecognitionBase {
             // Set recognition result callback
             try {
                 this.recognizer.on('result', (message: any) => {
-                    console.log('🎤 Received recognition result event:', message);
                     const text = message.result?.text;
                     if (text && text.trim()) {
-                        // Remove all spaces for Chinese text
-                        const cleanedText = text.replace(/\s+/g, '');
-                        console.log('🎤 Speech recognition result:', cleanedText);
+                        // Remove spaces only for Chinese, keep spaces for English
+                        const isChinese = this.config.modelType === 'small-cn';
+                        const cleanedText = isChinese ? text.replace(/\s+/g, '') : text.trim();
                         if (cleanedText && this.onRecognizedCallback) {
                             this.onRecognizedCallback(cleanedText);
                         }
