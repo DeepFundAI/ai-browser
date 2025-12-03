@@ -215,7 +215,7 @@ const StepUpDownSvg = () => (
 
 // Send message
 const SendMessageSvg = () => (
-<svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
+<svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 24 24" version="1.1">
     <g id="version-8-26" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
         <g id="group-50backup-4" transform="translate(-2.000000, -2.000000)">
             <g id="group-48" transform="translate(2.000000, 2.000000)">

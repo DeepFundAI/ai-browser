@@ -109,7 +109,7 @@ export class TaskWindowManager {
           const allTaskIds = ekoService['eko']?.getAllTaskId() || [];
           await ekoService.abortAllTasks();
 
-          allTaskIds.forEach(tid => {
+          allTaskIds.forEach((tid: string) => {
             taskWindow.webContents.send('task-aborted-by-system', {
               taskId: tid,
               reason: 'User closed scheduled task window, task terminated',

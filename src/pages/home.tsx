@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import Header from '@/components/Header'
 import { Input, Button, App } from 'antd'
 import { AudioOutlined, AudioMutedOutlined } from '@ant-design/icons'
+import { SendMessage } from '@/icons/deepfundai-icons'
 import { ScheduledTaskModal, ScheduledTaskListPanel } from '@/components/scheduled-task'
 import { useScheduledTaskStore } from '@/stores/scheduled-task-store'
 import { ModelConfigBar } from '@/components/ModelConfigBar'
@@ -96,23 +97,35 @@ export default function Home() {
                                         value={query}
                                         onChange={(e) => setQuery(e.target.value)}
                                         onKeyDown={handleKeyDown}
-                                        className='!h-full !bg-transparent !text-text-01-dark !placeholder-text-12-dark !py-3 !px-4 !pr-12 !border-none !outline-none focus:!shadow-none'
+                                        className='!h-full !bg-transparent !text-text-01-dark !placeholder-text-12-dark !py-3 !px-4 !pr-20 !border-none !outline-none focus:!shadow-none'
                                         placeholder={t('input_placeholder')}
                                         autoSize={false}
                                     />
-                                    {/* Voice input button */}
-                                    <Button
-                                        type='text'
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            e.stopPropagation();
-                                            toggleRecording();
-                                        }}
-                                        className='!p-0 !w-8 !h-8 !min-w-0 !flex !items-center !justify-center !absolute !bottom-3 !right-3 !text-lg'
-                                        title={isRecording ? t('voice_input_stop') : t('voice_input_start')}
-                                    >
-                                        {isRecording ? <AudioOutlined /> : <AudioMutedOutlined />}
-                                    </Button>
+                                    {/* Action buttons */}
+                                    <div className='absolute bottom-3 right-3 flex items-center gap-2'>
+                                        {/* Voice input button */}
+                                        <Button
+                                            type='text'
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                toggleRecording();
+                                            }}
+                                            className='!p-0 !w-8 !h-8 !min-w-0 flex items-center justify-center text-lg'
+                                            title={isRecording ? t('voice_input_stop') : t('voice_input_start')}
+                                        >
+                                            {isRecording ? <AudioOutlined /> : <AudioMutedOutlined />}
+                                        </Button>
+                                        {/* Send button */}
+                                        <Button
+                                            type='text'
+                                            onClick={handleSendMessage}
+                                            disabled={!query.trim()}
+                                            className='!p-0 !w-8 !h-8 !min-w-0 flex items-center justify-center text-lg'
+                                        >
+                                            <SendMessage/>
+                                        </Button>
+                                    </div>
                                 </div>
                             </div>
                         </div>

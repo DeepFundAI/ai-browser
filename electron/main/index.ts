@@ -26,7 +26,7 @@ import { EkoService } from "./services/eko-service";
 import { ServerManager } from "./services/server-manager";
 import { MainWindowManager } from "./windows/main-window";
 import { taskScheduler } from "./services/task-scheduler";
-import { windowContextManager, type WindowContext } from "./services/window-context-manager";
+import { windowContextManager } from "./services/window-context-manager";
 import { cwd } from "node:process";
 import { registerAllIpcHandlers } from "./ipc";
 
@@ -145,7 +145,7 @@ function setupMainWindowCloseHandler(window: BrowserWindow, service: EkoService)
         const allTaskIds = service['eko']?.getAllTaskId() || [];
         await service.abortAllTasks();
 
-        allTaskIds.forEach(taskId => {
+        allTaskIds.forEach((taskId: string) => {
           window.webContents.send('task-aborted-by-system', {
             taskId,
             reason: 'User closed window, task terminated',
