@@ -41,7 +41,7 @@ export class TaskWindowManager {
       throw new Error(`Maximum concurrent tasks reached (${this.maxConcurrentTasks})`);
     }
 
-    const taskWindow = createWindow(`http://localhost:5173/main?taskId=${taskId}&executionId=${executionId}`)
+    const taskWindow = await createWindow(`http://localhost:5173/main?taskId=${taskId}&executionId=${executionId}`)
     const detailView = createView(`https://www.google.com`, "view", '2');
 
     taskWindow.contentView.addChildView(detailView);
@@ -109,7 +109,7 @@ export class TaskWindowManager {
           const allTaskIds = ekoService['eko']?.getAllTaskId() || [];
           await ekoService.abortAllTasks();
 
-          allTaskIds.forEach(tid => {
+          allTaskIds.forEach((tid: string) => {
             taskWindow.webContents.send('task-aborted-by-system', {
               taskId: tid,
               reason: 'User closed scheduled task window, task terminated',

@@ -1,7 +1,10 @@
 import React from 'react';
-import { Input, Button } from 'antd';
+import { Input, Button, App } from 'antd';
+import { AudioOutlined, AudioMutedOutlined } from '@ant-design/icons';
 import { SendMessage, CancleTask } from '@/icons/deepfundai-icons';
 import { useTranslation } from 'react-i18next';
+import { useVoiceInput } from '@/hooks/useVoiceInput';
+import { logger } from '@/utils/logger';
 
 interface ChatInputAreaProps {
   query: string;
@@ -23,6 +26,7 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   onCancel,
 }) => {
   const { t } = useTranslation('main');
+  const { message: antdMessage } = App.useApp();
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -30,6 +34,18 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
       onSend();
     }
   };
+
+  // Voice input hook
+  const { isRecording, toggleRecording } = useVoiceInput({
+    onTextRecognized: (text) => {
+      // Append recognized text to input
+      onQueryChange(query ? `${query} ${text}` : text);
+    },
+    onError: (error) => {
+      antdMessage.error(t('voice_input_error'));
+      logger.error('Voice input error', error, 'ChatInputArea');
+    },
+  });
 
   return (
     <div className='h-30 gradient-border relative'>
@@ -48,6 +64,21 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
         }}
       />
       <div className='absolute bottom-4 right-4 flex items-center gap-2'>
+        {!isCurrentTaskRunning && (
+          <Button
+            type='text'
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              toggleRecording();
+            }}
+            disabled={isCurrentTaskRunning}
+            className='!p-0 !w-8 !h-8 !min-w-0 flex items-center justify-center text-lg'
+            title={isRecording ? t('voice_input_stop') : t('voice_input_start')}
+          >
+            {isRecording ? <AudioOutlined /> : <AudioMutedOutlined />}
+          </Button>
+        )}
         {isCurrentTaskRunning ? (
           <Button
             type='text'

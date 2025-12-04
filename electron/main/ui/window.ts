@@ -1,9 +1,22 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, systemPreferences } from 'electron';
 import path from 'node:path';
 import { isDev } from '../utils/constants';
 import { store } from '../utils/store';
 
-export function createWindow(rendererURL: string) {
+async function setupMacPermissions() {
+  // macOS requires explicit microphone permission request
+  if (process.platform === 'darwin') {
+    const status = systemPreferences.getMediaAccessStatus('microphone');
+    console.log('[Window] Current microphone permission status:', status);
+
+    if (status !== 'granted') {
+      const result = await systemPreferences.askForMediaAccess('microphone');
+      console.log('[Window] Permission request result:', result);
+    }
+  }
+}
+
+export async function createWindow(rendererURL: string) {
   const preloadPath = isDev
     ? path.join(app.getAppPath(), '..', 'preload', 'index.cjs')
     : path.join(app.getAppPath(), 'dist', 'electron', 'preload', 'index.cjs');
@@ -21,6 +34,18 @@ export function createWindow(rendererURL: string) {
       webSecurity: true,
       zoomFactor: 1.0,
     },
+  });
+
+  win.webContents.session.setPermissionRequestHandler((_webContents, permission, callback) => {
+    // Allow media permissions (includes microphone and camera)
+    if (permission === 'media') {
+      console.log(`[Window] Granting ${permission} permission`);
+      setupMacPermissions();
+      callback(true);
+    } else {
+      console.log(`[Window] Denying ${permission} permission`);
+      callback(false);
+    }
   });
 
   win.loadURL(rendererURL).catch(err => {
