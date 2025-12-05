@@ -85,23 +85,6 @@ The built application will include your API configuration, so end users don't ne
 - **Speech & TTS**: Voice recognition and text-to-speech integration
 - **File Management**: Advanced file operations and management
 
-## Demo Videos
-
-### Basic Capabilities
-Watch the core workflow: from home page input to task execution with AI agent tools.
-
-[![Basic Capabilities Demo](https://img.youtube.com/vi/in5EWJ1KCUg/maxresdefault.jpg)](https://youtu.be/in5EWJ1KCUg)
-
-### File Management
-See the File Agent in action: generating HTML files with live preview capabilities.
-
-[![File Management Demo](https://img.youtube.com/vi/kuMUwBXlEmU/maxresdefault.jpg)](https://youtu.be/kuMUwBXlEmU)
-
-### History and Playback
-Explore the history system: browsing past executions, replaying workflows, and viewing generated files.
-
-[![History and Playback Demo](https://img.youtube.com/vi/1cmkP6iTbqk/maxresdefault.jpg)](https://youtu.be/1cmkP6iTbqk)
-
 ## RoadMap
 
 ### ✅ Completed Features
