@@ -79,23 +79,6 @@ pnpm run build
 - **语音识别与 TTS**: 语音识别和文字转语音集成
 - **文件管理**: 高级文件操作和管理
 
-## 演示视频
-
-### 基础能力演示
-观看核心工作流程：从首页输入到任务执行，展示 AI Agent 工具调用。
-
-[![基础能力演示](https://img.youtube.com/vi/in5EWJ1KCUg/maxresdefault.jpg)](https://youtu.be/in5EWJ1KCUg)
-
-### 文件读写能力
-查看 File Agent 实际操作：生成 HTML 文件并支持实时预览。
-
-[![文件读写能力演示](https://img.youtube.com/vi/kuMUwBXlEmU/maxresdefault.jpg)](https://youtu.be/kuMUwBXlEmU)
-
-### 历史记录与回放
-探索历史记录系统：浏览过往执行记录、回放工作流程、查看生成的文件。
-
-[![历史记录与回放演示](https://img.youtube.com/vi/1cmkP6iTbqk/maxresdefault.jpg)](https://youtu.be/1cmkP6iTbqk)
-
 ## 产品路线图
 
 ### ✅ 已完成功能
