@@ -31,8 +31,6 @@
   "delete_task": "删除任务",
   "executions_count": "{{count}} 次执行",
   "messages_count": "{{count}} 条消息",
-  "readonly_mode_title": "历史会话为只读模式",
-  "readonly_mode_message": "选择历史记录将进入查看模式，暂时无法继续对话...",
   "confirm_delete_scheduled_executions": "确定要删除此定时任务的所有 {{count}} 条执行历史记录吗？此操作无法撤销。",
   "confirm_delete_task": "确定要删除这条历史任务吗？此操作无法撤销。",
   "confirm_clear_execution_history": "确定要清空此任务的所有执行历史吗？此操作无法撤销。",
@@ -40,6 +38,5 @@
   "cancel": "取消",
   "id_short": "ID",
   "created": "创建",
-  "updated": "更新",
-  "readonly_mode_description": "选择历史记录将进入查看模式，暂时无法继续对话。要继续类似任务，请点击 DeepFundAI 图标创建新会话。"
+  "updated": "更新"
 }

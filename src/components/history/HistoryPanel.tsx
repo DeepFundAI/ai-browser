@@ -181,18 +181,6 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
           onSelectItem={handleSelectItem}
           onDeleteTask={handleDeleteTask}
         />
-
-        {/* Information message */}
-        {!isTaskDetailMode && (
-          <div className="text-center text-sm p-4 rounded-lg" style={{ backgroundColor: 'rgba(255, 149, 0, 0.1)' }}>
-            <div className="font-medium mb-1" style={{ color: '#FF9500' }}>
-              📋 {t('readonly_mode_title')}
-            </div>
-            <div className="opacity-80">
-              {t('readonly_mode_description')}
-            </div>
-          </div>
-        )}
       </div>
     </Drawer>
   );
