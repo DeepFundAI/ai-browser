@@ -105,13 +105,14 @@ export class EkoService {
         agentContext: AgentContext,
         prompt: string,
         options: string[],
-        multiple: boolean
+        multiple?: boolean,
+        _extInfo?: any
       ): Promise<string[]> => {
         const result = await this.requestHumanInteraction(agentContext, {
           interactType: 'select',
           prompt,
           selectOptions: options,
-          selectMultiple: multiple
+          selectMultiple: multiple ?? false
         });
         return Array.isArray(result) ? result : [];
       },
