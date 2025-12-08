@@ -18,8 +18,8 @@ importers:
         specifier: ^0.1.5
         version: 0.1.5(ai@5.0.76(zod@4.1.12))
       '@jarvis-agent/electron':
-        specifier: ^0.1.10
-        version: 0.1.10(ai@5.0.76(zod@4.1.12))(electron@33.4.11)
+        specifier: ^0.1.11
+        version: 0.1.11(ai@5.0.76(zod@4.1.12))(electron@33.4.11)
       '@jest/globals':
         specifier: ^30.1.2
         version: 30.2.0
@@ -907,8 +907,8 @@ packages:
   '@jarvis-agent/core@0.1.5':
     resolution: {integrity: sha512-8YYwey+pzrTTcNO4JTmYTg9X77w6iEJO936wCJIZeFCN8kOTlwYw9c6LT7BHnmHOILhNjeVmgs4dHoPbdgBQcQ==}
 
-  '@jarvis-agent/electron@0.1.10':
-    resolution: {integrity: sha512-KPiBUmvBpJdDDQDA/ObvxMTcU7Ji08DUTnS7DczolVhgKRPoL7F0VAshMAFopdHG/zhg78mVKHipyTtFnl8emQ==}
+  '@jarvis-agent/electron@0.1.11':
+    resolution: {integrity: sha512-Z1EWIEnAslipnUGWvao8XLKfLwgL2KOj9Sg6GoWW4J3Ze38DB5HvZnBTEJTV4dblGsnpX93iK/v9jGwmrqgpfw==}
     peerDependencies:
       electron: '>=20.0.0'
 
@@ -6306,7 +6306,7 @@ snapshots:
     transitivePeerDependencies:
       - ai
 
-  '@jarvis-agent/electron@0.1.10(ai@5.0.76(zod@4.1.12))(electron@33.4.11)':
+  '@jarvis-agent/electron@0.1.11(ai@5.0.76(zod@4.1.12))(electron@33.4.11)':
     dependencies:
       '@jarvis-agent/core': 0.1.5(ai@5.0.76(zod@4.1.12))
       electron: 33.4.11
