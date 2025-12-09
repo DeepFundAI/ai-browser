@@ -3,6 +3,7 @@ import { BrowserAgent, FileAgent } from "@jarvis-agent/electron";
 import type { EkoResult } from "@jarvis-agent/core/types";
 import { BrowserWindow, WebContentsView, app } from "electron";
 import path from "node:path";
+import fs from "node:fs";
 import { randomUUID } from "node:crypto";
 import { ConfigManager } from "../utils/config-manager";
 import type { HumanRequestMessage, HumanResponseMessage, HumanInteractionContext } from "../../../src/models/human-interaction";
@@ -12,7 +13,7 @@ export class EkoService {
   private mainWindow: BrowserWindow;
   private detailView: WebContentsView;
   private mcpClient!: SimpleSseMcpClient;
-  private agents!: any[];
+  private browserAgent: BrowserAgent | null = null;
 
   // Store pending human interaction requests
   private pendingHumanRequests = new Map<string, {
@@ -104,13 +105,14 @@ export class EkoService {
         agentContext: AgentContext,
         prompt: string,
         options: string[],
-        multiple: boolean
+        multiple?: boolean,
+        _extInfo?: any
       ): Promise<string[]> => {
         const result = await this.requestHumanInteraction(agentContext, {
           interactType: 'select',
           prompt,
           selectOptions: options,
-          selectMultiple: multiple
+          selectMultiple: multiple ?? false
         });
         return Array.isArray(result) ? result : [];
       },
@@ -142,31 +144,63 @@ export class EkoService {
     };
   }
 
+  /**
+   * Get base work path for file storage
+   */
+  private getBaseWorkPath(): string {
+    return app.isPackaged
+      ? path.join(app.getPath('userData'), 'static')
+      : path.join(process.cwd(), 'public', 'static');
+  }
+
+  /**
+   * Get task-specific work path with unique taskId
+   */
+  private getTaskWorkPath(taskId: string): string {
+    return path.join(this.getBaseWorkPath(), taskId);
+  }
+
+  /**
+   * Create Eko instance for a specific task with unique work directory
+   */
+  private createEkoForTask(taskId: string): Eko {
+    const configManager = ConfigManager.getInstance();
+    const llms: LLMs = configManager.getLLMsConfig();
+    const agentConfig = configManager.getAgentConfig();
+    const agents: any[] = [];
+
+    // Reuse BrowserAgent (no file storage involved)
+    if (this.browserAgent) {
+      agents.push(this.browserAgent);
+    }
+
+    // Create FileAgent with task-specific work directory
+    if (agentConfig.fileAgent.enabled) {
+      const taskWorkPath = this.getTaskWorkPath(taskId);
+      fs.mkdirSync(taskWorkPath, { recursive: true });
+      agents.push(
+        new FileAgent(this.detailView, taskWorkPath, this.mcpClient, agentConfig.fileAgent.customPrompt)
+      );
+    }
+
+    return new Eko({ llms, agents, callback: this.createCallback() });
+  }
+
   private initializeEko() {
     const configManager = ConfigManager.getInstance();
     const llms: LLMs = configManager.getLLMsConfig();
     const agentConfig = configManager.getAgentConfig();
 
-    const appPath = app.isPackaged
-      ? path.join(app.getPath('userData'), 'static')
-      : path.join(process.cwd(), 'public', 'static');
-
     this.mcpClient = new SimpleSseMcpClient("http://localhost:5173/api/mcp/sse");
-    this.agents = [];
 
+    // Only create BrowserAgent once (no file storage involved)
     if (agentConfig.browserAgent.enabled) {
-      this.agents.push(
-        new BrowserAgent(this.detailView, this.mcpClient, agentConfig.browserAgent.customPrompt)
-      );
+      this.browserAgent = new BrowserAgent(this.detailView, this.mcpClient, agentConfig.browserAgent.customPrompt);
     }
 
-    if (agentConfig.fileAgent.enabled) {
-      this.agents.push(
-        new FileAgent(this.detailView, appPath, this.mcpClient, agentConfig.fileAgent.customPrompt)
-      );
-    }
-
-    this.eko = new Eko({ llms, agents: this.agents, callback: this.createCallback() });
+    // Create default Eko instance with only BrowserAgent for restore/modify scenarios
+    const defaultAgents = this.browserAgent ? [this.browserAgent] : [];
+    this.eko = new Eko({ llms, agents: defaultAgents, callback: this.createCallback() });
   }
 
   /**
@@ -187,8 +221,18 @@ export class EkoService {
 
     const configManager = ConfigManager.getInstance();
     const llms: LLMs = configManager.getLLMsConfig();
+    const agentConfig = configManager.getAgentConfig();
 
-    this.eko = new Eko({ llms, agents: this.agents, callback: this.createCallback() });
+    // Recreate BrowserAgent with new config
+    if (agentConfig.browserAgent.enabled) {
+      this.browserAgent = new BrowserAgent(this.detailView, this.mcpClient, agentConfig.browserAgent.customPrompt);
+    } else {
+      this.browserAgent = null;
+    }
+
+    // Create default Eko instance
+    const defaultAgents = this.browserAgent ? [this.browserAgent] : [];
+    this.eko = new Eko({ llms, agents: defaultAgents, callback: this.createCallback() });
 
     if (this.mainWindow && !this.mainWindow.isDestroyed()) {
       this.mainWindow.webContents.send('eko-config-reloaded', {
@@ -199,14 +243,15 @@ export class EkoService {
   }
 
   async run(message: string): Promise<EkoResult | null> {
-    if (!this.eko) {
-      console.error('[EkoService] Eko service not initialized');
-      this.sendErrorToFrontend('Eko service not initialized');
-      return null;
-    }
-
     try {
-      return await this.eko.run(message);
+      // Generate unique taskId for this execution
+      const taskId = randomUUID();
+
+      // Create Eko instance with task-specific work directory
+      this.eko = this.createEkoForTask(taskId);
+
+      // Execute with the specified taskId
+      return await this.eko.run(message, taskId);
     } catch (error: any) {
       console.error('[EkoService] Run error:', error);
       this.sendErrorToFrontend(error?.message || 'Unknown error occurred', error);
@@ -325,12 +370,12 @@ export class EkoService {
     chainPlanRequest?: any,
     chainPlanResult?: string
   ): Promise<string | null> {
-    if (!this.eko) {
-      console.error('[EkoService] Eko service not initialized');
-      return null;
-    }
-
     try {
+      const taskId = workflow.taskId;
+
+      // Create Eko instance with task-specific work directory for restored task
+      this.eko = this.createEkoForTask(taskId);
+
       const context = await this.eko.initContext(workflow, contextParams);
 
       if (chainPlanRequest && chainPlanResult) {
@@ -338,7 +383,7 @@ export class EkoService {
         context.chain.planResult = chainPlanResult;
       }
 
-      return workflow.taskId;
+      return taskId;
     } catch (error: any) {
       console.error('[EkoService] Failed to restore task:', error);
       return null;

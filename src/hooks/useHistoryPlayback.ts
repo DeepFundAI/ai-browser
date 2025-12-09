@@ -3,7 +3,7 @@ import { DisplayMessage } from '@/models';
 import { flattenMessages, AtomicMessageFragment, getFragmentTextLength } from '@/utils/messageFlattener';
 
 // Playback speed options
-export type PlaybackSpeed = 0.5 | 1 | 2 | 5 | 10;
+export type PlaybackSpeed = 0.5 | 1 | 2 | 5 | 10 | 20 | 50;
 
 // Playback state
 export type PlaybackState = 'idle' | 'playing' | 'paused' | 'completed';

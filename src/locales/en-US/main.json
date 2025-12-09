@@ -25,8 +25,8 @@
   "continue_conversation_failed": "Failed to restore conversation",
   "continue_conversation": "Continue Conversation",
   "playback_mode": "Playing",
-  "replay": "Replay",
-  "pause_replay": "Pause Replay",
+  "replay": "Start Replay",
+  "stop_replay": "Stop Replay",
   "file_attachments_title": "All Files in This Task ({{count}})",
   "no_files_in_filter": "No files in this category",
   "file_filter": {
