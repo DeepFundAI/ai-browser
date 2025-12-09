@@ -20,6 +20,7 @@ import { useEventListeners } from '@/hooks/useEventListeners';
 import { ChatInputArea } from '@/components/chat/ChatInputArea';
 import { HistoryModeHeader } from '@/components/chat/HistoryModeHeader';
 import { DetailPanel } from '@/components/chat/DetailPanel';
+import { PlaybackSpeedControl } from '@/components/chat/PlaybackSpeedControl';
 
 
 export default function main() {
@@ -374,22 +375,32 @@ export default function main() {
 
                         {/* Question input box / Playback control */}
                         {isHistoryMode ? (
-                            /* History mode: Show replay button */
+                            /* History mode: Show replay button with speed control */
                             <div className='h-30 gradient-border relative'>
-                                <div className="h-full flex items-center justify-center bg-tool-call rounded-xl">
+                                <div className="h-full flex items-center justify-center gap-4 bg-tool-call rounded-xl">
                                     <Button
                                         type="primary"
                                         size="large"
                                         icon={playback.status === 'playing' ? <PauseOutlined /> : <CaretRightOutlined />}
-                                        onClick={playback.status === 'playing' ? playback.pause : playback.restart}
+                                        onClick={() => {
+                                            if (playback.status === 'playing') {
+                                                playback.stop();
+                                            } else {
+                                                playback.restart();
+                                            }
+                                        }}
                                         className="bg-[linear-gradient(135deg,#5E31D8,#8B5CF6)] border-transparent px-6"
                                     >
                                         {playback.status === 'playing'
-                                            ? t('pause_replay') || '暂停回放'
-                                            : t('replay') || '重新回放'}
+                                            ? t('stop_replay') || '终止回放'
+                                            : t('replay') || '开始回放'}
                                     </Button>
+                                    <PlaybackSpeedControl
+                                        speed={playback.speed}
+                                        onSpeedChange={playback.setSpeed}
+                                    />
                                     {playback.status === 'playing' && (
-                                        <span className="ml-4 text-sm text-gray-400">
+                                        <span className="text-sm text-gray-400">
                                             {playback.progress}%
                                         </span>
                                     )}

@@ -1,7 +1,7 @@
 import { Task, DisplayMessage, AgentGroupMessage, WorkflowMessage } from '@/models';
 import { produce } from 'immer';
 
-export type PlaybackSpeed = 0.5 | 1 | 2 | 5 | 10;
+export type PlaybackSpeed = 0.5 | 1 | 2 | 5 | 10 | 20 | 50;
 export type PlaybackStatus = 'idle' | 'playing' | 'paused' | 'completed';
 
 interface PlaybackState {
@@ -103,13 +103,11 @@ export class PlaybackEngine {
   }
 
   /**
-   * Start or resume playback
+   * Start playback from beginning
    */
   async play(): Promise<void> {
-    if (this.state.status === 'completed') {
-      // Restart from beginning
-      this.reset();
-    }
+    // Always start from beginning
+    this.reset();
 
     this.state.status = 'playing';
     this.isPaused = false;
@@ -170,9 +168,11 @@ export class PlaybackEngine {
   private async streamMessages(): Promise<void> {
     await this.streamMessagesRecursive(this.state.currentMessageIndex);
 
-    // Playback completed
-    this.state.status = 'completed';
-    this.notifyUpdate(100);
+    // Mark as completed if not stopped
+    if (!this.shouldStop) {
+      this.state.status = 'completed';
+      this.notifyUpdate(100);
+    }
   }
 
   /**
