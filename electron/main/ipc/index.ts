@@ -3,6 +3,7 @@ import { registerViewHandlers } from "./view-handlers";
 import { registerHistoryHandlers } from "./history-handlers";
 import { registerConfigHandlers } from "./config-handlers";
 import { registerAgentHandlers } from "./agent-handlers";
+import { registerFileHandlers } from "./file-handlers";
 
 export function registerAllIpcHandlers() {
   registerEkoHandlers();
@@ -10,6 +11,7 @@ export function registerAllIpcHandlers() {
   registerHistoryHandlers();
   registerConfigHandlers();
   registerAgentHandlers();
+  registerFileHandlers();
 }
 
 export {
@@ -17,5 +19,6 @@ export {
   registerViewHandlers,
   registerHistoryHandlers,
   registerConfigHandlers,
-  registerAgentHandlers
+  registerAgentHandlers,
+  registerFileHandlers
 };

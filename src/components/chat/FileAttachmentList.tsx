@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { FileAttachment } from '@/models';
-import { FileTextOutlined, FileMarkdownOutlined, CodeOutlined, FileOutlined, LinkOutlined, DownOutlined, UpOutlined } from '@ant-design/icons';
+import { FileTextOutlined, FileMarkdownOutlined, CodeOutlined, FileOutlined, LinkOutlined, DownOutlined, UpOutlined, DownloadOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
 interface FileAttachmentListProps {
@@ -14,6 +14,16 @@ export const FileAttachmentList: React.FC<FileAttachmentListProps> = ({ files, o
   const { t } = useTranslation('main');
   const [filter, setFilter] = useState<FilterType>('all');
   const [isExpanded, setIsExpanded] = useState(false);
+
+  // Handle file download
+  const handleDownload = async (e: React.MouseEvent, file: FileAttachment) => {
+    e.stopPropagation();
+    try {
+      await (window as any).api?.downloadFile?.(file.path, file.name);
+    } catch (error) {
+      console.error('Failed to download file:', error);
+    }
+  };
 
   // Filter files based on selected type
   const filteredFiles = useMemo(() => {
@@ -137,9 +147,18 @@ export const FileAttachmentList: React.FC<FileAttachmentListProps> = ({ files, o
                   </div>
                 </div>
 
-                {/* Link icon */}
-                <div className="flex-shrink-0 text-text-12-dark opacity-0 group-hover:opacity-100 transition-opacity">
-                  <LinkOutlined />
+                {/* Action buttons */}
+                <div className="flex-shrink-0 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div
+                    className="text-text-12-dark hover:text-blue-500 cursor-pointer p-1"
+                    onClick={(e) => handleDownload(e, file)}
+                    title={t('download')}
+                  >
+                    <DownloadOutlined />
+                  </div>
+                  <div className="text-text-12-dark hover:text-blue-500 cursor-pointer p-1" title={t('preview')}>
+                    <LinkOutlined />
+                  </div>
                 </div>
               </div>
             ))}
