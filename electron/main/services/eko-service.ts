@@ -27,6 +27,9 @@ export class EkoService {
   // Store current human_interact toolId
   private currentHumanInteractToolId: string | null = null;
 
+  // Track running task IDs for accurate status checking
+  private runningTaskIds: Set<string> = new Set();
+
   constructor(mainWindow: BrowserWindow, detailView: WebContentsView) {
     this.mainWindow = mainWindow;
     this.detailView = detailView;
@@ -243,12 +246,14 @@ export class EkoService {
   }
 
   async run(message: string): Promise<EkoResult | null> {
+    let taskId: string | null = null;
     try {
       // Generate unique taskId for this execution
-      const taskId = randomUUID();
+      taskId = randomUUID();
 
       // Create Eko instance with task-specific work directory
       this.eko = this.createEkoForTask(taskId);
+      this.runningTaskIds.add(taskId);
 
       // Execute with the specified taskId
       return await this.eko.run(message, taskId);
@@ -256,6 +261,10 @@ export class EkoService {
       console.error('[EkoService] Run error:', error);
       this.sendErrorToFrontend(error?.message || 'Unknown error occurred', error);
       return null;
+    } finally {
+      if (taskId) {
+        this.runningTaskIds.delete(taskId);
+      }
     }
   }
 
@@ -268,11 +277,14 @@ export class EkoService {
 
     try {
       await this.eko.modify(taskId, message);
+      this.runningTaskIds.add(taskId);
       return await this.eko.execute(taskId);
     } catch (error: any) {
       console.error('[EkoService] Modify error:', error);
       this.sendErrorToFrontend(error?.message || 'Failed to modify task', error, taskId);
       return null;
+    } finally {
+      this.runningTaskIds.delete(taskId);
     }
   }
 
@@ -284,11 +296,14 @@ export class EkoService {
     }
 
     try {
+      this.runningTaskIds.add(taskId);
       return await this.eko.execute(taskId);
     } catch (error: any) {
       console.error('[EkoService] Execute error:', error);
       this.sendErrorToFrontend(error?.message || 'Failed to execute task', error, taskId);
       return null;
+    } finally {
+      this.runningTaskIds.delete(taskId);
     }
   }
 
@@ -322,22 +337,7 @@ export class EkoService {
    * Check if any task is running
    */
   hasRunningTask(): boolean {
-    if (!this.eko) {
-      return false;
-    }
-
-    const allTaskIds = this.eko.getAllTaskId();
-
-    // Iterate through all tasks, check if any task is not terminated
-    for (const taskId of allTaskIds) {
-      const context = this.eko.getTask(taskId);
-      if (context && !context.controller.signal.aborted) {
-        // Task exists and not terminated, meaning it may be running
-        return true;
-      }
-    }
-
-    return false;
+    return this.runningTaskIds.size > 0;
   }
 
   getTaskContext(taskId: string): {

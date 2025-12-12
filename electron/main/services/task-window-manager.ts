@@ -1,8 +1,9 @@
-import { BrowserWindow, dialog, WebContentsView } from "electron";
+import { BrowserWindow, WebContentsView } from "electron";
 import { EkoService } from "./eko-service";
 import { windowContextManager, type WindowContext } from "./window-context-manager";
 import { createWindow } from '../ui/window';
 import { createView } from "../ui/view";
+import { showCloseConfirmModal } from "../ui/modal";
 
 interface TaskWindowContext {
   window: BrowserWindow;
@@ -89,35 +90,46 @@ export class TaskWindowManager {
     };
     windowContextManager.registerWindow(windowContext);
 
+    // Track close confirmation state
+    let closeConfirmed = false;
+    let isShowingModal = false;
+
     taskWindow.on('close', async (event) => {
+      if (closeConfirmed) {
+        closeConfirmed = false;
+        return;
+      }
+
       const hasRunningTask = ekoService.hasRunningTask();
 
       if (hasRunningTask) {
         event.preventDefault();
 
-        const { response } = await dialog.showMessageBox(taskWindow, {
-          type: 'warning',
-          title: 'Scheduled Task Running',
-          message: 'A scheduled task is currently executing. Closing the window will terminate the task',
-          detail: 'Please choose an action:',
-          buttons: ['Cancel', 'Stop Task and Close'],
-          defaultId: 0,
-          cancelId: 0
-        });
+        // Prevent multiple modals
+        if (isShowingModal) return;
+        isShowingModal = true;
 
-        if (response === 1) {
+        // Show modal dialog window
+        const confirmed = await showCloseConfirmModal(taskWindow);
+        isShowingModal = false;
+
+        if (confirmed) {
           const allTaskIds = ekoService['eko']?.getAllTaskId() || [];
           await ekoService.abortAllTasks();
 
           allTaskIds.forEach((tid: string) => {
-            taskWindow.webContents.send('task-aborted-by-system', {
-              taskId: tid,
-              reason: 'User closed scheduled task window, task terminated',
-              timestamp: new Date().toISOString()
-            });
+            if (!taskWindow.isDestroyed()) {
+              taskWindow.webContents.send('task-aborted-by-system', {
+                taskId: tid,
+                reason: 'User closed scheduled task window, task terminated',
+                timestamp: new Date().toISOString()
+              });
+            }
           });
 
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          await new Promise(resolve => setTimeout(resolve, 500));
+
+          closeConfirmed = true;
           taskWindow.destroy();
         }
       }
