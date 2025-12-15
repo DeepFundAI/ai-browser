@@ -46,5 +46,7 @@
   "voice_input_start": "Start voice input",
   "voice_input_stop": "Stop recording",
   "voice_input_recording": "Recording...",
-  "voice_input_error": "Voice recognition failed"
+  "voice_input_error": "Voice recognition failed",
+  "download": "Download",
+  "preview": "Preview"
 }

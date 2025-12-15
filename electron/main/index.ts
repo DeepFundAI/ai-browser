@@ -2,7 +2,6 @@
 import {
   app,
   BrowserWindow,
-  dialog,
   WebContentsView,
   protocol,
 } from "electron";
@@ -22,6 +21,7 @@ import { ConfigManager } from "./utils/config-manager";
 ConfigManager.getInstance().initialize();
 
 import { createView } from "./ui/view";
+import { showCloseConfirmModal } from "./ui/modal";
 import { EkoService } from "./services/eko-service";
 import { ServerManager } from "./services/server-manager";
 import { MainWindowManager } from "./windows/main-window";
@@ -123,25 +123,31 @@ let mainWindowManager: MainWindowManager;
  * Handles task termination and window hiding/closing based on platform
  */
 function setupMainWindowCloseHandler(window: BrowserWindow, service: EkoService): void {
+  // Flag to track if close is confirmed or modal is showing
+  let closeConfirmed = false;
+  let isShowingModal = false;
+
   window.on('close', async (event) => {
+    // If already confirmed, allow close
+    if (closeConfirmed) {
+      closeConfirmed = false;
+      return;
+    }
+
     const hasRunningTask = service.hasRunningTask();
 
     if (hasRunningTask) {
       event.preventDefault();
 
-      const { response } = await dialog.showMessageBox(window, {
-        type: 'warning',
-        title: 'Task Running',
-        message: 'A task is currently running. Closing the window will cause the task to fail',
-        detail: 'Please choose an action:',
-        buttons: process.platform === 'darwin'
-          ? ['Cancel', 'Stop Task and Close']
-          : ['Cancel', 'Stop Task and Minimize'],
-        defaultId: 0,
-        cancelId: 0
-      });
+      // Prevent multiple modals
+      if (isShowingModal) return;
+      isShowingModal = true;
 
-      if (response === 1) {
+      // Show modal dialog window
+      const confirmed = await showCloseConfirmModal(window);
+      isShowingModal = false;
+
+      if (confirmed) {
         const allTaskIds = service['eko']?.getAllTaskId() || [];
         await service.abortAllTasks();
 
@@ -153,8 +159,9 @@ function setupMainWindowCloseHandler(window: BrowserWindow, service: EkoService)
           });
         });
 
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 500));
 
+        closeConfirmed = true;
         process.platform === 'darwin' ? window.destroy() : window.hide();
       }
     } else if (process.platform !== 'darwin') {

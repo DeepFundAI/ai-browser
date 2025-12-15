@@ -15,6 +15,7 @@ body {
   align-items: center;
   justify-content: center;
   position: relative;
+  -webkit-app-region: drag;
 }
 
 body::before {

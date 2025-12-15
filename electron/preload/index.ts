@@ -72,6 +72,8 @@ const api = {
   onTaskAbortedBySystem: (callback: (event: any) => void) =>
     ipcRenderer.on('task-aborted-by-system', (_, event) => callback(event)),
 
+  // File download API
+  downloadFile: (filePath: string, fileName: string) => safeInvoke('file:download', filePath, fileName),
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to
