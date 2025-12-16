@@ -11,6 +11,7 @@ interface MessageDisplayProps {
   onToolClick?: (message: ToolAction) => void;
   onHumanResponse?: (response: HumanResponseMessage) => void;
   onFileClick?: (file: FileAttachment) => void;
+  onRetry?: () => void;
 }
 
 /**
@@ -21,7 +22,8 @@ export const MessageContent: React.FC<MessageDisplayProps> = ({
   message,
   onToolClick,
   onHumanResponse,
-  onFileClick
+  onFileClick,
+  onRetry
 }) => {
   // Data-driven: message.content is already streaming from PlaybackEngine
   // User message
@@ -42,7 +44,7 @@ export const MessageContent: React.FC<MessageDisplayProps> = ({
   }
 
   if (message.type === 'agent_group') {
-    return <AgentGroupDisplay agentMessage={message} onToolClick={onToolClick} onHumanResponse={onHumanResponse} onFileClick={onFileClick} />
+    return <AgentGroupDisplay agentMessage={message} onToolClick={onToolClick} onHumanResponse={onHumanResponse} onFileClick={onFileClick} onRetry={onRetry} />
   }
 
   return null;

@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
 import { Button } from 'antd';
+import { ReloadOutlined } from '@ant-design/icons';
 import { ExpandCollapse, FinishStatus, RuningStatus } from '@/icons/deepfundai-icons';
 import { AgentGroupMessage, ToolAction, FileAttachment } from '@/models';
 import type { HumanResponseMessage } from '@/models/human-interaction';
 import { AgentMessageContent } from './ContentMessage';
+import { useTranslation } from 'react-i18next';
 
 interface AgentGroupDisplayProps {
   agentMessage: AgentGroupMessage;
   onToolClick?: (message: ToolAction) => void;
   onHumanResponse?: (response: HumanResponseMessage) => void;
   onFileClick?: (file: FileAttachment) => void;
+  onRetry?: () => void;
 }
 
 /**
@@ -20,9 +23,12 @@ export const AgentGroupDisplay: React.FC<AgentGroupDisplayProps> = ({
   agentMessage,
   onToolClick,
   onHumanResponse,
-  onFileClick
+  onFileClick,
+  onRetry
 }) => {
+  const { t } = useTranslation('chat');
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const isError = agentMessage.status === 'error';
 
   return (
     <div className="agent-group mb-4 mt-10">
@@ -64,6 +70,21 @@ export const AgentGroupDisplay: React.FC<AgentGroupDisplayProps> = ({
               </div>
             );
           })}
+
+          {/* Retry button for error status */}
+          {isError && onRetry && (
+            <div className="pl-6 mt-4">
+              <Button
+                type="default"
+                size="small"
+                icon={<ReloadOutlined />}
+                onClick={onRetry}
+                className="!bg-transparent !border-border-message hover:!border-blue-500 hover:!text-blue-500"
+              >
+                {t('retry')}
+              </Button>
+            </div>
+          )}
         </div>
       )}
     </div>

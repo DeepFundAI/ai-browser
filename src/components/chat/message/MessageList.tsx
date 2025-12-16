@@ -8,6 +8,7 @@ interface MessageDisplayProps {
   onToolClick?: (message: ToolAction) => void;
   onHumanResponse?: (response: HumanResponseMessage) => void;
   onFileClick?: (file: FileAttachment) => void;
+  onRetry?: () => void;
 }
 
 /**
@@ -18,7 +19,8 @@ export const MessageItem: React.FC<MessageDisplayProps> = ({
   message,
   onToolClick,
   onHumanResponse,
-  onFileClick
+  onFileClick,
+  onRetry
 }) => {
   const isUser = message.type === 'user';
 
@@ -29,6 +31,7 @@ export const MessageItem: React.FC<MessageDisplayProps> = ({
       onToolClick={onToolClick}
       onHumanResponse={onHumanResponse}
       onFileClick={onFileClick}
+      onRetry={onRetry}
     />
   );
 
@@ -54,6 +57,7 @@ interface MessageListProps {
   onToolClick?: (message: ToolAction) => void;
   onHumanResponse?: (response: HumanResponseMessage) => void;
   onFileClick?: (file: FileAttachment) => void;
+  onRetry?: () => void;
 }
 
 /**
@@ -64,7 +68,8 @@ export const MessageListComponent: React.FC<MessageListProps> = ({
   messages,
   onToolClick,
   onHumanResponse,
-  onFileClick
+  onFileClick,
+  onRetry
 }) => {
   // Data-driven: messages grow during playback, just render them
   return (
@@ -76,6 +81,7 @@ export const MessageListComponent: React.FC<MessageListProps> = ({
             onToolClick={onToolClick}
             onHumanResponse={onHumanResponse}
             onFileClick={onFileClick}
+            onRetry={onRetry}
           />
         </div>
       ))}

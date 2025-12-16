@@ -13,7 +13,7 @@ const api = {
   // TTS subtitle related APIs
   sendTTSSubtitle: (text: string, isStart: boolean) => ipcRenderer.invoke('send-tts-subtitle', text, isStart),
 
-  onFileUpdated: (callback: (status: string, content: string) => void) => ipcRenderer.on('file-updated', (_, status, content) => callback(status, content)),
+  onFileUpdated: (callback: (status: string, content: string, fileName?: string) => void) => ipcRenderer.on('file-updated', (_, status, content, fileName) => callback(status, content, fileName)),
 
   // Generic invoke method (for config and other features)
   invoke: (channel: string, ...args: any[]) => ipcRenderer.invoke(channel, ...args),
