@@ -14,8 +14,13 @@ export function createTray(mainWindow: BrowserWindow): Tray {
     console.error('[Tray] Failed to load icon from:', iconPath);
   }
 
-  // Let system handle icon sizing, don't resize manually
   tray = new Tray(icon);
+
+  if (process.platform === 'darwin') {
+    const resizedIcon = icon.resize({ width: 18, height: 18 });
+    tray.setImage(resizedIcon);
+  }
+
   tray.setToolTip('DeepFundAI Browser');
 
   updateTrayMenu(mainWindow);
@@ -79,7 +84,6 @@ function getTrayIconPath(): string {
     return path.join(process.cwd(), 'assets/icons/icon.png');
   }
 
-  // In production, assets are packed in app.asar, use app.getAppPath()
   const basePath = app.getAppPath();
 
   if (process.platform === 'win32') {
