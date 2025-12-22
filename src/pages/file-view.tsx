@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { Layout, Typography, Card, Button, Space, Spin, App } from 'antd';
+import { Layout, Typography, Button, Space, Spin, App } from 'antd';
+import { twMerge } from 'tailwind-merge';
 import {
   FileTextOutlined,
   DownloadOutlined,
@@ -8,9 +9,42 @@ import {
   FileOutlined
 } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
+import { CodePreview } from '@/components/file-preview';
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
+
+// Dark theme action button with unified styling
+const ActionButton: React.FC<{
+  icon: React.ReactNode;
+  onClick: () => void;
+  disabled?: boolean;
+  active?: boolean;
+  children: React.ReactNode;
+}> = ({ icon, onClick, disabled, active, children }) => {
+  const baseStyles = [
+    '!bg-transparent',
+    '!border-[rgba(255,255,255,0.2)]',
+    '!text-gray-300',
+    'hover:!text-white',
+    'hover:!border-blue-500',
+    'disabled:!text-gray-600',
+    'disabled:!border-gray-700'
+  ];
+
+  return (
+    <Button
+      icon={icon}
+      size="small"
+      onClick={onClick}
+      disabled={disabled}
+      type={active ? 'primary' : 'default'}
+      className={active ? '' : twMerge(baseStyles)}
+    >
+      {children}
+    </Button>
+  );
+};
 
 interface FileViewState {
   content: string;
@@ -39,8 +73,7 @@ export default function FileView() {
 
   type ShowTypeOption = 'code' | 'preview';
 
-  const [showType, setShowType] = useState<ShowTypeOption>('code')
-  const [url, setUrl] = useState<string>('')
+  const [showType, setShowType] = useState<ShowTypeOption>('code');
 
   // Calculate file statistics
   const calculateStats = (content: string) => {
@@ -51,9 +84,7 @@ export default function FileView() {
 
   // Listen for file update events
   useEffect(() => {
-    const handleFileUpdated = (status: ShowTypeOption, content: string) => {
-      console.log('File content updated:', content.length, 'characters');
-
+    const handleFileUpdated = (status: ShowTypeOption, content: string, fileName?: string) => {
       setShowType(status)
       if (status === 'preview') {
         setFileState(pre => ({
@@ -66,10 +97,11 @@ export default function FileView() {
       }
 
       const stats = calculateStats(content);
-      
+
       setFileState(prev => ({
         ...prev,
         content,
+        fileName: fileName || prev.fileName,
         isLoading: false,
         lastUpdated: new Date(),
         wordCount: stats.wordCount,
@@ -142,89 +174,86 @@ export default function FileView() {
   };
 
   return (
-    <Layout className="h-screen">
-      <Content className="p-4 flex flex-col">
+    <Layout className="h-screen bg-[#1D273F]">
+      <Content className="p-4 flex flex-col gap-0">
         {/* Header information bar */}
-        <Card>
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-3">
-              <FileTextOutlined className="text-xl text-blue-500" />
-              <div>
-                <Title level={4} className="m-0">
-                  {t('title')}
-                </Title>
-                <Text type="secondary" className="text-xs">
-                  {fileState.lastUpdated ? t('last_updated', { time: formatTime(fileState.lastUpdated) }) : t('waiting_content')}
-                </Text>
-              </div>
-            </div>
-
-            <Space>
-              <Text type="secondary" className="text-xs">
-                {t('stats', { lines: fileState.lineCount, words: fileState.wordCount })}
+        <div className="flex justify-between items-center px-4 py-3 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.1)] border-b-0 rounded-t-lg">
+          <div className="flex items-center gap-3">
+            <FileTextOutlined className="text-xl text-blue-400" />
+            <div>
+              <Title level={5} className="!m-0 !text-white !font-medium">
+                {t('title')}
+              </Title>
+              <Text className="text-xs !text-gray-400">
+                {fileState.lastUpdated ? t('last_updated', { time: formatTime(fileState.lastUpdated) }) : t('waiting_content')}
               </Text>
-              <Button
-                icon={<CodeOutlined />}
-                size="small"
-                onClick={() => setShowType('code')}
-                type={showType === 'code' ? 'primary' : 'default'}
-              >
-                {t('code')}
-              </Button>
-              <Button
-                icon={<FileOutlined />}
-                size="small"
-                onClick={() => setShowType('preview')}
-                disabled={!fileState.url}
-                type={showType === 'preview' ? 'primary' : 'default'}
-              >
-                {t('preview')}
-              </Button>
-              <Button
-                icon={<CopyOutlined />}
-                size="small"
-                onClick={handleCopy}
-                disabled={!fileState.content}
-              >
-                {t('copy')}
-              </Button>
-              <Button
-                icon={<DownloadOutlined />}
-                size="small"
-                onClick={handleDownload}
-                disabled={!fileState.content}
-              >
-                {t('download')}
-              </Button>
-            </Space>
+            </div>
           </div>
-        </Card>
+
+          <Space>
+            <Text className="text-xs !text-gray-400">
+              {t('stats', { lines: fileState.lineCount, words: fileState.wordCount })}
+            </Text>
+            <ActionButton
+              icon={<CodeOutlined />}
+              onClick={() => setShowType('code')}
+              active={showType === 'code'}
+            >
+              {t('code')}
+            </ActionButton>
+            <ActionButton
+              icon={<FileOutlined />}
+              onClick={() => setShowType('preview')}
+              disabled={!fileState.url}
+              active={showType === 'preview'}
+            >
+              {t('preview')}
+            </ActionButton>
+            <ActionButton
+              icon={<CopyOutlined />}
+              onClick={handleCopy}
+              disabled={!fileState.content}
+            >
+              {t('copy')}
+            </ActionButton>
+            <ActionButton
+              icon={<DownloadOutlined />}
+              onClick={handleDownload}
+              disabled={!fileState.content}
+            >
+              {t('download')}
+            </ActionButton>
+          </Space>
+        </div>
 
         {/* File content area */}
-        {showType === 'code' ? (<Card className='flex-1 overflow-auto' ref={contentRef}>
-          {fileState.isLoading ? (
-            <div className="flex justify-center items-center h-full flex-col gap-4">
-              <Spin size="large" />
-              <Text type="secondary">{t('waiting_ai')}</Text>
-            </div>
-          ) : fileState.content ? (
-            <div className="h-full overflow-auto font-mono text-sm leading-relaxed whitespace-pre-wrap break-words p-4 rounded-md">
-              {fileState.content}
-            </div>
-          ) : (
-            <div className="flex justify-center items-center h-full flex-col gap-4">
-              <FileTextOutlined className="text-6xl text-gray-300" />
-              <div className="text-center">
-                <Title level={4} type="secondary">{t('no_content')}</Title>
-                <Text type="secondary">
-                  {t('no_content_hint')}
-                </Text>
+        {showType === 'code' ? (
+          <div className="flex-1 overflow-auto bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.1)] border-t-0 rounded-b-lg p-4" ref={contentRef}>
+            {fileState.isLoading ? (
+              <div className="flex justify-center items-center h-full flex-col gap-4">
+                <Spin size="large" />
+                <Text type="secondary">{t('waiting_ai')}</Text>
               </div>
-            </div>
-          )}
-        </Card>) : (<>
-        <iframe src={fileState.url} className='h-full bg-white'></iframe>
-        </>)}
+            ) : fileState.content ? (
+              <CodePreview
+                content={fileState.content}
+                fileName={fileState.fileName}
+              />
+            ) : (
+              <div className="flex justify-center items-center h-full flex-col gap-4">
+                <FileTextOutlined className="text-6xl text-gray-500" />
+                <div className="text-center">
+                  <Title level={4} type="secondary">{t('no_content')}</Title>
+                  <Text type="secondary">
+                    {t('no_content_hint')}
+                  </Text>
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <iframe src={fileState.url} className="flex-1 bg-white rounded-b-lg border border-[rgba(255,255,255,0.1)] border-t-0" />
+        )}
         
       </Content>
     </Layout>

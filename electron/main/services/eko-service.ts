@@ -68,14 +68,15 @@ export class EkoService {
 
             if (args?.content) {
               const url = this.detailView.webContents.getURL();
+              const fileName = args.fileName || args.path || 'file.txt';
               if (!url.includes('file-view')) {
                 this.detailView.webContents.loadURL(`http://localhost:5173/file-view`);
                 this.detailView.webContents.once('did-finish-load', () => {
-                  this.detailView.webContents.send('file-updated', 'code', args.content);
+                  this.detailView.webContents.send('file-updated', 'code', args.content, fileName);
                   resolve();
                 });
               } else {
-                this.detailView.webContents.send('file-updated', 'code', args.content);
+                this.detailView.webContents.send('file-updated', 'code', args.content, fileName);
                 resolve();
               }
             } else {

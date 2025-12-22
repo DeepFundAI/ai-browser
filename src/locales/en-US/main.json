@@ -48,5 +48,6 @@
   "voice_input_recording": "Recording...",
   "voice_input_error": "Voice recognition failed",
   "download": "Download",
-  "preview": "Preview"
+  "preview": "Preview",
+  "no_message_to_retry": "No message to retry"
 }

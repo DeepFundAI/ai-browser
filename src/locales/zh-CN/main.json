@@ -48,5 +48,6 @@
   "voice_input_recording": "录音中...",
   "voice_input_error": "语音识别失败",
   "download": "下载",
-  "preview": "预览"
+  "preview": "预览",
+  "no_message_to_retry": "没有可重试的消息"
 }

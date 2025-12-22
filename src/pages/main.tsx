@@ -125,6 +125,7 @@ export default function main() {
     const taskIdRef = useRef<string>(currentTaskId);
     const messageProcessorRef = useRef(new MessageProcessor());
     const executionIdRef = useRef<string>('');
+    const lastUserMessageRef = useRef<string>('');
 
     const showDetailAgents = ['Browser', 'File'];
 
@@ -274,6 +275,18 @@ export default function main() {
     }, [currentTask, playback, handleContinueConversationBase, antdMessage, t, setIsViewingAttachment,
         setCurrentTaskId, taskIdRef, setCurrentUrl, setShowDetail, setToolHistory, setCurrentHistoryIndex, messageProcessorRef]);
 
+    // Handle retry - resend last user message
+    const handleRetry = useCallback(async () => {
+        const lastMessage = lastUserMessageRef.current;
+        if (!lastMessage) {
+            antdMessage.warning(t('no_message_to_retry'));
+            return;
+        }
+
+        // Resend the last user message
+        await sendMessage(lastMessage);
+    }, [sendMessage, antdMessage, t]);
+
     // Synchronize taskIdRef
     useEffect(() => {
         taskIdRef.current = currentTaskId;
@@ -360,6 +373,7 @@ export default function main() {
                                 onToolClick={handleToolClick}
                                 onHumanResponse={handleHumanResponse}
                                 onFileClick={handleFileClick}
+                                onRetry={handleRetry}
                             />
                         </div>
 
@@ -415,6 +429,9 @@ export default function main() {
                                 onSend={async () => {
                                     const messageToSend = query.trim();
                                     if (!messageToSend) return;
+
+                                    // Save last user message for retry
+                                    lastUserMessageRef.current = messageToSend;
 
                                     // Clear input immediately for better UX
                                     setQuery('');

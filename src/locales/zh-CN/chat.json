@@ -31,5 +31,6 @@
   "wait_page_load": "等待页面加载",
   "capture_screenshot": "捕获页面截图",
   "execute_tool": "执行工具操作",
-  "executing_tool": "正在执行 {{toolName}}"
+  "executing_tool": "正在执行 {{toolName}}",
+  "retry": "重试"
 }

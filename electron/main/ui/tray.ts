@@ -7,8 +7,20 @@ let tray: Tray | null = null;
 let updateInterval: NodeJS.Timeout | null = null;
 
 export function createTray(mainWindow: BrowserWindow): Tray {
-  const icon = nativeImage.createFromPath(getTrayIconPath());
-  tray = new Tray(icon.resize({ width: 16, height: 16 }));
+  const iconPath = getTrayIconPath();
+  const icon = nativeImage.createFromPath(iconPath);
+
+  if (icon.isEmpty()) {
+    console.error('[Tray] Failed to load icon from:', iconPath);
+  }
+
+  tray = new Tray(icon);
+
+  if (process.platform === 'darwin') {
+    const resizedIcon = icon.resize({ width: 18, height: 18 });
+    tray.setImage(resizedIcon);
+  }
+
   tray.setToolTip('DeepFundAI Browser');
 
   updateTrayMenu(mainWindow);
@@ -52,11 +64,15 @@ function showMainWindow(mainWindow: BrowserWindow): void {
 
 function quitApplication(): void {
   taskScheduler.stop();
+
   if (tray) {
     tray.destroy();
     tray = null;
   }
-  app.quit();
+
+  // Use app.exit() to force immediate termination
+  // This ensures the process exits even with active HTTP server
+  app.exit(0);
 }
 
 function getSchedulerStatus() {
@@ -64,11 +80,19 @@ function getSchedulerStatus() {
 }
 
 function getTrayIconPath(): string {
-  if (isDev) return path.join(process.cwd(), 'assets/icons/icon.png');
+  if (isDev) {
+    return path.join(process.cwd(), 'assets/icons/icon.png');
+  }
 
-  if (process.platform === 'win32') return path.join(process.resourcesPath, 'assets/icons/icon.ico');
-  if (process.platform === 'darwin') return path.join(process.resourcesPath, 'assets/icons/icon.icns');
-  return path.join(process.resourcesPath, 'assets/icons/icon.png');
+  const basePath = app.getAppPath();
+
+  if (process.platform === 'win32') {
+    return path.join(basePath, 'assets/icons/icon.ico');
+  }
+  if (process.platform === 'darwin') {
+    return path.join(basePath, 'assets/icons/icon.icns');
+  }
+  return path.join(basePath, 'assets/icons/icon.png');
 }
 
 export function destroyTray(): void {

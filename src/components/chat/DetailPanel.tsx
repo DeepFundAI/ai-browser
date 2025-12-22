@@ -101,16 +101,22 @@ export const DetailPanel: React.FC<DetailPanelProps> = ({
                     </div>
 
                     <Slider
-                      className='flex-1'
+                      className='flex-1 detail-panel-slider'
                       min={0}
                       max={toolHistory.length}
                       value={currentHistoryIndex === -1 ? toolHistory.length : currentHistoryIndex + 1}
                       onChange={(value) => onHistoryIndexChange(value - 1)}
                       step={1}
+                      tooltip={{ open: false }}
                       marks={toolHistory.reduce((marks, _, index) => {
                         marks[index + 1] = '';
                         return marks;
                       }, {} as Record<number, string>)}
+                      styles={{
+                        track: { backgroundColor: '#8B5CF6' },
+                        rail: { backgroundColor: 'rgba(255, 255, 255, 0.2)' },
+                        handle: { backgroundColor: '#8B5CF6', borderColor: '#8B5CF6' },
+                      }}
                     />
 
                     <span className='text-xs text-text-12-dark'>
