@@ -1,6 +1,6 @@
 import React from 'react'
 import { Button } from 'antd'
-import { HistoryOutlined, ToolOutlined } from '@ant-design/icons'
+import { HistoryOutlined, ToolOutlined, SettingOutlined } from '@ant-design/icons'
 import { useRouter } from 'next/router'
 import { HistoryPanel } from '@/components/history'
 import { useHistoryStore } from '@/stores/historyStore'
@@ -82,6 +82,22 @@ export default function Header() {
           style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
         >
           {isTaskDetailMode ? t('execution_history') : t('history')}
+        </Button>
+
+        {/* Settings button */}
+        <Button
+          type="text"
+          icon={<SettingOutlined />}
+          size="small"
+          onClick={() => {
+            if (typeof window !== 'undefined' && (window as any).api) {
+              (window as any).api.openSettings();
+            }
+          }}
+          className='!text-text-01-dark hover:!bg-purple-500/10'
+          style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+        >
+          Settings
         </Button>
 
         {/* Language Switcher */}

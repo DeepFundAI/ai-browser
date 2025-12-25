@@ -74,6 +74,10 @@ const api = {
 
   // File download API
   downloadFile: (filePath: string, fileName: string) => safeInvoke('file:download', filePath, fileName),
+
+  // Settings window APIs
+  openSettings: () => safeInvoke('settings:open'),
+  closeSettings: () => safeInvoke('settings:close'),
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to
