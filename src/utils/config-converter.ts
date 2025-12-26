@@ -1,6 +1,8 @@
 /**
  * Configuration converter utilities for backward compatibility
- * Converts between legacy and new config formats
+ * INPUT: Legacy/new config formats
+ * OUTPUT: Converted config objects
+ * POSITION: Bridge between frontend state and Electron Store
  */
 
 import {
@@ -9,24 +11,40 @@ import {
   LegacyUserModelConfigs,
   LegacyProviderConfig,
   PROVIDER_INFO,
-  ModelInfo
+  ModelInfo,
+  GeneralSettings,
+  ChatSettings,
+  getDefaultGeneralSettings,
+  getDefaultChatSettings
 } from '@/models/settings';
 
-export type SettingsConfigs = Record<ProviderType, ProviderConfig>;
+export type ProviderConfigs = Record<ProviderType, ProviderConfig>;
+
+export interface SettingsConfigs {
+  providers: ProviderConfigs;
+  general: GeneralSettings;
+  chat: ChatSettings;
+}
+
+// Legacy storage format (for backward compatibility)
+export interface LegacyStorageFormat extends LegacyUserModelConfigs {
+  generalSettings?: GeneralSettings;
+  chatSettings?: ChatSettings;
+}
 
 /**
  * Convert legacy config format to new config format
  * Ensures backward compatibility with existing stored configurations
  */
-export function convertLegacyToNewConfig(legacy: LegacyUserModelConfigs): SettingsConfigs {
-  const newConfigs: Partial<SettingsConfigs> = {};
+export function convertLegacyToNewConfig(legacy: LegacyStorageFormat): SettingsConfigs {
+  const providerConfigs: Partial<ProviderConfigs> = {};
 
   // Convert each provider's config
   Object.keys(PROVIDER_INFO).forEach((providerId) => {
     const id = providerId as ProviderType;
     const legacyConfig: LegacyProviderConfig | undefined = legacy[id];
 
-    newConfigs[id] = {
+    providerConfigs[id] = {
       id,
       enabled: legacyConfig?.enabled ?? false,
       apiKey: legacyConfig?.apiKey ?? '',
@@ -37,31 +55,34 @@ export function convertLegacyToNewConfig(legacy: LegacyUserModelConfigs): Settin
     };
   });
 
-  return newConfigs as SettingsConfigs;
+  return {
+    providers: providerConfigs as ProviderConfigs,
+    general: legacy.generalSettings ?? getDefaultGeneralSettings(),
+    chat: legacy.chatSettings ?? getDefaultChatSettings()
+  };
 }
 
 /**
  * Convert new config format back to legacy format for storage
  * Maintains compatibility with existing backend APIs
  */
-export function convertNewToLegacyConfig(newConfigs: SettingsConfigs): LegacyUserModelConfigs {
-  const legacy: LegacyUserModelConfigs = {};
+export function convertNewToLegacyConfig(newConfigs: SettingsConfigs): LegacyStorageFormat {
+  const legacy: LegacyStorageFormat = {};
 
-  Object.entries(newConfigs).forEach(([providerId, config]) => {
+  // Convert provider configs
+  Object.entries(newConfigs.providers).forEach(([providerId, config]) => {
     const id = providerId as ProviderType;
 
     // Skip providers with no meaningful configuration
-    // Don't save if only enabled=false or all fields are empty
     const hasConfig = config.apiKey || config.baseUrl || config.models.length > 0 ||
                       config.selectedModel || config.lastFetched || config.enabled === true;
 
     if (!hasConfig) {
-      return; // Skip empty configs
+      return;
     }
 
     const legacyConfig: LegacyProviderConfig = {};
 
-    // Only add fields with actual values
     if (config.apiKey) legacyConfig.apiKey = config.apiKey;
     if (config.baseUrl) legacyConfig.baseURL = config.baseUrl;
     if (config.selectedModel) legacyConfig.model = config.selectedModel;
@@ -71,6 +92,10 @@ export function convertNewToLegacyConfig(newConfigs: SettingsConfigs): LegacyUse
 
     legacy[id] = legacyConfig;
   });
+
+  // Add general and chat settings
+  legacy.generalSettings = newConfigs.general;
+  legacy.chatSettings = newConfigs.chat;
 
   return legacy;
 }

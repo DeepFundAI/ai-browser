@@ -1,10 +1,17 @@
+/**
+ * Provider configuration panel
+ * INPUT: Provider configs from useSettingsState
+ * OUTPUT: Updated provider configurations
+ * POSITION: First tab in settings window for API key management
+ */
+
 import React, { useState } from 'react';
 import { CloudOutlined, EyeOutlined, EyeInvisibleOutlined, DownloadOutlined, SearchOutlined, PlusOutlined } from '@ant-design/icons';
-import { Typography, Input, Button, Switch, Tag, message } from 'antd';
+import { Typography, Input, Button, Switch, Tag, message, Spin } from 'antd';
 import clsx from 'clsx';
-import { ProviderType, PROVIDER_INFO, ModelInfo, ProviderConfig } from '@/models/settings';
+import { ProviderType, PROVIDER_INFO, ModelInfo } from '@/models/settings';
 import { useFetchModels } from '@/hooks/useFetchModels';
-import { SettingsConfigs } from '@/hooks/useSettingsState';
+import { ProviderConfigs } from '@/utils/config-converter';
 
 const { Title, Paragraph, Text, Link } = Typography;
 
@@ -76,8 +83,8 @@ const ModelListItem: React.FC<ModelListItemProps> = ({ model, onToggle }) => {
 };
 
 interface ProvidersPanelProps {
-  configs: SettingsConfigs;
-  onConfigsChange: (newConfigs: SettingsConfigs | ((prev: SettingsConfigs) => SettingsConfigs)) => void;
+  configs: ProviderConfigs;
+  onConfigsChange: (newConfigs: ProviderConfigs | ((prev: ProviderConfigs) => ProviderConfigs)) => void;
 }
 
 /**

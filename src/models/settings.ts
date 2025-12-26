@@ -2,7 +2,21 @@
  * Settings data models and type definitions
  */
 
+import React from 'react';
+
 export type ProviderType = 'deepseek' | 'qwen' | 'google' | 'anthropic' | 'openai' | 'openrouter';
+
+// UI Select component types
+export interface SelectOption {
+  label: string;
+  value: string;
+}
+
+export interface SelectOptionGroup {
+  label: string;
+  icon?: React.ReactNode;
+  options: SelectOption[];
+}
 
 /**
  * Legacy config format from Electron Store (for backward compatibility)
@@ -65,7 +79,7 @@ export interface FetchModelsResult {
 }
 
 export interface GeneralSettings {
-  toolModel: string;
+  toolModel: string; // Model ID for automated tasks (thread title generation, etc.)
   language: 'en' | 'zh';
   startup: {
     autoStart: boolean;
@@ -74,6 +88,22 @@ export interface GeneralSettings {
   window: {
     minimizeToTray: boolean;
     closeToTray: boolean;
+  };
+}
+
+// Default general settings
+export function getDefaultGeneralSettings(): GeneralSettings {
+  return {
+    toolModel: 'deepseek-chat',
+    language: 'en',
+    startup: {
+      autoStart: false,
+      startMinimized: false
+    },
+    window: {
+      minimizeToTray: true,
+      closeToTray: false
+    }
   };
 }
 
@@ -86,6 +116,20 @@ export interface ChatSettings {
   soundEffects: boolean;
   autoSaveHistory: boolean;
   historyRetentionDays: number; // 1 - 365
+}
+
+// Default chat settings
+export function getDefaultChatSettings(): ChatSettings {
+  return {
+    temperature: 0.7,
+    maxTokens: 2048,
+    streaming: true,
+    showTokenUsage: false,
+    markdownRendering: true,
+    soundEffects: false,
+    autoSaveHistory: true,
+    historyRetentionDays: 30
+  };
 }
 
 export interface AgentSettings {

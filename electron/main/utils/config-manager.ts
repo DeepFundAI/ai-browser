@@ -1,59 +1,20 @@
+/**
+ * Model configuration manager
+ * INPUT: Environment variables, Electron store
+ * OUTPUT: LLM provider configurations
+ * POSITION: Core manager for model/API configurations
+ */
+
 import { config } from "dotenv";
 import path from "node:path";
 import { app } from "electron";
 import fs from "fs";
 import { store } from "./store";
+import type { ProviderType, ModelConfig, UserModelConfigs } from "../models";
 
-export type ProviderType = 'deepseek' | 'qwen' | 'google' | 'anthropic' | 'openrouter';
-
-export interface ModelConfig {
-  provider: string;
-  model: string;
-  apiKey?: string;
-  baseURL?: string;
-}
-
-export interface UserModelConfigs {
-  deepseek?: {
-    apiKey?: string;
-    baseURL?: string;
-    model?: string;
-  };
-  qwen?: {
-    apiKey?: string;
-    model?: string;
-  };
-  google?: {
-    apiKey?: string;
-    model?: string;
-  };
-  anthropic?: {
-    apiKey?: string;
-    model?: string;
-  };
-  openrouter?: {
-    apiKey?: string;
-    model?: string;
-  };
-  selectedProvider?: ProviderType;
-}
-
-export interface AgentConfig {
-  browserAgent: {
-    enabled: boolean;
-    customPrompt: string;
-  };
-  fileAgent: {
-    enabled: boolean;
-    customPrompt: string;
-  };
-  mcpTools: {
-    [toolName: string]: {
-      enabled: boolean;
-      config?: Record<string, any>;
-    };
-  };
-}
+// Re-export types for backward compatibility
+export type { ProviderType, ModelConfig, UserModelConfigs } from "../models";
+export type { AgentConfig, GeneralSettings, ChatSettings } from "../models";
 
 export class ConfigManager {
   private static instance: ConfigManager;
@@ -340,53 +301,34 @@ export class ConfigManager {
     return { default: defaultLLM };
   }
 
-  public getAgentConfig(): AgentConfig {
-    const defaultConfig: AgentConfig = {
-      browserAgent: {
-        enabled: true,
-        customPrompt: ''
-      },
-      fileAgent: {
-        enabled: true,
-        customPrompt: ''
-      },
-      mcpTools: {}
-    };
-
-    return store.get('agentConfig', defaultConfig) as AgentConfig;
+  // Delegate to SettingsManager for backward compatibility
+  public getAgentConfig() {
+    const { SettingsManager } = require('./settings-manager');
+    return SettingsManager.getInstance().getAgentConfig();
   }
 
-  public saveAgentConfig(config: AgentConfig): void {
-    store.set('agentConfig', config);
-    console.log('[ConfigManager] Agent configurations saved');
+  public saveAgentConfig(config: any): void {
+    const { SettingsManager } = require('./settings-manager');
+    SettingsManager.getInstance().saveAgentConfig(config);
   }
 
-  public getMcpToolConfig(toolName: string): { enabled: boolean; config?: Record<string, any> } {
-    const agentConfig = this.getAgentConfig();
-    return agentConfig.mcpTools[toolName] || { enabled: true };
+  public getMcpToolConfig(toolName: string) {
+    const { SettingsManager } = require('./settings-manager');
+    return SettingsManager.getInstance().getMcpToolConfig(toolName);
   }
 
   public setMcpToolConfig(toolName: string, config: { enabled: boolean; config?: Record<string, any> }): void {
-    const agentConfig = this.getAgentConfig();
-    agentConfig.mcpTools[toolName] = config;
-    this.saveAgentConfig(agentConfig);
+    const { SettingsManager } = require('./settings-manager');
+    SettingsManager.getInstance().setMcpToolConfig(toolName, config);
   }
 
-  public getAllMcpToolsConfig(availableTools: string[]): Record<string, { enabled: boolean; config?: Record<string, any> }> {
-    const agentConfig = this.getAgentConfig();
-    const result: Record<string, { enabled: boolean; config?: Record<string, any> }> = {};
-
-    availableTools.forEach(toolName => {
-      result[toolName] = agentConfig.mcpTools[toolName] || { enabled: true };
-    });
-
-    return result;
+  public getAllMcpToolsConfig(availableTools: string[]) {
+    const { SettingsManager } = require('./settings-manager');
+    return SettingsManager.getInstance().getAllMcpToolsConfig(availableTools);
   }
 
   public getEnabledMcpTools(availableTools: string[]): string[] {
-    const allConfigs = this.getAllMcpToolsConfig(availableTools);
-    return Object.entries(allConfigs)
-      .filter(([_, config]) => config.enabled)
-      .map(([name, _]) => name);
+    const { SettingsManager } = require('./settings-manager');
+    return SettingsManager.getInstance().getEnabledMcpTools(availableTools);
   }
 }

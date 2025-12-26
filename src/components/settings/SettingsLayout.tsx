@@ -1,3 +1,10 @@
+/**
+ * Main settings layout component
+ * INPUT: useSettingsState hook for unified state management
+ * OUTPUT: Settings window with sidebar navigation and content panels
+ * POSITION: Root component for settings window
+ */
+
 import React, { useState } from 'react';
 import { Button, Modal, message, Spin } from 'antd';
 import { SettingsSidebar } from './SettingsSidebar';
@@ -33,11 +40,15 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<SettingsTab>(initialTab);
   const {
-    configs,
+    providers,
+    general,
+    chat,
     loading,
     saving,
     hasChanges,
-    updateConfigs,
+    updateProviders,
+    updateGeneral,
+    updateChat,
     saveConfigs,
     resetConfigs
   } = useSettingsState();
@@ -96,7 +107,7 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
    * Render the active panel based on selected tab
    */
   const renderPanel = () => {
-    if (loading || !configs) {
+    if (loading) {
       return (
         <div className="flex items-center justify-center h-full">
           <Spin size="large" />
@@ -106,16 +117,27 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
 
     switch (activeTab) {
       case 'general':
-        return <GeneralPanel />;
-      case 'providers':
-        return (
-          <ProvidersPanel
-            configs={configs}
-            onConfigsChange={updateConfigs}
+        return general ? (
+          <GeneralPanel
+            settings={general}
+            onSettingsChange={updateGeneral}
+            providers={providers}
           />
-        );
+        ) : null;
+      case 'providers':
+        return providers ? (
+          <ProvidersPanel
+            configs={providers}
+            onConfigsChange={updateProviders}
+          />
+        ) : null;
       case 'chat':
-        return <ChatPanel />;
+        return chat ? (
+          <ChatPanel
+            settings={chat}
+            onSettingsChange={updateChat}
+          />
+        ) : null;
       case 'agent':
         return <AgentPanel />;
       case 'user-interface':
@@ -135,12 +157,12 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
           </div>
         );
       default:
-        return (
+        return providers ? (
           <ProvidersPanel
-            configs={configs}
-            onConfigsChange={updateConfigs}
+            configs={providers}
+            onConfigsChange={updateProviders}
           />
-        );
+        ) : null;
     }
   };
 
@@ -151,7 +173,7 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
         <SettingsSidebar activeTab={activeTab} onTabChange={setActiveTab} />
 
         {/* Main content area */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-hidden">
           {renderPanel()}
         </div>
       </div>

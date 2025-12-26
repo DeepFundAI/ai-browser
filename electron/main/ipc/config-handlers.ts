@@ -1,5 +1,6 @@
 import { ipcMain } from "electron";
 import { ConfigManager, type UserModelConfigs, type ProviderType } from "../utils/config-manager";
+import { SettingsManager } from "../utils/settings-manager";
 import { windowContextManager } from "../services/window-context-manager";
 import { store } from "../utils/store";
 import { successResponse, errorResponse } from "../utils/ipc-response";
