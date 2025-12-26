@@ -29,15 +29,12 @@ export function useSettingsState() {
       if (typeof window !== 'undefined' && (window as any).api) {
         // Load legacy format from Electron Store
         const response = await (window as any).api.getUserModelConfigs();
-        console.log('[Settings] IPC response:', JSON.stringify(response, null, 2));
 
         // Extract configs from response
         const legacyConfigs = response?.data?.configs || response || {};
-        console.log('[Settings] Extracted legacy configs:', JSON.stringify(legacyConfigs, null, 2));
 
         // Convert to new format
         const newConfigs = convertLegacyToNewConfig(legacyConfigs);
-        console.log('[Settings] Converted to new format:', JSON.stringify(newConfigs, null, 2));
         setOriginalConfigs(newConfigs);
         setCurrentConfigs(newConfigs);
       }
@@ -78,9 +75,7 @@ export function useSettingsState() {
       if (typeof window !== 'undefined' && (window as any).api) {
         // Convert to legacy format before saving
         const legacyConfigs = convertNewToLegacyConfig(currentConfigs);
-        console.log('[Settings] Saving configs:', JSON.stringify(legacyConfigs, null, 2));
         await (window as any).api.saveUserModelConfigs(legacyConfigs);
-        console.log('[Settings] Saved successfully');
         // Update original configs to match saved state
         setOriginalConfigs(currentConfigs);
         return true;
