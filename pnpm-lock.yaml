@@ -71,6 +71,9 @@ importers:
       json-schema:
         specifier: ^0.4.0
         version: 0.4.0
+      lodash:
+        specifier: ^4.17.21
+        version: 4.17.21
       microsoft-cognitiveservices-speech-sdk:
         specifier: ^1.45.0
         version: 1.46.0
@@ -126,6 +129,9 @@ importers:
       '@types/jest':
         specifier: 29.5.14
         version: 29.5.14
+      '@types/lodash':
+        specifier: ^4.17.21
+        version: 4.17.21
       '@types/node':
         specifier: ^20
         version: 20.19.22
@@ -1590,6 +1596,9 @@ packages:
 
   '@types/keyv@3.1.4':
     resolution: {integrity: sha512-BQ5aZNSCpj7D6K2ksrRCTmKRLEpnPvWDiLPfoGyhZ++8YtiK9d/3DBKPJgry359X/P1PfruyYwvnvwFjuEiEIg==}
+
+  '@types/lodash@4.17.21':
+    resolution: {integrity: sha512-FOvQ0YPD5NOfPgMzJihoT+Za5pdkDJWcbpuj1DjaKZIr/gxodQjY/uWEFlTNqW2ugXHUiL8lRQgw63dzKHZdeQ==}
 
   '@types/mdast@4.0.4':
     resolution: {integrity: sha512-kGaNbPh1k7AFzgpud/gMdvIm5xuECykRR+JnWKQno9TAXVa6WIVCGTPvYGekIDL4uwCZQSYbUxNBSb1aUo79oA==}
@@ -7108,6 +7117,8 @@ snapshots:
   '@types/keyv@3.1.4':
     dependencies:
       '@types/node': 20.19.22
+
+  '@types/lodash@4.17.21': {}
 
   '@types/mdast@4.0.4':
     dependencies:
