@@ -9,7 +9,7 @@ import React, { useMemo } from 'react';
 import { SettingOutlined } from '@ant-design/icons';
 import { Typography, Divider } from 'antd';
 import { SelectSetting, ToggleSetting } from '../components';
-import { GeneralSettings, getDefaultGeneralSettings, PROVIDER_INFO, SelectOptionGroup } from '@/models/settings';
+import { GeneralSettings, getDefaultGeneralSettings, SelectOptionGroup } from '@/models/settings';
 import { ProviderConfigs } from '@/utils/config-converter';
 
 const { Title, Paragraph, Text } = Typography;
@@ -40,16 +40,15 @@ export const GeneralPanel: React.FC<GeneralPanelProps> = ({
 
     const groups: SelectOptionGroup[] = [];
 
-    Object.entries(providers).forEach(([providerId, config]) => {
+    Object.values(providers).forEach(config => {
       // Only require models to exist, not provider enabled status
       if (!config.models || config.models.length === 0) return;
 
-      const providerName = PROVIDER_INFO[providerId as keyof typeof PROVIDER_INFO]?.name || providerId;
       const enabledModels = config.models.filter(model => model.enabled);
 
       if (enabledModels.length > 0) {
         groups.push({
-          label: providerName,
+          label: config.name,
           options: enabledModels.map(model => ({
             label: model.name || model.id,
             value: model.id

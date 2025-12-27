@@ -47,6 +47,8 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
     saving,
     hasChanges,
     updateProviders,
+    addProvider,
+    removeProvider,
     updateGeneral,
     updateChat,
     saveConfigs,
@@ -129,6 +131,8 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
           <ProvidersPanel
             configs={providers}
             onConfigsChange={updateProviders}
+            onAddProvider={addProvider}
+            onRemoveProvider={removeProvider}
           />
         ) : null;
       case 'chat':
@@ -161,6 +165,8 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
           <ProvidersPanel
             configs={providers}
             onConfigsChange={updateProviders}
+            onAddProvider={addProvider}
+            onRemoveProvider={removeProvider}
           />
         ) : null;
     }

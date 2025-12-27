@@ -1,10 +1,15 @@
 /**
  * Settings data models and type definitions
+ * INPUT: None (type definitions)
+ * OUTPUT: Type definitions for settings system
+ * POSITION: Core type definitions for the entire settings module
  */
 
 import React from 'react';
 
-export type ProviderType = 'deepseek' | 'qwen' | 'google' | 'anthropic' | 'openai' | 'openrouter';
+// Builtin provider IDs (for type safety where needed)
+export const BUILTIN_PROVIDER_IDS = ['deepseek', 'qwen', 'google', 'anthropic', 'openai', 'openrouter'] as const;
+export type BuiltinProviderId = typeof BUILTIN_PROVIDER_IDS[number];
 
 // UI Select component types
 export interface SelectOption {
@@ -28,26 +33,17 @@ export interface LegacyProviderConfig {
   enabled?: boolean;
   models?: any[];
   lastFetched?: number;
+  // New fields for unified structure
+  name?: string;
+  type?: 'builtin' | 'custom';
 }
 
 export interface LegacyUserModelConfigs {
-  deepseek?: LegacyProviderConfig;
-  qwen?: LegacyProviderConfig;
-  google?: LegacyProviderConfig;
-  anthropic?: LegacyProviderConfig;
-  openrouter?: LegacyProviderConfig;
-  openai?: LegacyProviderConfig;
-  selectedProvider?: ProviderType;
+  [key: string]: LegacyProviderConfig | string | undefined;
+  selectedProvider?: string;
 }
 
-export interface ProviderInfo {
-  id: ProviderType;
-  name: string;
-  icon?: string;
-  getKeyUrl: string;
-  description: string;
-}
-
+// Model information
 export interface ModelInfo {
   id: string;
   name: string;
@@ -55,15 +51,28 @@ export interface ModelInfo {
   capabilities?: string[];
 }
 
+/**
+ * Unified Provider configuration (works for both builtin and custom providers)
+ */
 export interface ProviderConfig {
-  id: ProviderType;
+  id: string;                      // Unique identifier
+  name: string;                    // Display name
+  type: 'builtin' | 'custom';      // Provider type
   enabled: boolean;
   apiKey: string;
-  baseUrl?: string;
-  customHeaders?: Record<string, string>;
-  models: ModelInfo[];
+  baseUrl: string;                 // API endpoint
+  models: ModelInfo[];             // Dynamically fetched models
   selectedModel?: string;
-  lastFetched?: number; // Timestamp of last model fetch
+  lastFetched?: number;            // Timestamp of last model fetch
+}
+
+// Builtin provider metadata (static info, not stored)
+export interface BuiltinProviderMeta {
+  id: BuiltinProviderId;
+  name: string;
+  defaultBaseUrl: string;
+  getKeyUrl: string;
+  description: string;
 }
 
 export interface ProviderTestResult {
@@ -94,7 +103,7 @@ export interface GeneralSettings {
 // Default general settings
 export function getDefaultGeneralSettings(): GeneralSettings {
   return {
-    toolModel: 'deepseek-chat',
+    toolModel: '',
     language: 'en',
     startup: {
       autoStart: false,
@@ -158,134 +167,110 @@ export interface UISettings {
 }
 
 export interface AppSettings {
-  providers: {
-    [key in ProviderType]?: ProviderConfig;
-  };
+  providers: Record<string, ProviderConfig>;
   general: GeneralSettings;
   chat: ChatSettings;
   agent: AgentSettings;
   ui: UISettings;
 }
 
-// Predefined provider information
-export const PROVIDER_INFO: Record<ProviderType, ProviderInfo> = {
+/**
+ * Builtin provider metadata
+ * Static information about supported providers (not stored in config)
+ */
+export const BUILTIN_PROVIDER_META: Record<BuiltinProviderId, BuiltinProviderMeta> = {
   deepseek: {
     id: 'deepseek',
     name: 'DeepSeek',
+    defaultBaseUrl: 'https://api.deepseek.com/v1',
     getKeyUrl: 'https://platform.deepseek.com/api_keys',
     description: 'DeepSeek AI models with reasoning capabilities'
   },
   qwen: {
     id: 'qwen',
     name: 'Qwen (Alibaba)',
+    defaultBaseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
     getKeyUrl: 'https://bailian.console.aliyun.com/',
     description: 'Alibaba Qwen models with Chinese language support'
   },
   google: {
     id: 'google',
     name: 'Google Gemini',
+    defaultBaseUrl: 'https://generativelanguage.googleapis.com/v1beta',
     getKeyUrl: 'https://aistudio.google.com/app/apikey',
     description: 'Google Gemini models with multimodal capabilities'
   },
   anthropic: {
     id: 'anthropic',
     name: 'Anthropic',
+    defaultBaseUrl: 'https://api.anthropic.com/v1',
     getKeyUrl: 'https://console.anthropic.com/settings/keys',
     description: 'Anthropic Claude models with advanced reasoning'
   },
   openai: {
     id: 'openai',
     name: 'OpenAI',
+    defaultBaseUrl: 'https://api.openai.com/v1',
     getKeyUrl: 'https://platform.openai.com/api-keys',
     description: 'OpenAI GPT models with general intelligence'
   },
   openrouter: {
     id: 'openrouter',
     name: 'OpenRouter',
+    defaultBaseUrl: 'https://openrouter.ai/api/v1',
     getKeyUrl: 'https://openrouter.ai/keys',
     description: 'Access multiple AI models through OpenRouter'
   }
 };
 
-// Predefined model lists (used as fallback)
-export const PREDEFINED_MODELS: Record<ProviderType, ModelInfo[]> = {
-  deepseek: [
-    { id: 'deepseek-chat', name: 'DeepSeek Chat', enabled: true },
-    { id: 'deepseek-reasoner', name: 'DeepSeek Reasoner', enabled: true }
-  ],
-  qwen: [
-    { id: 'qwen-max', name: 'Qwen Max', enabled: true },
-    { id: 'qwen-plus', name: 'Qwen Plus', enabled: true },
-    { id: 'qwen-vl-max', name: 'Qwen VL Max', enabled: true, capabilities: ['vision'] }
-  ],
-  google: [
-    { id: 'gemini-1.5-flash-latest', name: 'Gemini 1.5 Flash (Latest)', enabled: true },
-    { id: 'gemini-2.0-flash-thinking-exp-01-21', name: 'Gemini 2.0 Flash Thinking', enabled: true },
-    { id: 'gemini-2.0-flash-exp', name: 'Gemini 2.0 Flash (Experimental)', enabled: true },
-    { id: 'gemini-1.5-flash-002', name: 'Gemini 1.5 Flash 002', enabled: true },
-    { id: 'gemini-1.5-flash-8b', name: 'Gemini 1.5 Flash 8B', enabled: true },
-    { id: 'gemini-1.5-pro-latest', name: 'Gemini 1.5 Pro (Latest)', enabled: true },
-    { id: 'gemini-1.5-pro-002', name: 'Gemini 1.5 Pro 002', enabled: true },
-    { id: 'gemini-exp-1206', name: 'Gemini Experimental 1206', enabled: true }
-  ],
-  anthropic: [
-    { id: 'claude-3-7-sonnet-20250219', name: 'Claude 3.7 Sonnet', enabled: true },
-    { id: 'claude-3-5-sonnet-latest', name: 'Claude 3.5 Sonnet (Latest)', enabled: true },
-    { id: 'claude-3-5-sonnet-20240620', name: 'Claude 3.5 Sonnet', enabled: true },
-    { id: 'claude-3-5-haiku-latest', name: 'Claude 3.5 Haiku (Latest)', enabled: true },
-    { id: 'claude-3-opus-latest', name: 'Claude 3 Opus (Latest)', enabled: true },
-    { id: 'claude-3-sonnet-20240229', name: 'Claude 3 Sonnet', enabled: true },
-    { id: 'claude-3-haiku-20240307', name: 'Claude 3 Haiku', enabled: true }
-  ],
-  openai: [
-    { id: 'gpt-4o', name: 'GPT-4o', enabled: true },
-    { id: 'gpt-4o-mini', name: 'GPT-4o Mini', enabled: true },
-    { id: 'gpt-4-turbo', name: 'GPT-4 Turbo', enabled: true },
-    { id: 'gpt-4', name: 'GPT-4', enabled: true },
-    { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo', enabled: true },
-    { id: 'o1', name: 'O1', enabled: true },
-    { id: 'o1-mini', name: 'O1 Mini', enabled: true }
-  ],
-  openrouter: [
-    { id: 'anthropic/claude-3.5-sonnet', name: 'Claude 3.5 Sonnet', enabled: true },
-    { id: 'anthropic/claude-3-haiku', name: 'Claude 3 Haiku', enabled: true },
-    { id: 'deepseek/deepseek-coder', name: 'DeepSeek Coder', enabled: true },
-    { id: 'google/gemini-flash-1.5', name: 'Gemini Flash 1.5', enabled: true },
-    { id: 'google/gemini-pro-1.5', name: 'Gemini Pro 1.5', enabled: true },
-    { id: 'openai/gpt-4o', name: 'GPT-4o', enabled: true },
-    { id: 'x-ai/grok-beta', name: 'Grok Beta', enabled: true },
-    { id: 'mistralai/mistral-nemo', name: 'Mistral Nemo', enabled: true },
-    { id: 'qwen/qwen-110b-chat', name: 'Qwen 110B Chat', enabled: true },
-    { id: 'cohere/command', name: 'Cohere Command', enabled: true }
-  ]
-};
+// Backward compatibility: alias for PROVIDER_INFO
+export const PROVIDER_INFO = BUILTIN_PROVIDER_META;
+
+/**
+ * Create a default provider config for a builtin provider
+ */
+export function createBuiltinProviderConfig(providerId: BuiltinProviderId): ProviderConfig {
+  const meta = BUILTIN_PROVIDER_META[providerId];
+  return {
+    id: providerId,
+    name: meta.name,
+    type: 'builtin',
+    enabled: false,
+    apiKey: '',
+    baseUrl: meta.defaultBaseUrl,
+    models: [],
+    lastFetched: undefined
+  };
+}
+
+/**
+ * Create a default provider config for a custom provider
+ */
+export function createCustomProviderConfig(id: string, name: string, baseUrl: string): ProviderConfig {
+  return {
+    id,
+    name,
+    type: 'custom',
+    enabled: true,
+    apiKey: '',
+    baseUrl,
+    models: [],
+    lastFetched: undefined
+  };
+}
 
 // Default settings
 export function getDefaultSettings(): AppSettings {
+  // Initialize with all builtin providers
+  const providers: Record<string, ProviderConfig> = {};
+  BUILTIN_PROVIDER_IDS.forEach(id => {
+    providers[id] = createBuiltinProviderConfig(id);
+  });
+
   return {
-    providers: {},
-    general: {
-      toolModel: 'deepseek-chat',
-      language: 'en',
-      startup: {
-        autoStart: false,
-        startMinimized: false
-      },
-      window: {
-        minimizeToTray: true,
-        closeToTray: false
-      }
-    },
-    chat: {
-      temperature: 0.7,
-      maxTokens: 2048,
-      streaming: true,
-      showTokenUsage: false,
-      markdownRendering: true,
-      soundEffects: false,
-      autoSaveHistory: true,
-      historyRetentionDays: 30
-    },
+    providers,
+    general: getDefaultGeneralSettings(),
+    chat: getDefaultChatSettings(),
     agent: {
       systemPrompt: '',
       enabledTools: [],

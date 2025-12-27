@@ -5,21 +5,36 @@
  * POSITION: First tab in settings window for API key management
  */
 
-import React, { useState } from 'react';
-import { CloudOutlined, EyeOutlined, EyeInvisibleOutlined, DownloadOutlined, SearchOutlined, PlusOutlined } from '@ant-design/icons';
-import { Typography, Input, Button, Switch, Tag, message, Spin } from 'antd';
+import React, { useState, useMemo } from 'react';
+import {
+  CloudOutlined,
+  EyeOutlined,
+  EyeInvisibleOutlined,
+  DownloadOutlined,
+  SearchOutlined,
+  PlusOutlined,
+  DeleteOutlined,
+  ApiOutlined
+} from '@ant-design/icons';
+import { Typography, Input, Button, Switch, Tag, message, Popconfirm } from 'antd';
 import clsx from 'clsx';
-import { ProviderType, PROVIDER_INFO, ModelInfo } from '@/models/settings';
+import {
+  ProviderConfig,
+  ModelInfo,
+  BUILTIN_PROVIDER_META,
+  BUILTIN_PROVIDER_IDS,
+  BuiltinProviderId,
+  createCustomProviderConfig
+} from '@/models/settings';
 import { useFetchModels } from '@/hooks/useFetchModels';
 import { ProviderConfigs } from '@/utils/config-converter';
+import { AddCustomProviderModal } from './AddCustomProviderModal';
 
 const { Title, Paragraph, Text, Link } = Typography;
 
 interface ProviderListItemProps {
-  providerId: ProviderType;
-  isActive: boolean;
+  provider: ProviderConfig;
   isSelected: boolean;
-  hasApiKey: boolean;
   onClick: () => void;
 }
 
@@ -27,13 +42,12 @@ interface ProviderListItemProps {
  * Provider list item component
  */
 const ProviderListItem: React.FC<ProviderListItemProps> = ({
-  providerId,
-  isActive,
+  provider,
   isSelected,
-  hasApiKey,
   onClick
 }) => {
-  const providerInfo = PROVIDER_INFO[providerId];
+  const hasApiKey = Boolean(provider.apiKey);
+  const isCustom = provider.type === 'custom';
 
   return (
     <button
@@ -46,12 +60,23 @@ const ProviderListItem: React.FC<ProviderListItemProps> = ({
           : 'border-white/10 hover:bg-white/5 hover:border-white/20'
       )}
     >
-      <CloudOutlined className="text-lg text-gray-400" />
-      <span className="flex-1 text-sm font-medium text-gray-200">{providerInfo.name}</span>
+      {isCustom ? (
+        <ApiOutlined className="text-lg text-purple-400" />
+      ) : (
+        <CloudOutlined className="text-lg text-gray-400" />
+      )}
+      <span className="flex-1 text-sm font-medium text-gray-200 truncate">
+        {provider.name}
+      </span>
+      {isCustom && (
+        <Tag color="purple" className="!text-xs !px-1.5 !py-0 !border-purple-500/30">
+          CUSTOM
+        </Tag>
+      )}
       {hasApiKey && (
         <div className={clsx(
-          'w-2 h-2 rounded-full',
-          isActive ? 'bg-green-500' : 'bg-gray-500'
+          'w-2 h-2 rounded-full flex-shrink-0',
+          provider.enabled ? 'bg-green-500' : 'bg-gray-500'
         )} />
       )}
     </button>
@@ -82,9 +107,60 @@ const ModelListItem: React.FC<ModelListItemProps> = ({ model, onToggle }) => {
   );
 };
 
+/**
+ * Add model inline component
+ */
+interface AddModelInlineProps {
+  onAdd: (modelId: string, modelName: string) => void;
+}
+
+const AddModelInline: React.FC<AddModelInlineProps> = ({ onAdd }) => {
+  const [modelId, setModelId] = useState('');
+  const [modelName, setModelName] = useState('');
+
+  const handleAdd = () => {
+    if (!modelId.trim()) {
+      message.warning('Please enter Model ID');
+      return;
+    }
+    onAdd(modelId.trim(), modelName.trim() || modelId.trim());
+    setModelId('');
+    setModelName('');
+  };
+
+  return (
+    <div className="flex items-center gap-2 mt-3">
+      <Input
+        placeholder="Model ID (e.g., gpt-4)"
+        value={modelId}
+        onChange={(e) => setModelId(e.target.value)}
+        className="flex-1 bg-white/5 border-white/10 text-white placeholder-gray-400"
+        size="small"
+      />
+      <Input
+        placeholder="Display Name (optional)"
+        value={modelName}
+        onChange={(e) => setModelName(e.target.value)}
+        className="flex-1 bg-white/5 border-white/10 text-white placeholder-gray-400"
+        size="small"
+      />
+      <Button
+        icon={<PlusOutlined />}
+        onClick={handleAdd}
+        size="small"
+        className="bg-white/5 border-white/10 text-white hover:bg-white/10"
+      >
+        Add
+      </Button>
+    </div>
+  );
+};
+
 interface ProvidersPanelProps {
   configs: ProviderConfigs;
   onConfigsChange: (newConfigs: ProviderConfigs | ((prev: ProviderConfigs) => ProviderConfigs)) => void;
+  onAddProvider?: (provider: ProviderConfig) => void;
+  onRemoveProvider?: (providerId: string) => void;
 }
 
 /**
@@ -93,24 +169,57 @@ interface ProvidersPanelProps {
  */
 export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
   configs,
-  onConfigsChange
+  onConfigsChange,
+  onAddProvider,
+  onRemoveProvider
 }) => {
-  const [selectedProvider, setSelectedProvider] = useState<ProviderType>('deepseek');
+  const [selectedProviderId, setSelectedProviderId] = useState<string>('deepseek');
   const [searchQuery, setSearchQuery] = useState('');
   const [modelSearchQuery, setModelSearchQuery] = useState('');
   const [showApiKey, setShowApiKey] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
 
   const { fetchModels, loading: isFetchingModels } = useFetchModels();
 
-  const currentConfig = configs[selectedProvider];
-  const providerInfo = PROVIDER_INFO[selectedProvider];
+  // Get sorted provider list: builtin first, then custom
+  const providerList = useMemo(() => {
+    const builtinProviders: ProviderConfig[] = [];
+    const customProviders: ProviderConfig[] = [];
+
+    Object.values(configs).forEach(provider => {
+      if (provider.type === 'builtin') {
+        builtinProviders.push(provider);
+      } else {
+        customProviders.push(provider);
+      }
+    });
+
+    // Sort builtin by predefined order
+    builtinProviders.sort((a, b) => {
+      const aIndex = BUILTIN_PROVIDER_IDS.indexOf(a.id as BuiltinProviderId);
+      const bIndex = BUILTIN_PROVIDER_IDS.indexOf(b.id as BuiltinProviderId);
+      return aIndex - bIndex;
+    });
+
+    // Custom providers sorted alphabetically
+    customProviders.sort((a, b) => a.name.localeCompare(b.name));
+
+    return [...builtinProviders, ...customProviders];
+  }, [configs]);
 
   // Filter providers by search query
-  const filteredProviders = Object.keys(PROVIDER_INFO)
-    .filter((id) => {
-      const provider = PROVIDER_INFO[id as ProviderType];
-      return provider.name.toLowerCase().includes(searchQuery.toLowerCase());
-    }) as ProviderType[];
+  const filteredProviders = useMemo(() => {
+    if (!searchQuery) return providerList;
+    return providerList.filter(p =>
+      p.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [providerList, searchQuery]);
+
+  const currentConfig = configs[selectedProviderId];
+  const isBuiltin = currentConfig?.type === 'builtin';
+  const providerMeta = isBuiltin
+    ? BUILTIN_PROVIDER_META[selectedProviderId as BuiltinProviderId]
+    : null;
 
   // Filter models by search query
   const filteredModels = currentConfig?.models?.filter((model) =>
@@ -131,8 +240,8 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
   const handleEnableProvider = () => {
     onConfigsChange(prev => ({
       ...prev,
-      [selectedProvider]: {
-        ...prev[selectedProvider],
+      [selectedProviderId]: {
+        ...prev[selectedProviderId],
         enabled: true
       }
     }));
@@ -142,8 +251,8 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
   const handleToggleProvider = (checked: boolean) => {
     onConfigsChange(prev => ({
       ...prev,
-      [selectedProvider]: {
-        ...prev[selectedProvider],
+      [selectedProviderId]: {
+        ...prev[selectedProviderId],
         enabled: checked
       }
     }));
@@ -153,8 +262,8 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
   const handleApiKeyChange = (value: string) => {
     onConfigsChange(prev => ({
       ...prev,
-      [selectedProvider]: {
-        ...prev[selectedProvider],
+      [selectedProviderId]: {
+        ...prev[selectedProviderId],
         apiKey: value
       }
     }));
@@ -164,9 +273,21 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
   const handleBaseUrlChange = (value: string) => {
     onConfigsChange(prev => ({
       ...prev,
-      [selectedProvider]: {
-        ...prev[selectedProvider],
+      [selectedProviderId]: {
+        ...prev[selectedProviderId],
         baseUrl: value
+      }
+    }));
+  };
+
+  // Update provider name (custom only)
+  const handleNameChange = (value: string) => {
+    if (!currentConfig || currentConfig.type !== 'custom') return;
+    onConfigsChange(prev => ({
+      ...prev,
+      [selectedProviderId]: {
+        ...prev[selectedProviderId],
+        name: value
       }
     }));
   };
@@ -180,22 +301,22 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
 
     try {
       const fetchedModels = await fetchModels(
-        selectedProvider,
+        selectedProviderId,
         currentConfig.apiKey,
         currentConfig.baseUrl
       );
 
       // If provider doesn't support dynamic fetching, show warning
       if (fetchedModels === null) {
-        message.warning(`${providerInfo.name} does not support dynamic model fetching. Using predefined models.`);
+        message.warning(`${currentConfig.name} does not support dynamic model fetching. Add models manually.`);
         return;
       }
 
       if (fetchedModels.length > 0) {
         onConfigsChange(prev => ({
           ...prev,
-          [selectedProvider]: {
-            ...prev[selectedProvider],
+          [selectedProviderId]: {
+            ...prev[selectedProviderId],
             models: fetchedModels,
             lastFetched: Date.now()
           }
@@ -214,13 +335,63 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
   const handleToggleModel = (modelId: string) => {
     onConfigsChange(prev => ({
       ...prev,
-      [selectedProvider]: {
-        ...prev[selectedProvider],
-        models: prev[selectedProvider].models.map(m =>
+      [selectedProviderId]: {
+        ...prev[selectedProviderId],
+        models: prev[selectedProviderId].models.map(m =>
           m.id === modelId ? { ...m, enabled: !m.enabled } : m
         )
       }
     }));
+  };
+
+  // Add model manually
+  const handleAddModel = (modelId: string, modelName: string) => {
+    // Check if model already exists
+    if (currentConfig.models.some(m => m.id === modelId)) {
+      message.warning('Model already exists');
+      return;
+    }
+
+    onConfigsChange(prev => ({
+      ...prev,
+      [selectedProviderId]: {
+        ...prev[selectedProviderId],
+        models: [
+          ...prev[selectedProviderId].models,
+          { id: modelId, name: modelName, enabled: true }
+        ]
+      }
+    }));
+    message.success('Model added');
+  };
+
+  // Delete custom provider
+  const handleDeleteProvider = () => {
+    if (onRemoveProvider) {
+      onRemoveProvider(selectedProviderId);
+      // Select first provider
+      setSelectedProviderId('deepseek');
+    }
+  };
+
+  // Add custom provider
+  const handleAddCustomProvider = (name: string, baseUrl: string, apiKey: string) => {
+    const id = `custom_${Date.now()}`;
+    const newProvider = createCustomProviderConfig(id, name, baseUrl);
+    newProvider.apiKey = apiKey;
+
+    if (onAddProvider) {
+      onAddProvider(newProvider);
+    } else {
+      onConfigsChange(prev => ({
+        ...prev,
+        [id]: newProvider
+      }));
+    }
+
+    setSelectedProviderId(id);
+    setShowAddModal(false);
+    message.success('Custom provider added');
   };
 
   const hasApiKey = Boolean(currentConfig?.apiKey);
@@ -239,6 +410,7 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
         <Button
           type="primary"
           icon={<PlusOutlined />}
+          onClick={() => setShowAddModal(true)}
           className="bg-teal-600 hover:bg-teal-700 border-none"
         >
           Add Custom Provider
@@ -258,14 +430,12 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
       <div className="flex gap-6 flex-1 min-h-0">
         {/* Left: Provider list */}
         <div className="w-64 overflow-y-auto pr-2 flex-shrink-0">
-          {filteredProviders.map((providerId) => (
+          {filteredProviders.map((provider) => (
             <ProviderListItem
-              key={providerId}
-              providerId={providerId}
-              isActive={configs[providerId]?.enabled}
-              isSelected={selectedProvider === providerId}
-              hasApiKey={Boolean(configs[providerId]?.apiKey)}
-              onClick={() => setSelectedProvider(providerId)}
+              key={provider.id}
+              provider={provider}
+              isSelected={selectedProviderId === provider.id}
+              onClick={() => setSelectedProviderId(provider.id)}
             />
           ))}
         </div>
@@ -280,8 +450,13 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
                     <Text className="!text-white text-xl font-semibold">
-                      {providerInfo.name}
+                      {currentConfig.name}
                     </Text>
+                    {!isBuiltin && (
+                      <Tag color="purple" className="!border-purple-500/30">
+                        CUSTOM
+                      </Tag>
+                    )}
                     {isActive && (
                       <Tag color="green" className="!border-green-500/30">
                         Active
@@ -293,17 +468,43 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
                       </Tag>
                     )}
                   </div>
-                  <Paragraph className="!text-gray-300 !mb-0">
-                    {providerInfo.description}
-                  </Paragraph>
+                  {isBuiltin && providerMeta && (
+                    <Paragraph className="!text-gray-300 !mb-0">
+                      {providerMeta.description}
+                    </Paragraph>
+                  )}
+                  {!isBuiltin && (
+                    <Paragraph className="!text-gray-400 !mb-0 text-sm">
+                      {currentConfig.baseUrl}
+                    </Paragraph>
+                  )}
                 </div>
 
-                {hasApiKey && (
-                  <Switch
-                    checked={isActive}
-                    onChange={handleToggleProvider}
-                  />
-                )}
+                <div className="flex items-center gap-2">
+                  {!isBuiltin && (
+                    <Popconfirm
+                      title="Delete this provider?"
+                      description="This action cannot be undone."
+                      onConfirm={handleDeleteProvider}
+                      okText="Delete"
+                      cancelText="Cancel"
+                      okButtonProps={{ danger: true }}
+                    >
+                      <Button
+                        type="text"
+                        danger
+                        icon={<DeleteOutlined />}
+                        className="!text-red-400 hover:!text-red-300"
+                      />
+                    </Popconfirm>
+                  )}
+                  {hasApiKey && (
+                    <Switch
+                      checked={isActive}
+                      onChange={handleToggleProvider}
+                    />
+                  )}
+                </div>
               </div>
 
               {/* State 1: Not enabled - Show enable button */}
@@ -323,6 +524,39 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
               {/* State 2 & 3: Enabled - Show configuration */}
               {(hasApiKey || isActive) && (
                 <>
+                  {/* Provider Name (Custom only) */}
+                  {!isBuiltin && (
+                    <div>
+                      <Text className="!text-white font-medium block mb-2">
+                        Provider Name
+                      </Text>
+                      <Input
+                        placeholder="Enter provider name"
+                        value={currentConfig.name}
+                        onChange={(e) => handleNameChange(e.target.value)}
+                        className="bg-white/5 border-white/10 text-white placeholder-gray-400"
+                      />
+                    </div>
+                  )}
+
+                  {/* Base URL */}
+                  <div>
+                    <Text className="!text-white font-medium block mb-2">
+                      Base URL {isBuiltin && '(Optional)'}
+                    </Text>
+                    <Input
+                      placeholder={providerMeta?.defaultBaseUrl || 'https://api.example.com/v1'}
+                      value={currentConfig.baseUrl || ''}
+                      onChange={(e) => handleBaseUrlChange(e.target.value)}
+                      className="bg-white/5 border-white/10 text-white placeholder-gray-400"
+                    />
+                    {isBuiltin && (
+                      <Text className="!text-gray-400 text-xs block mt-2">
+                        Leave empty to use the default {currentConfig.name} API endpoint
+                      </Text>
+                    )}
+                  </div>
+
                   {/* API Key */}
                   <div>
                     <Text className="!text-white font-medium block mb-2">
@@ -343,38 +577,18 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
                         {showApiKey ? <EyeInvisibleOutlined /> : <EyeOutlined />}
                       </button>
                     </div>
-                    <div className="mt-2">
-                      <Link
-                        href={providerInfo.getKeyUrl}
-                        target="_blank"
-                        className="text-blue-400 text-xs"
-                      >
-                        Get your API key from {providerInfo.name} →
-                      </Link>
-                    </div>
+                    {isBuiltin && providerMeta && (
+                      <div className="mt-2">
+                        <Link
+                          href={providerMeta.getKeyUrl}
+                          target="_blank"
+                          className="text-blue-400 text-xs"
+                        >
+                          Get your API key from {currentConfig.name} →
+                        </Link>
+                      </div>
+                    )}
                   </div>
-
-                  {/* Base URL (Optional) - Only for certain providers */}
-                  {(selectedProvider === 'deepseek' || selectedProvider === 'openai') && (
-                    <div>
-                      <Text className="!text-white font-medium block mb-2">
-                        Base URL (Optional)
-                      </Text>
-                      <Input
-                        placeholder={
-                          selectedProvider === 'deepseek'
-                            ? 'https://api.deepseek.com/v1'
-                            : 'https://api.openai.com/v1'
-                        }
-                        value={currentConfig.baseUrl || ''}
-                        onChange={(e) => handleBaseUrlChange(e.target.value)}
-                        className="bg-white/5 border-white/10 text-white placeholder-gray-400"
-                      />
-                      <Text className="!text-gray-400 text-xs block mt-2">
-                        Leave empty to use the default {providerInfo.name} API endpoint
-                      </Text>
-                    </div>
-                  )}
 
                   {/* Models section */}
                   {hasApiKey && (
@@ -409,7 +623,7 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
                           <Text className="!text-gray-400 text-xs block mb-3">
                             Showing {enabledModelCount} of {totalModelCount} models (enabled models shown first)
                           </Text>
-                          <div className="max-h-80 overflow-y-auto">
+                          <div className="max-h-60 overflow-y-auto">
                             {sortedModels.map((model) => (
                               <ModelListItem
                                 key={model.id}
@@ -420,14 +634,22 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
                           </div>
                         </>
                       ) : (
-                        <div className="text-center py-12 text-gray-400">
-                          <div className="text-4xl mb-3">📭</div>
+                        <div className="text-center py-8 text-gray-400">
+                          <div className="text-3xl mb-2">📭</div>
                           <div className="font-medium mb-1">No models available</div>
                           <div className="text-sm">
-                            Please check your API key and try refreshing
+                            Use Fetch to load from API or add manually below
                           </div>
                         </div>
                       )}
+
+                      {/* Add model manually */}
+                      <div className="mt-4 pt-4 border-t border-white/10">
+                        <Text className="!text-gray-400 text-xs block mb-2">
+                          Add models manually or use Fetch to load from API
+                        </Text>
+                        <AddModelInline onAdd={handleAddModel} />
+                      </div>
                     </div>
                   )}
                 </>
@@ -435,12 +657,19 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
               </div>
             </div>
           ) : (
-            <div className="flex items-center justify-center flex-1">
-              <Spin size="large" />
+            <div className="flex items-center justify-center flex-1 text-gray-400">
+              Select a provider to configure
             </div>
           )}
         </div>
       </div>
+
+      {/* Add Custom Provider Modal */}
+      <AddCustomProviderModal
+        open={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onAdd={handleAddCustomProvider}
+      />
     </div>
   );
 };

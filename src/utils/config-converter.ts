@@ -6,19 +6,21 @@
  */
 
 import {
-  ProviderType,
   ProviderConfig,
-  LegacyUserModelConfigs,
   LegacyProviderConfig,
-  PROVIDER_INFO,
   ModelInfo,
   GeneralSettings,
   ChatSettings,
   getDefaultGeneralSettings,
-  getDefaultChatSettings
+  getDefaultChatSettings,
+  BUILTIN_PROVIDER_IDS,
+  BUILTIN_PROVIDER_META,
+  BuiltinProviderId,
+  createBuiltinProviderConfig
 } from '@/models/settings';
 
-export type ProviderConfigs = Record<ProviderType, ProviderConfig>;
+// All providers stored as Record<string, ProviderConfig>
+export type ProviderConfigs = Record<string, ProviderConfig>;
 
 export interface SettingsConfigs {
   providers: ProviderConfigs;
@@ -27,9 +29,18 @@ export interface SettingsConfigs {
 }
 
 // Legacy storage format (for backward compatibility)
-export interface LegacyStorageFormat extends LegacyUserModelConfigs {
+export interface LegacyStorageFormat {
+  [key: string]: LegacyProviderConfig | GeneralSettings | ChatSettings | string | undefined;
   generalSettings?: GeneralSettings;
   chatSettings?: ChatSettings;
+  selectedProvider?: string;
+}
+
+/**
+ * Check if a provider ID is a builtin provider
+ */
+function isBuiltinProvider(id: string): id is BuiltinProviderId {
+  return BUILTIN_PROVIDER_IDS.includes(id as BuiltinProviderId);
 }
 
 /**
@@ -37,26 +48,57 @@ export interface LegacyStorageFormat extends LegacyUserModelConfigs {
  * Ensures backward compatibility with existing stored configurations
  */
 export function convertLegacyToNewConfig(legacy: LegacyStorageFormat): SettingsConfigs {
-  const providerConfigs: Partial<ProviderConfigs> = {};
+  const providers: ProviderConfigs = {};
 
-  // Convert each provider's config
-  Object.keys(PROVIDER_INFO).forEach((providerId) => {
-    const id = providerId as ProviderType;
-    const legacyConfig: LegacyProviderConfig | undefined = legacy[id];
+  // Initialize all builtin providers with defaults
+  BUILTIN_PROVIDER_IDS.forEach(id => {
+    providers[id] = createBuiltinProviderConfig(id);
+  });
 
-    providerConfigs[id] = {
-      id,
-      enabled: legacyConfig?.enabled ?? false,
-      apiKey: legacyConfig?.apiKey ?? '',
-      baseUrl: legacyConfig?.baseURL ?? '',
-      models: (legacyConfig?.models as ModelInfo[]) ?? [],
-      selectedModel: legacyConfig?.model,
-      lastFetched: legacyConfig?.lastFetched
-    };
+  // Process legacy config entries
+  Object.entries(legacy).forEach(([key, value]) => {
+    // Skip non-provider fields
+    if (key === 'selectedProvider' || key === 'generalSettings' || key === 'chatSettings') {
+      return;
+    }
+
+    const legacyConfig = value as LegacyProviderConfig | undefined;
+    if (!legacyConfig || typeof legacyConfig !== 'object') {
+      return;
+    }
+
+    if (isBuiltinProvider(key)) {
+      // Update builtin provider config
+      const meta = BUILTIN_PROVIDER_META[key];
+      providers[key] = {
+        id: key,
+        name: legacyConfig.name || meta.name,
+        type: 'builtin',
+        enabled: legacyConfig.enabled ?? false,
+        apiKey: legacyConfig.apiKey ?? '',
+        baseUrl: legacyConfig.baseURL || meta.defaultBaseUrl,
+        models: (legacyConfig.models as ModelInfo[]) ?? [],
+        selectedModel: legacyConfig.model,
+        lastFetched: legacyConfig.lastFetched
+      };
+    } else {
+      // Custom provider
+      providers[key] = {
+        id: key,
+        name: legacyConfig.name || key,
+        type: 'custom',
+        enabled: legacyConfig.enabled ?? true,
+        apiKey: legacyConfig.apiKey ?? '',
+        baseUrl: legacyConfig.baseURL ?? '',
+        models: (legacyConfig.models as ModelInfo[]) ?? [],
+        selectedModel: legacyConfig.model,
+        lastFetched: legacyConfig.lastFetched
+      };
+    }
   });
 
   return {
-    providers: providerConfigs as ProviderConfigs,
+    providers,
     general: legacy.generalSettings ?? getDefaultGeneralSettings(),
     chat: legacy.chatSettings ?? getDefaultChatSettings()
   };
@@ -71,17 +113,18 @@ export function convertNewToLegacyConfig(newConfigs: SettingsConfigs): LegacySto
 
   // Convert provider configs
   Object.entries(newConfigs.providers).forEach(([providerId, config]) => {
-    const id = providerId as ProviderType;
-
     // Skip providers with no meaningful configuration
-    const hasConfig = config.apiKey || config.baseUrl || config.models.length > 0 ||
+    const hasConfig = config.apiKey || config.models.length > 0 ||
                       config.selectedModel || config.lastFetched || config.enabled === true;
 
-    if (!hasConfig) {
+    if (!hasConfig && config.type === 'builtin') {
       return;
     }
 
-    const legacyConfig: LegacyProviderConfig = {};
+    const legacyConfig: LegacyProviderConfig = {
+      name: config.name,
+      type: config.type
+    };
 
     if (config.apiKey) legacyConfig.apiKey = config.apiKey;
     if (config.baseUrl) legacyConfig.baseURL = config.baseUrl;
@@ -90,7 +133,7 @@ export function convertNewToLegacyConfig(newConfigs: SettingsConfigs): LegacySto
     if (config.models.length > 0) legacyConfig.models = config.models;
     if (config.lastFetched) legacyConfig.lastFetched = config.lastFetched;
 
-    legacy[id] = legacyConfig;
+    legacy[providerId] = legacyConfig;
   });
 
   // Add general and chat settings

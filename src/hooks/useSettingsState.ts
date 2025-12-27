@@ -13,7 +13,7 @@ import {
   SettingsConfigs,
   ProviderConfigs
 } from '@/utils/config-converter';
-import { GeneralSettings, ChatSettings } from '@/models/settings';
+import { GeneralSettings, ChatSettings, ProviderConfig } from '@/models/settings';
 
 export function useSettingsState() {
   const [originalConfigs, setOriginalConfigs] = useState<SettingsConfigs | null>(null);
@@ -59,6 +59,59 @@ export function useSettingsState() {
         ? newProviders(prev.providers)
         : newProviders;
       return { ...prev, providers };
+    });
+  }, []);
+
+  /**
+   * Update a single provider configuration
+   */
+  const updateProvider = useCallback((
+    providerId: string,
+    updates: Partial<ProviderConfig> | ((prev: ProviderConfig) => ProviderConfig)
+  ) => {
+    setCurrentConfigs(prev => {
+      if (!prev || !prev.providers[providerId]) return prev;
+      const currentProvider = prev.providers[providerId];
+      const updatedProvider = typeof updates === 'function'
+        ? updates(currentProvider)
+        : { ...currentProvider, ...updates };
+      return {
+        ...prev,
+        providers: {
+          ...prev.providers,
+          [providerId]: updatedProvider
+        }
+      };
+    });
+  }, []);
+
+  /**
+   * Add a new custom provider
+   */
+  const addProvider = useCallback((provider: ProviderConfig) => {
+    setCurrentConfigs(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        providers: {
+          ...prev.providers,
+          [provider.id]: provider
+        }
+      };
+    });
+  }, []);
+
+  /**
+   * Remove a custom provider
+   */
+  const removeProvider = useCallback((providerId: string) => {
+    setCurrentConfigs(prev => {
+      if (!prev) return prev;
+      const { [providerId]: removed, ...rest } = prev.providers;
+      return {
+        ...prev,
+        providers: rest
+      };
     });
   }, []);
 
@@ -131,6 +184,9 @@ export function useSettingsState() {
     saving,
     hasChanges: hasChanges(),
     updateProviders,
+    updateProvider,
+    addProvider,
+    removeProvider,
     updateGeneral,
     updateChat,
     saveConfigs,
