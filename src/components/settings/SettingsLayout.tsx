@@ -12,6 +12,7 @@ import { ProvidersPanel } from './panels/ProvidersPanel';
 import { GeneralPanel } from './panels/GeneralPanel';
 import { ChatPanel } from './panels/ChatPanel';
 import { AgentPanel } from './panels/AgentPanel';
+import { ScheduledTasksPanel } from './panels/ScheduledTasksPanel';
 import { UserInterfacePanel } from './panels/UserInterfacePanel';
 import { AboutPanel } from './panels/AboutPanel';
 import { useSettingsState } from '@/hooks/useSettingsState';
@@ -21,6 +22,7 @@ export type SettingsTab =
   | 'providers'
   | 'chat'
   | 'agent'
+  | 'scheduled-tasks'
   | 'memory'
   | 'user-interface'
   | 'network'
@@ -144,6 +146,8 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
         ) : null;
       case 'agent':
         return <AgentPanel />;
+      case 'scheduled-tasks':
+        return <ScheduledTasksPanel />;
       case 'user-interface':
         return <UserInterfacePanel />;
       case 'about':

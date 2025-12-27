@@ -4,6 +4,7 @@ import {
   CloudOutlined,
   MessageOutlined,
   RobotOutlined,
+  ClockCircleOutlined,
   BulbOutlined,
   SkinOutlined,
   GlobalOutlined,
@@ -41,6 +42,11 @@ const MENU_ITEMS: MenuItem[] = [
     id: 'agent',
     label: 'Agent',
     icon: <RobotOutlined />
+  },
+  {
+    id: 'scheduled-tasks',
+    label: 'Scheduled Tasks',
+    icon: <ClockCircleOutlined />
   },
   {
     id: 'memory',
