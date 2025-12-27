@@ -9,7 +9,8 @@ import React from 'react';
 import { MessageOutlined } from '@ant-design/icons';
 import { Typography, Divider } from 'antd';
 import { SliderSetting, ToggleSetting, InputSetting } from '../components';
-import { ChatSettings, getDefaultChatSettings } from '@/models/settings';
+import { ChatSettings } from '@/models/settings';
+import { getDefaultChatSettings } from '@/config/settings-defaults';
 
 const { Title, Paragraph, Text } = Typography;
 

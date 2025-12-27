@@ -100,22 +100,6 @@ export interface GeneralSettings {
   };
 }
 
-// Default general settings
-export function getDefaultGeneralSettings(): GeneralSettings {
-  return {
-    toolModel: '',
-    language: 'en',
-    startup: {
-      autoStart: false,
-      startMinimized: false
-    },
-    window: {
-      minimizeToTray: true,
-      closeToTray: false
-    }
-  };
-}
-
 export interface ChatSettings {
   temperature: number; // 0.0 - 2.0
   maxTokens: number; // 1 - 8192
@@ -125,20 +109,6 @@ export interface ChatSettings {
   soundEffects: boolean;
   autoSaveHistory: boolean;
   historyRetentionDays: number; // 1 - 365
-}
-
-// Default chat settings
-export function getDefaultChatSettings(): ChatSettings {
-  return {
-    temperature: 0.7,
-    maxTokens: 2048,
-    streaming: true,
-    showTokenUsage: false,
-    markdownRendering: true,
-    soundEffects: false,
-    autoSaveHistory: true,
-    historyRetentionDays: 30
-  };
 }
 
 export interface AgentSettings {
@@ -256,36 +226,5 @@ export function createCustomProviderConfig(id: string, name: string, baseUrl: st
     baseUrl,
     models: [],
     lastFetched: undefined
-  };
-}
-
-// Default settings
-export function getDefaultSettings(): AppSettings {
-  // Initialize with all builtin providers
-  const providers: Record<string, ProviderConfig> = {};
-  BUILTIN_PROVIDER_IDS.forEach(id => {
-    providers[id] = createBuiltinProviderConfig(id);
-  });
-
-  return {
-    providers,
-    general: getDefaultGeneralSettings(),
-    chat: getDefaultChatSettings(),
-    agent: {
-      systemPrompt: '',
-      enabledTools: [],
-      customTools: []
-    },
-    ui: {
-      theme: 'dark',
-      fontSize: 14,
-      density: 'comfortable',
-      sidebarWidth: 240,
-      editor: {
-        showLineNumbers: false,
-        wordWrap: true,
-        showMinimap: false
-      }
-    }
   };
 }

@@ -11,13 +11,17 @@ import {
   ModelInfo,
   GeneralSettings,
   ChatSettings,
-  getDefaultGeneralSettings,
-  getDefaultChatSettings,
+  UISettings,
   BUILTIN_PROVIDER_IDS,
   BUILTIN_PROVIDER_META,
   BuiltinProviderId,
   createBuiltinProviderConfig
 } from '@/models/settings';
+import {
+  getDefaultGeneralSettings,
+  getDefaultChatSettings,
+  getDefaultUISettings
+} from '@/config/settings-defaults';
 
 // All providers stored as Record<string, ProviderConfig>
 export type ProviderConfigs = Record<string, ProviderConfig>;
@@ -26,13 +30,15 @@ export interface SettingsConfigs {
   providers: ProviderConfigs;
   general: GeneralSettings;
   chat: ChatSettings;
+  ui: UISettings;
 }
 
 // Legacy storage format (for backward compatibility)
 export interface LegacyStorageFormat {
-  [key: string]: LegacyProviderConfig | GeneralSettings | ChatSettings | string | undefined;
+  [key: string]: LegacyProviderConfig | GeneralSettings | ChatSettings | UISettings | string | undefined;
   generalSettings?: GeneralSettings;
   chatSettings?: ChatSettings;
+  uiSettings?: UISettings;
   selectedProvider?: string;
 }
 
@@ -58,7 +64,7 @@ export function convertLegacyToNewConfig(legacy: LegacyStorageFormat): SettingsC
   // Process legacy config entries
   Object.entries(legacy).forEach(([key, value]) => {
     // Skip non-provider fields
-    if (key === 'selectedProvider' || key === 'generalSettings' || key === 'chatSettings') {
+    if (key === 'selectedProvider' || key === 'generalSettings' || key === 'chatSettings' || key === 'uiSettings') {
       return;
     }
 
@@ -100,7 +106,8 @@ export function convertLegacyToNewConfig(legacy: LegacyStorageFormat): SettingsC
   return {
     providers,
     general: legacy.generalSettings ?? getDefaultGeneralSettings(),
-    chat: legacy.chatSettings ?? getDefaultChatSettings()
+    chat: legacy.chatSettings ?? getDefaultChatSettings(),
+    ui: legacy.uiSettings ?? getDefaultUISettings()
   };
 }
 
@@ -136,9 +143,10 @@ export function convertNewToLegacyConfig(newConfigs: SettingsConfigs): LegacySto
     legacy[providerId] = legacyConfig;
   });
 
-  // Add general and chat settings
+  // Add general, chat, and ui settings
   legacy.generalSettings = newConfigs.general;
   legacy.chatSettings = newConfigs.chat;
+  legacy.uiSettings = newConfigs.ui;
 
   return legacy;
 }

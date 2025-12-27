@@ -45,6 +45,7 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
     providers,
     general,
     chat,
+    ui,
     loading,
     saving,
     hasChanges,
@@ -53,6 +54,7 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
     removeProvider,
     updateGeneral,
     updateChat,
+    updateUI,
     saveConfigs,
     resetConfigs
   } = useSettingsState();
@@ -149,7 +151,12 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
       case 'scheduled-tasks':
         return <ScheduledTasksPanel />;
       case 'user-interface':
-        return <UserInterfacePanel />;
+        return ui ? (
+          <UserInterfacePanel
+            settings={ui}
+            onSettingsChange={updateUI}
+          />
+        ) : null;
       case 'about':
         return <AboutPanel />;
       case 'memory':

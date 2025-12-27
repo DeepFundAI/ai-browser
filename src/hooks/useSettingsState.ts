@@ -13,7 +13,7 @@ import {
   SettingsConfigs,
   ProviderConfigs
 } from '@/utils/config-converter';
-import { GeneralSettings, ChatSettings, ProviderConfig } from '@/models/settings';
+import { GeneralSettings, ChatSettings, UISettings, ProviderConfig } from '@/models/settings';
 
 export function useSettingsState() {
   const [originalConfigs, setOriginalConfigs] = useState<SettingsConfigs | null>(null);
@@ -145,6 +145,21 @@ export function useSettingsState() {
     });
   }, []);
 
+  /**
+   * Update UI settings
+   */
+  const updateUI = useCallback((
+    newUI: UISettings | ((prev: UISettings) => UISettings)
+  ) => {
+    setCurrentConfigs(prev => {
+      if (!prev) return prev;
+      const ui = typeof newUI === 'function'
+        ? newUI(prev.ui)
+        : newUI;
+      return { ...prev, ui };
+    });
+  }, []);
+
   const saveConfigs = useCallback(async () => {
     if (!currentConfigs) return;
 
@@ -180,6 +195,7 @@ export function useSettingsState() {
     providers: currentConfigs?.providers ?? null,
     general: currentConfigs?.general ?? null,
     chat: currentConfigs?.chat ?? null,
+    ui: currentConfigs?.ui ?? null,
     loading,
     saving,
     hasChanges: hasChanges(),
@@ -189,6 +205,7 @@ export function useSettingsState() {
     removeProvider,
     updateGeneral,
     updateChat,
+    updateUI,
     saveConfigs,
     resetConfigs,
     reloadConfigs

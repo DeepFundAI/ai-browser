@@ -9,7 +9,8 @@ import React, { useMemo } from 'react';
 import { SettingOutlined } from '@ant-design/icons';
 import { Typography, Divider } from 'antd';
 import { SelectSetting, ToggleSetting } from '../components';
-import { GeneralSettings, getDefaultGeneralSettings, SelectOptionGroup } from '@/models/settings';
+import { GeneralSettings, SelectOptionGroup } from '@/models/settings';
+import { getDefaultGeneralSettings } from '@/config/settings-defaults';
 import { ProviderConfigs } from '@/utils/config-converter';
 
 const { Title, Paragraph, Text } = Typography;

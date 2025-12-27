@@ -6,3 +6,5 @@ export { SliderSetting } from './SliderSetting';
 export { ToggleSetting } from './ToggleSetting';
 export { SelectSetting } from './SelectSetting';
 export { InputSetting } from './InputSetting';
+export { ThemeSelector } from './ThemeSelector';
+export { DensitySelector } from './DensitySelector';
