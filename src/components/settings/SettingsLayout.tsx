@@ -14,6 +14,7 @@ import { ChatPanel } from './panels/ChatPanel';
 import { AgentPanel } from './panels/AgentPanel';
 import { ScheduledTasksPanel } from './panels/ScheduledTasksPanel';
 import { UserInterfacePanel } from './panels/UserInterfacePanel';
+import { NetworkPanel } from './panels/NetworkPanel';
 import { AboutPanel } from './panels/AboutPanel';
 import { useSettingsState } from '@/hooks/useSettingsState';
 
@@ -45,6 +46,7 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
     general,
     chat,
     ui,
+    network,
     loading,
     saving,
     hasChanges,
@@ -54,6 +56,7 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
     updateGeneral,
     updateChat,
     updateUI,
+    updateNetwork,
     saveConfigs,
     resetConfigs
   } = useSettingsState();
@@ -157,16 +160,12 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
           />
         ) : null;
       case 'network':
-        return (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center text-gray-400">
-              <div className="text-6xl mb-4">🌐</div>
-              <div className="text-2xl font-semibold mb-2">Network Settings</div>
-              <div className="text-sm">Proxy, timeout, retry, and User-Agent configuration</div>
-              <div className="text-xs mt-2 text-gray-500">Coming Soon</div>
-            </div>
-          </div>
-        );
+        return network ? (
+          <NetworkPanel
+            settings={network}
+            onSettingsChange={updateNetwork}
+          />
+        ) : null;
       case 'memory':
         return (
           <div className="flex items-center justify-center h-full">

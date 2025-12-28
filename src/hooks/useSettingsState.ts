@@ -13,7 +13,7 @@ import {
   SettingsConfigs,
   ProviderConfigs
 } from '@/utils/config-converter';
-import { GeneralSettings, ChatSettings, UISettings, ProviderConfig } from '@/models/settings';
+import { GeneralSettings, ChatSettings, UISettings, NetworkSettings, ProviderConfig } from '@/models/settings';
 
 export function useSettingsState() {
   const [originalConfigs, setOriginalConfigs] = useState<SettingsConfigs | null>(null);
@@ -160,6 +160,21 @@ export function useSettingsState() {
     });
   }, []);
 
+  /**
+   * Update network settings
+   */
+  const updateNetwork = useCallback((
+    newNetwork: NetworkSettings | ((prev: NetworkSettings) => NetworkSettings)
+  ) => {
+    setCurrentConfigs(prev => {
+      if (!prev) return prev;
+      const network = typeof newNetwork === 'function'
+        ? newNetwork(prev.network)
+        : newNetwork;
+      return { ...prev, network };
+    });
+  }, []);
+
   const saveConfigs = useCallback(async () => {
     if (!currentConfigs) return;
 
@@ -196,6 +211,7 @@ export function useSettingsState() {
     general: currentConfigs?.general ?? null,
     chat: currentConfigs?.chat ?? null,
     ui: currentConfigs?.ui ?? null,
+    network: currentConfigs?.network ?? null,
     loading,
     saving,
     hasChanges: hasChanges(),
@@ -206,6 +222,7 @@ export function useSettingsState() {
     updateGeneral,
     updateChat,
     updateUI,
+    updateNetwork,
     saveConfigs,
     resetConfigs,
     reloadConfigs

@@ -12,6 +12,7 @@ import {
   GeneralSettings,
   ChatSettings,
   UISettings,
+  NetworkSettings,
   BUILTIN_PROVIDER_IDS,
   BUILTIN_PROVIDER_META,
   BuiltinProviderId,
@@ -20,7 +21,8 @@ import {
 import {
   getDefaultGeneralSettings,
   getDefaultChatSettings,
-  getDefaultUISettings
+  getDefaultUISettings,
+  getDefaultNetworkSettings
 } from '@/config/settings-defaults';
 
 // All providers stored as Record<string, ProviderConfig>
@@ -31,14 +33,16 @@ export interface SettingsConfigs {
   general: GeneralSettings;
   chat: ChatSettings;
   ui: UISettings;
+  network: NetworkSettings;
 }
 
 // Legacy storage format (for backward compatibility)
 export interface LegacyStorageFormat {
-  [key: string]: LegacyProviderConfig | GeneralSettings | ChatSettings | UISettings | string | undefined;
+  [key: string]: LegacyProviderConfig | GeneralSettings | ChatSettings | UISettings | NetworkSettings | string | undefined;
   generalSettings?: GeneralSettings;
   chatSettings?: ChatSettings;
   uiSettings?: UISettings;
+  networkSettings?: NetworkSettings;
   selectedProvider?: string;
 }
 
@@ -64,7 +68,7 @@ export function convertLegacyToNewConfig(legacy: LegacyStorageFormat): SettingsC
   // Process legacy config entries
   Object.entries(legacy).forEach(([key, value]) => {
     // Skip non-provider fields
-    if (key === 'selectedProvider' || key === 'generalSettings' || key === 'chatSettings' || key === 'uiSettings') {
+    if (key === 'selectedProvider' || key === 'generalSettings' || key === 'chatSettings' || key === 'uiSettings' || key === 'networkSettings') {
       return;
     }
 
@@ -107,7 +111,8 @@ export function convertLegacyToNewConfig(legacy: LegacyStorageFormat): SettingsC
     providers,
     general: legacy.generalSettings ?? getDefaultGeneralSettings(),
     chat: legacy.chatSettings ?? getDefaultChatSettings(),
-    ui: legacy.uiSettings ?? getDefaultUISettings()
+    ui: legacy.uiSettings ?? getDefaultUISettings(),
+    network: legacy.networkSettings ?? getDefaultNetworkSettings()
   };
 }
 
@@ -143,10 +148,11 @@ export function convertNewToLegacyConfig(newConfigs: SettingsConfigs): LegacySto
     legacy[providerId] = legacyConfig;
   });
 
-  // Add general, chat, and ui settings
+  // Add general, chat, ui, and network settings
   legacy.generalSettings = newConfigs.general;
   legacy.chatSettings = newConfigs.chat;
   legacy.uiSettings = newConfigs.ui;
+  legacy.networkSettings = newConfigs.network;
 
   return legacy;
 }

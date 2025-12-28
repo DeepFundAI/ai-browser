@@ -135,12 +135,27 @@ export interface UISettings {
   };
 }
 
+export interface NetworkSettings {
+  proxy: {
+    enabled: boolean;
+    type: 'http' | 'https' | 'socks5';
+    server: string;
+    port: number;
+    username?: string;
+    password?: string;
+  };
+  requestTimeout: number; // 5 - 120 seconds
+  retryAttempts: number; // 0 - 10
+  customUserAgent?: string;
+}
+
 export interface AppSettings {
   providers: Record<string, ProviderConfig>;
   general: GeneralSettings;
   chat: ChatSettings;
   agent: AgentSettings;
   ui: UISettings;
+  network: NetworkSettings;
 }
 
 /**

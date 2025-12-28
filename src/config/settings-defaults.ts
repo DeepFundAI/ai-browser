@@ -9,6 +9,7 @@ import {
   GeneralSettings,
   ChatSettings,
   UISettings,
+  NetworkSettings,
   AppSettings,
   ProviderConfig,
   BUILTIN_PROVIDER_IDS,
@@ -66,6 +67,25 @@ export function getDefaultUISettings(): UISettings {
 }
 
 /**
+ * Default network settings
+ */
+export function getDefaultNetworkSettings(): NetworkSettings {
+  return {
+    proxy: {
+      enabled: false,
+      type: 'http',
+      server: '',
+      port: 8080,
+      username: '',
+      password: ''
+    },
+    requestTimeout: 30,
+    retryAttempts: 3,
+    customUserAgent: ''
+  };
+}
+
+/**
  * Default app settings (all settings combined)
  */
 export function getDefaultSettings(): AppSettings {
@@ -83,6 +103,7 @@ export function getDefaultSettings(): AppSettings {
       enabledTools: [],
       customTools: []
     },
-    ui: getDefaultUISettings()
+    ui: getDefaultUISettings(),
+    network: getDefaultNetworkSettings()
   };
 }
