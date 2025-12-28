@@ -8,7 +8,7 @@
 import React from 'react';
 import { SkinOutlined } from '@ant-design/icons';
 import { Typography, Divider, InputNumber } from 'antd';
-import { SliderSetting, ToggleSetting, ThemeSelector, DensitySelector } from '../components';
+import { ToggleSetting, ThemeSelector, DensitySelector } from '../components';
 import { UISettings } from '@/models/settings';
 import { getDefaultUISettings } from '@/config/settings-defaults';
 
@@ -96,32 +96,12 @@ export const UserInterfacePanel: React.FC<UserInterfacePanelProps> = ({
             {/* Layout Settings */}
             <div>
               <Text className="!text-white text-lg font-semibold">Layout Settings</Text>
-              <div className="mt-4 space-y-6">
+              <div className="mt-4">
                 <DensitySelector
                   label="Interface Density"
                   value={settings.density}
                   onChange={(value) => handleChange({ density: value })}
                 />
-
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="text-white font-medium">Sidebar Width: {settings.sidebarWidth}px</div>
-                  </div>
-                  <SliderSetting
-                    label=""
-                    description=""
-                    value={settings.sidebarWidth}
-                    min={200}
-                    max={400}
-                    step={1}
-                    onChange={(value) => handleChange({ sidebarWidth: value })}
-                    marks={{
-                      200: '200px',
-                      300: '300px',
-                      400: '400px'
-                    }}
-                  />
-                </div>
               </div>
             </div>
 

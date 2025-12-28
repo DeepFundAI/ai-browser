@@ -57,7 +57,6 @@ export function getDefaultUISettings(): UISettings {
     theme: 'dark',
     fontSize: 14,
     density: 'comfortable',
-    sidebarWidth: 240,
     editor: {
       showLineNumbers: false,
       wordWrap: true,

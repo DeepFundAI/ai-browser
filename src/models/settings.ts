@@ -128,7 +128,6 @@ export interface UISettings {
   theme: 'light' | 'dark' | 'system';
   fontSize: number; // 10 - 32
   density: 'compact' | 'comfortable' | 'spacious';
-  sidebarWidth: number; // 200 - 400
   editor: {
     showLineNumbers: boolean;
     wordWrap: boolean;
