@@ -183,20 +183,22 @@ export const NetworkPanel: React.FC<NetworkPanelProps> = ({
                   <div className="text-white font-medium mb-3">
                     Request Timeout: {settings.requestTimeout} seconds
                   </div>
-                  <SliderSetting
-                    label=""
-                    description=""
-                    value={settings.requestTimeout}
-                    min={5}
-                    max={120}
-                    step={1}
-                    onChange={(value) => handleChange({ requestTimeout: value })}
-                    marks={{
-                      5: '5 seconds',
-                      60: '60 seconds',
-                      120: '120 seconds'
-                    }}
-                  />
+                  <div className="px-1">
+                    <SliderSetting
+                      label=""
+                      description=""
+                      value={settings.requestTimeout}
+                      min={5}
+                      max={120}
+                      step={1}
+                      onChange={(value) => handleChange({ requestTimeout: value })}
+                      marks={{
+                        5: '5s',
+                        60: '60s',
+                        120: '120s'
+                      }}
+                    />
+                  </div>
                 </div>
 
                 {/* Retry Attempts */}
