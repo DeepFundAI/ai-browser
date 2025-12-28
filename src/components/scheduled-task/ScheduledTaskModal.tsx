@@ -125,7 +125,7 @@ export const ScheduledTaskModal: React.FC = () => {
       }}
       okText={isEditMode ? t('save') : t('create_and_enable')}
       cancelText={t('cancel')}
-      destroyOnClose
+      destroyOnHidden
     >
       <Form
         form={form}

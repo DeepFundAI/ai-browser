@@ -13,7 +13,7 @@ import {
   ToolOutlined,
   ReloadOutlined
 } from '@ant-design/icons';
-import { Typography, Switch, Input, Button, Spin, message } from 'antd';
+import { Typography, Switch, Input, Button, Spin, App } from 'antd';
 import clsx from 'clsx';
 import type { AgentConfig, McpToolSchema } from '@/types';
 
@@ -92,6 +92,7 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, onToggle }) => {
  * Agent configuration panel (Toolbox integration)
  */
 export const AgentPanel: React.FC = () => {
+  const { message } = App.useApp();
   const [activeTab, setActiveTab] = useState<AgentTab>('browser');
   const [loading, setLoading] = useState(false);
   const [config, setConfig] = useState<AgentConfig>({

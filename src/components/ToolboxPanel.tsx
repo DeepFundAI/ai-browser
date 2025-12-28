@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Drawer, Card, Typography, Space, Modal } from 'antd';
+import { Drawer, Card, Typography, Space, App } from 'antd';
 import {
   SettingOutlined,
   ClockCircleOutlined,
@@ -31,6 +31,7 @@ interface ToolboxPanelProps {
  * Central hub for all system configuration and management features
  */
 export default function ToolboxPanel({ visible, onClose }: ToolboxPanelProps) {
+  const { modal } = App.useApp();
   const [agentConfigVisible, setAgentConfigVisible] = useState(false);
   const { setShowListPanel } = useScheduledTaskStore();
 
@@ -64,7 +65,7 @@ export default function ToolboxPanel({ visible, onClose }: ToolboxPanelProps) {
       icon: <SettingOutlined className="text-3xl" />,
       color: '#722ed1',
       onClick: () => {
-        Modal.info({
+        modal.info({
           title: 'Coming Soon',
           content: 'System settings feature is under development.',
         });
@@ -77,7 +78,7 @@ export default function ToolboxPanel({ visible, onClose }: ToolboxPanelProps) {
       icon: <ToolOutlined className="text-3xl" />,
       color: '#fa8c16',
       onClick: () => {
-        Modal.info({
+        modal.info({
           title: 'Coming Soon',
           content: 'Tools marketplace is under development.',
         });
@@ -90,7 +91,7 @@ export default function ToolboxPanel({ visible, onClose }: ToolboxPanelProps) {
       icon: <ThunderboltOutlined className="text-3xl" />,
       color: '#eb2f96',
       onClick: () => {
-        Modal.info({
+        modal.info({
           title: 'Coming Soon',
           content: 'Workflow templates feature is under development.',
         });

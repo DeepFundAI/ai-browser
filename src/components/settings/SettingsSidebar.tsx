@@ -73,6 +73,9 @@ const MENU_ITEMS: MenuItem[] = [
 interface SettingsSidebarProps {
   activeTab: SettingsTab;
   onTabChange: (tab: SettingsTab) => void;
+  onImport: () => void;
+  onExport: () => void;
+  onReset: () => void;
 }
 
 /**
@@ -80,7 +83,10 @@ interface SettingsSidebarProps {
  */
 export const SettingsSidebar: React.FC<SettingsSidebarProps> = ({
   activeTab,
-  onTabChange
+  onTabChange,
+  onImport,
+  onExport,
+  onReset
 }) => {
   return (
     <div
@@ -118,12 +124,14 @@ export const SettingsSidebar: React.FC<SettingsSidebarProps> = ({
       <div className="p-4 border-t border-white/10 space-y-2">
         <Button
           block
+          onClick={onImport}
           className="bg-white/5 border-white/10 text-gray-200 hover:bg-white/10 hover:border-white/20"
         >
           Import Settings
         </Button>
         <Button
           block
+          onClick={onExport}
           className="bg-white/5 border-white/10 text-gray-200 hover:bg-white/10 hover:border-white/20"
         >
           Export Settings
@@ -131,6 +139,7 @@ export const SettingsSidebar: React.FC<SettingsSidebarProps> = ({
         <Button
           block
           danger
+          onClick={onReset}
           className="bg-red-500/10 border-red-500/30 hover:bg-red-500/20 hover:border-red-500/50"
         >
           Reset Settings

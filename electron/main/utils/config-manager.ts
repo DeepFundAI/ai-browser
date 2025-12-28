@@ -11,6 +11,7 @@ import { app } from "electron";
 import fs from "fs";
 import { store } from "./store";
 import type { ProviderType, ModelConfig, UserModelConfigs } from "../models";
+import { SettingsManager } from "./settings-manager";
 
 // Re-export types for backward compatibility
 export type { ProviderType, ModelConfig, UserModelConfigs } from "../models";
@@ -303,32 +304,26 @@ export class ConfigManager {
 
   // Delegate to SettingsManager for backward compatibility
   public getAgentConfig() {
-    const { SettingsManager } = require('./settings-manager');
     return SettingsManager.getInstance().getAgentConfig();
   }
 
   public saveAgentConfig(config: any): void {
-    const { SettingsManager } = require('./settings-manager');
     SettingsManager.getInstance().saveAgentConfig(config);
   }
 
   public getMcpToolConfig(toolName: string) {
-    const { SettingsManager } = require('./settings-manager');
     return SettingsManager.getInstance().getMcpToolConfig(toolName);
   }
 
   public setMcpToolConfig(toolName: string, config: { enabled: boolean; config?: Record<string, any> }): void {
-    const { SettingsManager } = require('./settings-manager');
     SettingsManager.getInstance().setMcpToolConfig(toolName, config);
   }
 
   public getAllMcpToolsConfig(availableTools: string[]) {
-    const { SettingsManager } = require('./settings-manager');
     return SettingsManager.getInstance().getAllMcpToolsConfig(availableTools);
   }
 
   public getEnabledMcpTools(availableTools: string[]): string[] {
-    const { SettingsManager } = require('./settings-manager');
     return SettingsManager.getInstance().getEnabledMcpTools(availableTools);
   }
 }

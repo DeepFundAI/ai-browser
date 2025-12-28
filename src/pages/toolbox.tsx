@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, Typography, Modal, Button, Tag } from 'antd';
+import { Card, Typography, Button, Tag, App } from 'antd';
 import {
   ClockCircleOutlined,
   RobotOutlined,
@@ -31,6 +31,7 @@ interface ToolItem {
  * Central hub for all system configuration and management features
  */
 export default function ToolboxPage() {
+  const { modal } = App.useApp();
   const router = useRouter();
   const { t } = useTranslation('toolbox');
   const [agentConfigVisible, setAgentConfigVisible] = useState(false);
@@ -70,7 +71,7 @@ export default function ToolboxPage() {
       gradient: 'linear-gradient(135deg, #8c8c8c 0%, #595959 100%)',
       implemented: false,
       onClick: () => {
-        Modal.info({
+        modal.info({
           title: t('coming_soon_title'),
           content: t('system_settings_coming_soon'),
         });
@@ -85,7 +86,7 @@ export default function ToolboxPage() {
       gradient: 'linear-gradient(135deg, #8c8c8c 0%, #595959 100%)',
       implemented: false,
       onClick: () => {
-        Modal.info({
+        modal.info({
           title: t('coming_soon_title'),
           content: t('tools_marketplace_coming_soon'),
         });
@@ -100,7 +101,7 @@ export default function ToolboxPage() {
       gradient: 'linear-gradient(135deg, #8c8c8c 0%, #595959 100%)',
       implemented: false,
       onClick: () => {
-        Modal.info({
+        modal.info({
           title: t('coming_soon_title'),
           content: t('workflow_templates_coming_soon'),
         });

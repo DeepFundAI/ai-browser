@@ -16,7 +16,7 @@ import {
   DeleteOutlined,
   ApiOutlined
 } from '@ant-design/icons';
-import { Typography, Input, Button, Switch, Tag, message, Popconfirm } from 'antd';
+import { Typography, Input, Button, Switch, Tag, App, Popconfirm } from 'antd';
 import clsx from 'clsx';
 import {
   ProviderConfig,
@@ -173,6 +173,7 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
   onAddProvider,
   onRemoveProvider
 }) => {
+  const { message } = App.useApp();
   const [selectedProviderId, setSelectedProviderId] = useState<string>('deepseek');
   const [searchQuery, setSearchQuery] = useState('');
   const [modelSearchQuery, setModelSearchQuery] = useState('');

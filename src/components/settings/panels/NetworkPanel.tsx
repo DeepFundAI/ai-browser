@@ -7,7 +7,7 @@
 
 import React, { useState } from 'react';
 import { GlobalOutlined } from '@ant-design/icons';
-import { Typography, Divider, Input, InputNumber, Select, Button, message } from 'antd';
+import { Typography, Divider, Input, InputNumber, Select, Button, App } from 'antd';
 import { ToggleSetting, SliderSetting } from '../components';
 import { NetworkSettings } from '@/models/settings';
 import { getDefaultNetworkSettings } from '@/config/settings-defaults';
@@ -26,6 +26,7 @@ export const NetworkPanel: React.FC<NetworkPanelProps> = ({
   settings = getDefaultNetworkSettings(),
   onSettingsChange
 }) => {
+  const { message } = App.useApp();
   const [testingProxy, setTestingProxy] = useState(false);
 
   const handleChange = (updates: Partial<NetworkSettings>) => {
