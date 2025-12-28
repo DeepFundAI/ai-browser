@@ -8,7 +8,6 @@ import {
   BulbOutlined,
   SkinOutlined,
   GlobalOutlined,
-  KeyOutlined,
   InfoCircleOutlined
 } from '@ant-design/icons';
 import { Button } from 'antd';
@@ -49,12 +48,6 @@ const MENU_ITEMS: MenuItem[] = [
     icon: <ClockCircleOutlined />
   },
   {
-    id: 'memory',
-    label: 'Memory',
-    icon: <BulbOutlined />,
-    comingSoon: true
-  },
-  {
     id: 'user-interface',
     label: 'User Interface',
     icon: <SkinOutlined />
@@ -62,13 +55,12 @@ const MENU_ITEMS: MenuItem[] = [
   {
     id: 'network',
     label: 'Network',
-    icon: <GlobalOutlined />,
-    comingSoon: true
+    icon: <GlobalOutlined />
   },
   {
-    id: 'keybindings',
-    label: 'Keybindings',
-    icon: <KeyOutlined />,
+    id: 'memory',
+    label: 'Memory',
+    icon: <BulbOutlined />,
     comingSoon: true
   },
   {

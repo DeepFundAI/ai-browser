@@ -23,10 +23,9 @@ export type SettingsTab =
   | 'chat'
   | 'agent'
   | 'scheduled-tasks'
-  | 'memory'
   | 'user-interface'
   | 'network'
-  | 'keybindings'
+  | 'memory'
   | 'about';
 
 interface SettingsLayoutProps {
@@ -157,20 +156,30 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
             onSettingsChange={updateUI}
           />
         ) : null;
-      case 'about':
-        return <AboutPanel />;
-      case 'memory':
       case 'network':
-      case 'keybindings':
         return (
           <div className="flex items-center justify-center h-full">
             <div className="text-center text-gray-400">
-              <div className="text-6xl mb-4">🚧</div>
-              <div className="text-2xl font-semibold mb-2">Coming Soon</div>
-              <div className="text-sm">This feature is under development</div>
+              <div className="text-6xl mb-4">🌐</div>
+              <div className="text-2xl font-semibold mb-2">Network Settings</div>
+              <div className="text-sm">Proxy, timeout, retry, and User-Agent configuration</div>
+              <div className="text-xs mt-2 text-gray-500">Coming Soon</div>
             </div>
           </div>
         );
+      case 'memory':
+        return (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-center text-gray-400">
+              <div className="text-6xl mb-4">🧠</div>
+              <div className="text-2xl font-semibold mb-2">Memory Settings</div>
+              <div className="text-sm">Configure conversation memory and context management</div>
+              <div className="text-xs mt-2 text-gray-500">Coming Soon</div>
+            </div>
+          </div>
+        );
+      case 'about':
+        return <AboutPanel />;
       default:
         return providers ? (
           <ProvidersPanel
