@@ -8,6 +8,7 @@
 import React, { useMemo } from 'react';
 import { SettingOutlined } from '@ant-design/icons';
 import { Typography, Divider } from 'antd';
+import { useTranslation } from 'react-i18next';
 import { SelectSetting, ToggleSetting } from '../components';
 import { GeneralSettings, SelectOptionGroup } from '@/models/settings';
 import { getDefaultGeneralSettings } from '@/config/settings-defaults';
@@ -29,6 +30,8 @@ export const GeneralPanel: React.FC<GeneralPanelProps> = ({
   onSettingsChange,
   providers
 }) => {
+  const { t } = useTranslation('settings');
+
   const handleChange = (updates: Partial<GeneralSettings>) => {
     if (onSettingsChange) {
       onSettingsChange({ ...settings, ...updates });
@@ -73,11 +76,11 @@ export const GeneralPanel: React.FC<GeneralPanelProps> = ({
         <div className="flex items-center gap-3 mb-4">
           <SettingOutlined className="text-3xl text-purple-400" />
           <Title level={2} className="!text-white !mb-0">
-            General
+            {t('general.title')}
           </Title>
         </div>
         <Paragraph className="!text-gray-300 !mb-0">
-          General application settings and preferences
+          {t('general.description')}
         </Paragraph>
       </div>
 
@@ -88,15 +91,15 @@ export const GeneralPanel: React.FC<GeneralPanelProps> = ({
           <div className="flex-1 min-h-0 overflow-y-auto p-6 space-y-6">
         {/* Model Selection */}
         <div>
-          <Text className="!text-white text-lg font-semibold">Model</Text>
+          <Text className="!text-white text-lg font-semibold">{t('general.tool_model')}</Text>
           <div className="mt-4">
             <SelectSetting
-              label="Tool Model"
-              description="Model used for automated tasks like thread title generation"
+              label={t('general.tool_model')}
+              description={t('general.tool_model_desc')}
               value={settings.toolModel}
               groupedOptions={groupedModelOptions}
               onChange={(value) => handleChange({ toolModel: value })}
-              placeholder={groupedModelOptions.length > 0 ? "Select a model" : "No models available - configure providers first"}
+              placeholder={groupedModelOptions.length > 0 ? t('general.tool_model') : t('providers.no_models')}
               showSearch
             />
           </div>
@@ -106,11 +109,11 @@ export const GeneralPanel: React.FC<GeneralPanelProps> = ({
 
         {/* Language */}
         <div>
-          <Text className="!text-white text-lg font-semibold">Language</Text>
+          <Text className="!text-white text-lg font-semibold">{t('general.language')}</Text>
           <div className="mt-4">
             <SelectSetting
-              label="Display Language"
-              description="Language for the user interface"
+              label={t('general.language')}
+              description={t('general.language_desc')}
               value={settings.language}
               options={languageOptions}
               onChange={(value) => handleChange({ language: value as 'en' | 'zh' })}
@@ -122,11 +125,11 @@ export const GeneralPanel: React.FC<GeneralPanelProps> = ({
 
         {/* Startup Settings */}
         <div>
-          <Text className="!text-white text-lg font-semibold">Startup</Text>
+          <Text className="!text-white text-lg font-semibold">{t('general.startup_settings')}</Text>
           <div className="mt-4">
             <ToggleSetting
-              label="Launch on system startup"
-              description="Automatically start AI Browser when your computer starts"
+              label={t('general.auto_start')}
+              description={t('general.auto_start_desc')}
               checked={settings.startup.autoStart}
               onChange={(checked) =>
                 handleChange({
@@ -135,8 +138,8 @@ export const GeneralPanel: React.FC<GeneralPanelProps> = ({
               }
             />
             <ToggleSetting
-              label="Start minimized"
-              description="Start the application in the system tray"
+              label={t('general.start_minimized')}
+              description={t('general.start_minimized_desc')}
               checked={settings.startup.startMinimized}
               onChange={(checked) =>
                 handleChange({
@@ -151,11 +154,11 @@ export const GeneralPanel: React.FC<GeneralPanelProps> = ({
 
         {/* Window Behavior */}
         <div>
-          <Text className="!text-white text-lg font-semibold">Window Behavior</Text>
+          <Text className="!text-white text-lg font-semibold">{t('general.window_behavior')}</Text>
           <div className="mt-4">
             <ToggleSetting
-              label="Minimize to tray"
-              description="Minimize the window to system tray instead of taskbar"
+              label={t('general.minimize_to_tray')}
+              description={t('general.minimize_to_tray_desc')}
               checked={settings.window.minimizeToTray}
               onChange={(checked) =>
                 handleChange({
@@ -164,8 +167,8 @@ export const GeneralPanel: React.FC<GeneralPanelProps> = ({
               }
             />
             <ToggleSetting
-              label="Close to tray"
-              description="Keep the app running in the background when closing the window"
+              label={t('general.close_to_tray')}
+              description={t('general.close_to_tray_desc')}
               checked={settings.window.closeToTray}
               onChange={(checked) =>
                 handleChange({

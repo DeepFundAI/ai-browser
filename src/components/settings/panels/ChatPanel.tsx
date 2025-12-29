@@ -8,6 +8,7 @@
 import React from 'react';
 import { MessageOutlined } from '@ant-design/icons';
 import { Typography, Divider } from 'antd';
+import { useTranslation } from 'react-i18next';
 import { SliderSetting, ToggleSetting, InputSetting } from '../components';
 import { ChatSettings } from '@/models/settings';
 import { getDefaultChatSettings } from '@/config/settings-defaults';
@@ -26,6 +27,8 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
   settings = getDefaultChatSettings(),
   onSettingsChange
 }) => {
+  const { t } = useTranslation('settings');
+
   const handleChange = (updates: Partial<ChatSettings>) => {
     if (onSettingsChange) {
       onSettingsChange({ ...settings, ...updates });
@@ -39,11 +42,11 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
         <div className="flex items-center gap-3 mb-4">
           <MessageOutlined className="text-3xl text-green-400" />
           <Title level={2} className="!text-white !mb-0">
-            Chat
+            {t('chat.title')}
           </Title>
         </div>
         <Paragraph className="!text-gray-300 !mb-0">
-          Configure chat parameters and behavior
+          {t('chat.description')}
         </Paragraph>
       </div>
 
@@ -54,11 +57,11 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
           <div className="flex-1 min-h-0 overflow-y-auto p-6 space-y-6">
         {/* Model Parameters */}
         <div>
-          <Text className="!text-white text-lg font-semibold">Model Parameters</Text>
+          <Text className="!text-white text-lg font-semibold">{t('chat.model_parameters')}</Text>
           <div className="mt-4 space-y-4">
             <SliderSetting
-              label="Temperature"
-              description="Controls randomness in responses. Lower = more focused, higher = more creative"
+              label={t('chat.temperature')}
+              description={t('chat.temperature_desc')}
               value={settings.temperature}
               min={0}
               max={2}
@@ -68,8 +71,8 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
             />
 
             <InputSetting
-              label="Max Tokens"
-              description="Maximum number of tokens in the response"
+              label={t('chat.max_tokens')}
+              description={t('chat.max_tokens_desc')}
               value={settings.maxTokens}
               min={1}
               max={8192}
@@ -83,23 +86,23 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
 
         {/* Response Settings */}
         <div>
-          <Text className="!text-white text-lg font-semibold">Response Settings</Text>
+          <Text className="!text-white text-lg font-semibold">{t('chat.response_settings')}</Text>
           <div className="mt-4">
             <ToggleSetting
-              label="Enable streaming response"
-              description="Display responses word by word as they are generated"
+              label={t('chat.streaming')}
+              description={t('chat.streaming_desc')}
               checked={settings.streaming}
               onChange={(checked) => handleChange({ streaming: checked })}
             />
             <ToggleSetting
-              label="Show token usage"
-              description="Display token count for each message"
+              label={t('chat.show_token_usage')}
+              description={t('chat.show_token_usage_desc')}
               checked={settings.showTokenUsage}
               onChange={(checked) => handleChange({ showTokenUsage: checked })}
             />
             <ToggleSetting
-              label="Enable Markdown rendering"
-              description="Render Markdown formatting in chat messages"
+              label={t('chat.markdown_rendering')}
+              description={t('chat.markdown_rendering_desc')}
               checked={settings.markdownRendering}
               onChange={(checked) => handleChange({ markdownRendering: checked })}
             />
@@ -110,11 +113,11 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
 
         {/* User Experience */}
         <div>
-          <Text className="!text-white text-lg font-semibold">User Experience</Text>
+          <Text className="!text-white text-lg font-semibold">{t('chat.sound_effects')}</Text>
           <div className="mt-4">
             <ToggleSetting
-              label="Sound effects"
-              description="Play sound notifications for new messages"
+              label={t('chat.sound_effects')}
+              description={t('chat.sound_effects_desc')}
               checked={settings.soundEffects}
               onChange={(checked) => handleChange({ soundEffects: checked })}
             />
@@ -125,18 +128,18 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
 
         {/* History Settings */}
         <div>
-          <Text className="!text-white text-lg font-semibold">History</Text>
+          <Text className="!text-white text-lg font-semibold">{t('chat.history_settings')}</Text>
           <div className="mt-4 space-y-4">
             <ToggleSetting
-              label="Auto-save chat history"
-              description="Automatically save conversations for later review"
+              label={t('chat.auto_save_history')}
+              description={t('chat.auto_save_history_desc')}
               checked={settings.autoSaveHistory}
               onChange={(checked) => handleChange({ autoSaveHistory: checked })}
             />
 
             <InputSetting
-              label="History retention days"
-              description="Number of days to keep chat history"
+              label={t('chat.history_retention_days')}
+              description={t('chat.history_retention_days_desc')}
               value={settings.historyRetentionDays}
               min={1}
               max={365}

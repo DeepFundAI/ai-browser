@@ -8,6 +8,7 @@
 import React, { useState } from 'react';
 import { GlobalOutlined } from '@ant-design/icons';
 import { Typography, Divider, Input, InputNumber, Select, Button, App } from 'antd';
+import { useTranslation } from 'react-i18next';
 import { ToggleSetting, SliderSetting } from '../components';
 import { NetworkSettings } from '@/models/settings';
 import { getDefaultNetworkSettings } from '@/config/settings-defaults';
@@ -26,6 +27,7 @@ export const NetworkPanel: React.FC<NetworkPanelProps> = ({
   settings = getDefaultNetworkSettings(),
   onSettingsChange
 }) => {
+  const { t } = useTranslation('settings');
   const { message } = App.useApp();
   const [testingProxy, setTestingProxy] = useState(false);
 
@@ -46,7 +48,7 @@ export const NetworkPanel: React.FC<NetworkPanelProps> = ({
 
   const handleTestProxy = async () => {
     if (!settings.proxy.enabled || !settings.proxy.server || !settings.proxy.port) {
-      message.warning('Please configure proxy server and port first');
+      message.warning(t('network.test_proxy_warning'));
       return;
     }
 
@@ -54,9 +56,9 @@ export const NetworkPanel: React.FC<NetworkPanelProps> = ({
     try {
       // TODO: Implement actual proxy test via IPC
       await new Promise(resolve => setTimeout(resolve, 1500));
-      message.success('Proxy connection successful');
+      message.success(t('network.test_proxy_success'));
     } catch (error: any) {
-      message.error(error.message || 'Proxy connection failed');
+      message.error(error.message || t('network.test_proxy_failed'));
     } finally {
       setTestingProxy(false);
     }
@@ -75,11 +77,11 @@ export const NetworkPanel: React.FC<NetworkPanelProps> = ({
         <div className="flex items-center gap-3 mb-4">
           <GlobalOutlined className="text-3xl text-blue-400" />
           <Title level={2} className="!text-white !mb-0">
-            Network
+            {t('network.title')}
           </Title>
         </div>
         <Paragraph className="!text-gray-300 !mb-0">
-          Configure proxy, timeout, retry, and User-Agent settings
+          {t('network.description')}
         </Paragraph>
       </div>
 
@@ -90,11 +92,11 @@ export const NetworkPanel: React.FC<NetworkPanelProps> = ({
           <div className="flex-1 min-h-0 overflow-y-auto p-6 space-y-8">
             {/* Proxy Settings */}
             <div>
-              <Text className="!text-white text-lg font-semibold">Proxy Settings</Text>
+              <Text className="!text-white text-lg font-semibold">{t('network.proxy_settings')}</Text>
               <div className="mt-4">
                 <ToggleSetting
-                  label="Enable Proxy"
-                  description="Route requests through a proxy server"
+                  label={t('network.enable_proxy')}
+                  description={t('network.enable_proxy_desc')}
                   checked={settings.proxy.enabled}
                   onChange={(checked) => handleProxyChange({ enabled: checked })}
                 />
@@ -103,7 +105,7 @@ export const NetworkPanel: React.FC<NetworkPanelProps> = ({
                   <div className="mt-6 p-6 bg-white/5 rounded-lg border border-white/10 space-y-4">
                     {/* Proxy Type */}
                     <div>
-                      <div className="text-white font-medium mb-2">Proxy Type</div>
+                      <div className="text-white font-medium mb-2">{t('network.proxy_type')}</div>
                       <Select
                         value={settings.proxy.type}
                         onChange={(value) => handleProxyChange({ type: value })}
@@ -115,7 +117,7 @@ export const NetworkPanel: React.FC<NetworkPanelProps> = ({
                     {/* Proxy Server and Port */}
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <div className="text-white font-medium mb-2">Proxy Server</div>
+                        <div className="text-white font-medium mb-2">{t('network.proxy_server')}</div>
                         <Input
                           value={settings.proxy.server}
                           onChange={(e) => handleProxyChange({ server: e.target.value })}
@@ -124,7 +126,7 @@ export const NetworkPanel: React.FC<NetworkPanelProps> = ({
                         />
                       </div>
                       <div>
-                        <div className="text-white font-medium mb-2">Port</div>
+                        <div className="text-white font-medium mb-2">{t('network.port')}</div>
                         <InputNumber
                           value={settings.proxy.port}
                           onChange={(value) => handleProxyChange({ port: value || 8080 })}
@@ -139,20 +141,20 @@ export const NetworkPanel: React.FC<NetworkPanelProps> = ({
                     {/* Username and Password (Optional) */}
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <div className="text-white font-medium mb-2">Username (Optional)</div>
+                        <div className="text-white font-medium mb-2">{t('network.username_optional')}</div>
                         <Input
                           value={settings.proxy.username}
                           onChange={(e) => handleProxyChange({ username: e.target.value })}
-                          placeholder="Username (Optional)"
+                          placeholder={t('network.username_optional')}
                           className="!bg-white/5 !border-white/10 !text-white"
                         />
                       </div>
                       <div>
-                        <div className="text-white font-medium mb-2">Password (Optional)</div>
+                        <div className="text-white font-medium mb-2">{t('network.password_optional')}</div>
                         <Input.Password
                           value={settings.proxy.password}
                           onChange={(e) => handleProxyChange({ password: e.target.value })}
-                          placeholder="Password (Optional)"
+                          placeholder={t('network.password_optional')}
                           className="!bg-white/5 !border-white/10 !text-white"
                         />
                       </div>
@@ -165,7 +167,7 @@ export const NetworkPanel: React.FC<NetworkPanelProps> = ({
                         loading={testingProxy}
                         className="bg-white/5 border-white/10 text-gray-300 hover:bg-white/10"
                       >
-                        Test Proxy
+                        {t('network.test_proxy')}
                       </Button>
                     </div>
                   </div>
@@ -177,12 +179,12 @@ export const NetworkPanel: React.FC<NetworkPanelProps> = ({
 
             {/* Network Parameters */}
             <div>
-              <Text className="!text-white text-lg font-semibold">Network Parameters</Text>
+              <Text className="!text-white text-lg font-semibold">{t('network.network_parameters')}</Text>
               <div className="mt-4 space-y-6">
                 {/* Request Timeout */}
                 <div>
                   <div className="text-white font-medium mb-3">
-                    Request Timeout: {settings.requestTimeout} seconds
+                    {t('network.request_timeout')}: {settings.requestTimeout} {t('network.request_timeout_unit')}
                   </div>
                   <div className="px-1">
                     <SliderSetting
@@ -204,7 +206,7 @@ export const NetworkPanel: React.FC<NetworkPanelProps> = ({
 
                 {/* Retry Attempts */}
                 <div>
-                  <div className="text-white font-medium mb-2">Retry Attempts</div>
+                  <div className="text-white font-medium mb-2">{t('network.retry_attempts')}</div>
                   <InputNumber
                     value={settings.retryAttempts}
                     onChange={(value) => handleChange({ retryAttempts: value || 0 })}
@@ -213,21 +215,21 @@ export const NetworkPanel: React.FC<NetworkPanelProps> = ({
                     className="w-32"
                   />
                   <div className="text-gray-400 text-xs mt-1">
-                    Number of automatic retries when requests fail (0-10)
+                    {t('network.retry_attempts_desc')}
                   </div>
                 </div>
 
                 {/* Custom User-Agent */}
                 <div>
-                  <div className="text-white font-medium mb-2">Custom User-Agent (Optional)</div>
+                  <div className="text-white font-medium mb-2">{t('network.custom_user_agent')}</div>
                   <Input
                     value={settings.customUserAgent}
                     onChange={(e) => handleChange({ customUserAgent: e.target.value })}
-                    placeholder="Leave empty to use default"
+                    placeholder={t('network.custom_user_agent_placeholder')}
                     className="!bg-white/5 !border-white/10 !text-white"
                   />
                   <div className="text-gray-400 text-xs mt-1">
-                    Custom User-Agent identifier for HTTP requests
+                    {t('network.custom_user_agent_desc')}
                   </div>
                 </div>
               </div>

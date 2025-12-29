@@ -14,6 +14,7 @@ import {
   ReloadOutlined
 } from '@ant-design/icons';
 import { Typography, Switch, Input, Button, Spin, App } from 'antd';
+import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 import type { AgentConfig, McpToolSchema } from '@/types';
 
@@ -92,6 +93,7 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, onToggle }) => {
  * Agent configuration panel (Toolbox integration)
  */
 export const AgentPanel: React.FC = () => {
+  const { t } = useTranslation('settings');
   const { message } = App.useApp();
   const [activeTab, setActiveTab] = useState<AgentTab>('browser');
   const [loading, setLoading] = useState(false);
@@ -118,11 +120,11 @@ export const AgentPanel: React.FC = () => {
       }
     } catch (error) {
       console.error('Failed to load agent config:', error);
-      message.error('Failed to load agent configuration');
+      message.error(t('agent.load_failed'));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [message, t]);
 
   useEffect(() => {
     loadConfiguration();
@@ -195,13 +197,13 @@ export const AgentPanel: React.FC = () => {
     try {
       const result = await window.api.saveAgentConfig(config);
       if (result?.success) {
-        message.success('Agent configuration saved');
+        message.success(t('agent.changes_saved'));
         setHasChanges(false);
       } else {
-        message.error('Failed to save configuration');
+        message.error(t('agent.load_failed'));
       }
     } catch (error) {
-      message.error('Failed to save configuration');
+      message.error(t('agent.load_failed'));
     }
   };
 
@@ -209,13 +211,13 @@ export const AgentPanel: React.FC = () => {
   const handleReload = async () => {
     await loadConfiguration();
     setHasChanges(false);
-    message.success('Configuration reloaded');
+    message.success(t('agent.changes_saved'));
   };
 
-  const tabs: { id: AgentTab; label: string; icon: React.ReactNode }[] = [
-    { id: 'browser', label: 'Browser Agent', icon: <GlobalOutlined /> },
-    { id: 'file', label: 'File Agent', icon: <FolderOutlined /> },
-    { id: 'tools', label: 'MCP Tools', icon: <ToolOutlined /> }
+  const tabs: { id: AgentTab; labelKey: string; icon: React.ReactNode }[] = [
+    { id: 'browser', labelKey: 'agent.browser_agent', icon: <GlobalOutlined /> },
+    { id: 'file', labelKey: 'agent.file_agent', icon: <FolderOutlined /> },
+    { id: 'tools', labelKey: 'agent.mcp_tools', icon: <ToolOutlined /> }
   ];
 
   // Render content based on active tab
@@ -235,9 +237,9 @@ export const AgentPanel: React.FC = () => {
             {/* Enable toggle */}
             <div className="flex items-center justify-between">
               <div>
-                <Text className="!text-white font-medium block">Enable Browser Agent</Text>
+                <Text className="!text-white font-medium block">{t('agent.enable_agent')}</Text>
                 <Text className="!text-gray-400 text-sm">
-                  Allow AI to interact with web browsers for automation tasks
+                  {t('agent.browser_agent_behavior')}
                 </Text>
               </div>
               <Switch
@@ -248,7 +250,7 @@ export const AgentPanel: React.FC = () => {
 
             {/* Default behaviors */}
             <div className="p-4 bg-white/5 rounded-lg border border-white/10">
-              <Text className="!text-gray-300 font-medium block mb-3">Default Behaviors</Text>
+              <Text className="!text-gray-300 font-medium block mb-3">{t('agent.default_behavior')}</Text>
               <div className="text-sm text-gray-400 space-y-1.5">
                 <div>• Analyze webpages by taking screenshots and page element structures</div>
                 <div>• Use structured commands to interact with the browser</div>
@@ -260,14 +262,14 @@ export const AgentPanel: React.FC = () => {
 
             {/* Custom prompt */}
             <div>
-              <Text className="!text-white font-medium block mb-2">Custom System Prompt</Text>
+              <Text className="!text-white font-medium block mb-2">{t('agent.custom_prompt')}</Text>
               <Text className="!text-gray-400 text-sm block mb-3">
                 Add custom instructions to extend the Browser Agent's capabilities
               </Text>
               <TextArea
                 value={config.browserAgent.customPrompt}
                 onChange={(e) => handleBrowserPromptChange(e.target.value)}
-                placeholder="Enter custom instructions for the browser agent..."
+                placeholder={t('agent.custom_prompt_placeholder')}
                 rows={6}
                 disabled={!config.browserAgent.enabled}
                 className="bg-white/5 border-white/10 text-white placeholder-gray-500"
@@ -282,9 +284,9 @@ export const AgentPanel: React.FC = () => {
             {/* Enable toggle */}
             <div className="flex items-center justify-between">
               <div>
-                <Text className="!text-white font-medium block">Enable File Agent</Text>
+                <Text className="!text-white font-medium block">{t('agent.enable_agent')}</Text>
                 <Text className="!text-gray-400 text-sm">
-                  Allow AI to manage files and perform file operations
+                  {t('agent.file_agent_behavior')}
                 </Text>
               </div>
               <Switch
@@ -295,7 +297,7 @@ export const AgentPanel: React.FC = () => {
 
             {/* Default behaviors */}
             <div className="p-4 bg-white/5 rounded-lg border border-white/10">
-              <Text className="!text-gray-300 font-medium block mb-3">Default Behaviors</Text>
+              <Text className="!text-gray-300 font-medium block mb-3">{t('agent.default_behavior')}</Text>
               <div className="text-sm text-gray-400 space-y-1.5">
                 <div>• Handle file-related tasks: creating, finding, reading, modifying files</div>
                 <div>• Always include working directory when outputting file paths</div>
@@ -307,14 +309,14 @@ export const AgentPanel: React.FC = () => {
 
             {/* Custom prompt */}
             <div>
-              <Text className="!text-white font-medium block mb-2">Custom System Prompt</Text>
+              <Text className="!text-white font-medium block mb-2">{t('agent.custom_prompt')}</Text>
               <Text className="!text-gray-400 text-sm block mb-3">
                 Add custom instructions to extend the File Agent's capabilities
               </Text>
               <TextArea
                 value={config.fileAgent.customPrompt}
                 onChange={(e) => handleFilePromptChange(e.target.value)}
-                placeholder="Enter custom instructions for the file agent..."
+                placeholder={t('agent.custom_prompt_placeholder')}
                 rows={6}
                 disabled={!config.fileAgent.enabled}
                 className="bg-white/5 border-white/10 text-white placeholder-gray-500"
@@ -365,7 +367,7 @@ export const AgentPanel: React.FC = () => {
           <div className="flex items-center gap-3">
             <RobotOutlined className="text-3xl text-cyan-400" />
             <Title level={2} className="!text-white !mb-0">
-              Agent
+              {t('agent.title')}
             </Title>
           </div>
           <div className="flex items-center gap-2">
@@ -383,13 +385,13 @@ export const AgentPanel: React.FC = () => {
                 disabled={!hasChanges}
                 className="bg-blue-600 hover:bg-blue-700 border-none disabled:bg-gray-600"
               >
-                Save Changes
+                {t('agent.save_changes')}
               </Button>
             )}
           </div>
         </div>
         <Paragraph className="!text-gray-300 !mb-0">
-          Configure AI agent behavior, custom prompts, and available tools
+          {t('agent.description')}
         </Paragraph>
       </div>
 
@@ -401,7 +403,7 @@ export const AgentPanel: React.FC = () => {
             {tabs.map((tab) => (
               <TabItem
                 key={tab.id}
-                label={tab.label}
+                label={t(tab.labelKey)}
                 icon={tab.icon}
                 isSelected={activeTab === tab.id}
                 onClick={() => setActiveTab(tab.id)}

@@ -16,6 +16,7 @@ import {
   ReloadOutlined
 } from '@ant-design/icons';
 import { Typography, Button, Switch, Popconfirm, Spin, App } from 'antd';
+import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 import { useScheduledTaskStore } from '@/stores/scheduled-task-store';
 import { ScheduledTaskModal } from '@/components/scheduled-task/ScheduledTaskModal';
@@ -50,6 +51,8 @@ const TaskCard: React.FC<TaskCardProps> = ({
   getIntervalText,
   getLastExecutedText
 }) => {
+  const { t } = useTranslation('settings');
+
   return (
     <div
       className={clsx(
@@ -105,7 +108,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
           disabled={!task.enabled}
           className="bg-white/5 border-white/10 text-gray-300 hover:bg-white/10 disabled:opacity-50"
         >
-          Run Now
+          {t('scheduled_tasks.run_now')}
         </Button>
         <Button
           size="small"
@@ -113,7 +116,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
           onClick={onViewHistory}
           className="bg-white/5 border-white/10 text-gray-300 hover:bg-white/10"
         >
-          History
+          {t('scheduled_tasks.history')}
         </Button>
         <Button
           size="small"
@@ -121,13 +124,13 @@ const TaskCard: React.FC<TaskCardProps> = ({
           onClick={onEdit}
           className="bg-white/5 border-white/10 text-gray-300 hover:bg-white/10"
         >
-          Edit
+          {t('scheduled_tasks.edit')}
         </Button>
         <Popconfirm
-          title="Delete this task?"
-          description="This action cannot be undone."
+          title={t('scheduled_tasks.delete_confirm_title')}
+          description={t('scheduled_tasks.delete_confirm_content')}
           onConfirm={onDelete}
-          okText="Delete"
+          okText={t('scheduled_tasks.delete')}
           cancelText="Cancel"
           okButtonProps={{ danger: true }}
         >
@@ -137,7 +140,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
             danger
             className="bg-red-500/10 border-red-500/30 hover:bg-red-500/20"
           >
-            Delete
+            {t('scheduled_tasks.delete')}
           </Button>
         </Popconfirm>
       </div>
@@ -149,6 +152,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
  * Scheduled Tasks configuration panel
  */
 export const ScheduledTasksPanel: React.FC = () => {
+  const { t } = useTranslation('settings');
   const { message } = App.useApp();
   const { language } = useLanguageStore();
   const {
@@ -178,15 +182,15 @@ export const ScheduledTasksPanel: React.FC = () => {
         day: 'day'
       };
       const unit = unitLabels[schedule.intervalUnit!] || schedule.intervalUnit;
-      return `Every ${schedule.intervalValue} ${unit}${schedule.intervalValue !== 1 ? 's' : ''}`;
+      return `${t('scheduled_tasks.every_hour').split(' ')[0]} ${schedule.intervalValue} ${unit}${schedule.intervalValue !== 1 ? 's' : ''}`;
     }
-    return 'Cron';
+    return t('scheduled_tasks.custom');
   };
 
   // Get last execution time description
   const getLastExecutedText = (task: ScheduledTask): string => {
     if (!task.lastExecutedAt) {
-      return 'Never';
+      return t('scheduled_tasks.never');
     }
 
     try {
@@ -211,7 +215,7 @@ export const ScheduledTasksPanel: React.FC = () => {
   const handleDelete = async (taskId: string) => {
     try {
       await deleteTask(taskId);
-      message.success('Task deleted successfully');
+      message.success(t('scheduled_tasks.delete_confirm_content'));
     } catch (error) {
       message.error('Failed to delete task');
     }
@@ -261,7 +265,7 @@ export const ScheduledTasksPanel: React.FC = () => {
           <div className="flex items-center gap-3">
             <ClockCircleOutlined className="text-3xl text-green-400" />
             <Title level={2} className="!text-white !mb-0">
-              Scheduled Tasks
+              {t('scheduled_tasks.title')}
             </Title>
           </div>
           <div className="flex items-center gap-2">
@@ -278,12 +282,12 @@ export const ScheduledTasksPanel: React.FC = () => {
               onClick={handleCreateNew}
               className="bg-green-600 hover:bg-green-700 border-none"
             >
-              New Task
+              {t('scheduled_tasks.create_task')}
             </Button>
           </div>
         </div>
         <Paragraph className="!text-gray-300 !mb-0">
-          Create and manage automated tasks that run on a schedule
+          {t('scheduled_tasks.description')}
         </Paragraph>
       </div>
 
@@ -300,15 +304,15 @@ export const ScheduledTasksPanel: React.FC = () => {
                 <div className="text-5xl mb-4">
                   <ClockCircleOutlined />
                 </div>
-                <div className="text-xl font-semibold mb-2">No Scheduled Tasks</div>
-                <div className="text-sm mb-6">Create your first automated task to get started</div>
+                <div className="text-xl font-semibold mb-2">{t('scheduled_tasks.no_tasks')}</div>
+                <div className="text-sm mb-6">{t('scheduled_tasks.no_tasks_desc')}</div>
                 <Button
                   type="primary"
                   icon={<PlusOutlined />}
                   onClick={handleCreateNew}
                   className="bg-green-600 hover:bg-green-700 border-none"
                 >
-                  Create First Task
+                  {t('scheduled_tasks.create_task')}
                 </Button>
               </div>
             ) : (

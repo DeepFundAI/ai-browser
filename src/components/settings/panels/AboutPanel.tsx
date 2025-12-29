@@ -1,16 +1,19 @@
 import React from 'react';
 import { InfoCircleOutlined } from '@ant-design/icons';
 import { Typography } from 'antd';
+import { useTranslation } from 'react-i18next';
 
 const { Title, Paragraph } = Typography;
 
 export const AboutPanel: React.FC = () => {
+  const { t } = useTranslation('settings');
+
   return (
     <div className="p-8">
       <div className="flex items-center gap-3 mb-6">
         <InfoCircleOutlined className="text-3xl text-blue-400" />
         <Title level={2} className="!text-white !mb-0">
-          About
+          {t('about.title')}
         </Title>
       </div>
 
@@ -27,11 +30,11 @@ export const AboutPanel: React.FC = () => {
 
           <div className="grid grid-cols-2 gap-4 pt-6 border-t border-white/10">
             <div>
-              <div className="text-gray-400 text-sm mb-1">Version</div>
+              <div className="text-gray-400 text-sm mb-1">{t('about.version')}</div>
               <div className="text-white font-semibold">0.0.15</div>
             </div>
             <div>
-              <div className="text-gray-400 text-sm mb-1">License</div>
+              <div className="text-gray-400 text-sm mb-1">{t('about.license')}</div>
               <div className="text-white font-semibold">MIT</div>
             </div>
             <div>
@@ -46,7 +49,7 @@ export const AboutPanel: React.FC = () => {
 
           <div className="pt-6 border-t border-white/10">
             <Paragraph className="!text-gray-400 text-center">
-              Built with ❤️ by DeepFundAI Team
+              {t('about.copyright')}
             </Paragraph>
           </div>
         </div>

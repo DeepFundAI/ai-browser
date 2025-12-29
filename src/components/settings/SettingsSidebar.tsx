@@ -11,64 +11,16 @@ import {
   InfoCircleOutlined
 } from '@ant-design/icons';
 import { Button } from 'antd';
+import { useTranslation } from 'react-i18next';
 import { SettingsTab } from './SettingsLayout';
 import clsx from 'clsx';
 
 interface MenuItem {
   id: SettingsTab;
-  label: string;
+  labelKey: string;
   icon: React.ReactNode;
   comingSoon?: boolean;
 }
-
-const MENU_ITEMS: MenuItem[] = [
-  {
-    id: 'general',
-    label: 'General',
-    icon: <SettingOutlined />
-  },
-  {
-    id: 'providers',
-    label: 'Providers',
-    icon: <CloudOutlined />
-  },
-  {
-    id: 'chat',
-    label: 'Chat',
-    icon: <MessageOutlined />
-  },
-  {
-    id: 'agent',
-    label: 'Agent',
-    icon: <RobotOutlined />
-  },
-  {
-    id: 'scheduled-tasks',
-    label: 'Scheduled Tasks',
-    icon: <ClockCircleOutlined />
-  },
-  {
-    id: 'user-interface',
-    label: 'User Interface',
-    icon: <SkinOutlined />
-  },
-  {
-    id: 'network',
-    label: 'Network',
-    icon: <GlobalOutlined />
-  },
-  {
-    id: 'memory',
-    label: 'Memory',
-    icon: <BulbOutlined />,
-    comingSoon: true
-  },
-  {
-    id: 'about',
-    label: 'About',
-    icon: <InfoCircleOutlined />
-  }
-];
 
 interface SettingsSidebarProps {
   activeTab: SettingsTab;
@@ -88,6 +40,57 @@ export const SettingsSidebar: React.FC<SettingsSidebarProps> = ({
   onExport,
   onReset
 }) => {
+  const { t } = useTranslation('settings');
+
+  const MENU_ITEMS: MenuItem[] = [
+    {
+      id: 'general',
+      labelKey: 'sidebar.general',
+      icon: <SettingOutlined />
+    },
+    {
+      id: 'providers',
+      labelKey: 'sidebar.providers',
+      icon: <CloudOutlined />
+    },
+    {
+      id: 'chat',
+      labelKey: 'sidebar.chat',
+      icon: <MessageOutlined />
+    },
+    {
+      id: 'agent',
+      labelKey: 'sidebar.agent',
+      icon: <RobotOutlined />
+    },
+    {
+      id: 'scheduled-tasks',
+      labelKey: 'sidebar.scheduled_tasks',
+      icon: <ClockCircleOutlined />
+    },
+    {
+      id: 'user-interface',
+      labelKey: 'sidebar.user_interface',
+      icon: <SkinOutlined />
+    },
+    {
+      id: 'network',
+      labelKey: 'sidebar.network',
+      icon: <GlobalOutlined />
+    },
+    {
+      id: 'memory',
+      labelKey: 'sidebar.memory',
+      icon: <BulbOutlined />,
+      comingSoon: true
+    },
+    {
+      id: 'about',
+      labelKey: 'sidebar.about',
+      icon: <InfoCircleOutlined />
+    }
+  ];
+
   return (
     <div
       className="w-60 bg-white/5 backdrop-blur-sm border-r border-white/10 flex flex-col"
@@ -112,9 +115,9 @@ export const SettingsSidebar: React.FC<SettingsSidebarProps> = ({
             )}
           >
             <span className="text-lg">{item.icon}</span>
-            <span className="flex-1">{item.label}</span>
+            <span className="flex-1">{t(item.labelKey)}</span>
             {item.comingSoon && (
-              <span className="text-xs text-gray-500">Soon</span>
+              <span className="text-xs text-gray-500">{t('sidebar.coming_soon')}</span>
             )}
           </button>
         ))}
@@ -127,14 +130,14 @@ export const SettingsSidebar: React.FC<SettingsSidebarProps> = ({
           onClick={onImport}
           className="bg-white/5 border-white/10 text-gray-200 hover:bg-white/10 hover:border-white/20"
         >
-          Import Settings
+          {t('import')}
         </Button>
         <Button
           block
           onClick={onExport}
           className="bg-white/5 border-white/10 text-gray-200 hover:bg-white/10 hover:border-white/20"
         >
-          Export Settings
+          {t('export')}
         </Button>
         <Button
           block
@@ -142,7 +145,7 @@ export const SettingsSidebar: React.FC<SettingsSidebarProps> = ({
           onClick={onReset}
           className="bg-red-500/10 border-red-500/30 hover:bg-red-500/20 hover:border-red-500/50"
         >
-          Reset Settings
+          {t('reset_settings')}
         </Button>
       </div>
     </div>

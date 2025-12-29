@@ -14,6 +14,7 @@ import zhCN_modelConfig from '@/locales/zh-CN/modelConfig.json';
 import zhCN_history from '@/locales/zh-CN/history.json';
 import zhCN_scheduledTask from '@/locales/zh-CN/scheduledTask.json';
 import zhCN_playback from '@/locales/zh-CN/playback.json';
+import zhCN_settings from '@/locales/zh-CN/settings.json';
 
 import enUS_common from '@/locales/en-US/common.json';
 import enUS_header from '@/locales/en-US/header.json';
@@ -27,6 +28,7 @@ import enUS_modelConfig from '@/locales/en-US/modelConfig.json';
 import enUS_history from '@/locales/en-US/history.json';
 import enUS_scheduledTask from '@/locales/en-US/scheduledTask.json';
 import enUS_playback from '@/locales/en-US/playback.json';
+import enUS_settings from '@/locales/en-US/settings.json';
 
 const resources = {
   'zh-CN': {
@@ -42,6 +44,7 @@ const resources = {
     history: zhCN_history,
     scheduledTask: zhCN_scheduledTask,
     playback: zhCN_playback,
+    settings: zhCN_settings,
   },
   'en-US': {
     common: enUS_common,
@@ -56,6 +59,7 @@ const resources = {
     history: enUS_history,
     scheduledTask: enUS_scheduledTask,
     playback: enUS_playback,
+    settings: enUS_settings,
   },
 };
 

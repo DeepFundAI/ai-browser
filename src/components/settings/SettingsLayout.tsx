@@ -7,6 +7,7 @@
 
 import React, { useState } from 'react';
 import { Button, App, Spin } from 'antd';
+import { useTranslation } from 'react-i18next';
 import { SettingsSidebar } from './SettingsSidebar';
 import { ProvidersPanel } from './panels/ProvidersPanel';
 import { GeneralPanel } from './panels/GeneralPanel';
@@ -41,6 +42,7 @@ interface SettingsLayoutProps {
 export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
   initialTab = 'providers'
 }) => {
+  const { t } = useTranslation('settings');
   const { modal, message } = App.useApp();
   const [activeTab, setActiveTab] = useState<SettingsTab>(initialTab);
   const {
@@ -69,9 +71,9 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
   const handleSave = async () => {
     try {
       await saveConfigs();
-      message.success('Settings saved successfully');
+      message.success(t('messages.saved_successfully'));
     } catch (error: any) {
-      message.error(error.message || 'Failed to save settings');
+      message.error(error.message || t('messages.save_failed'));
     }
   };
 
@@ -81,17 +83,17 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
   const handleClose = () => {
     if (hasChanges) {
       modal.confirm({
-        title: 'Unsaved Changes',
-        content: 'You have unsaved changes. Do you want to save before closing?',
-        okText: 'Save',
-        cancelText: 'Discard',
+        title: t('unsaved_changes_dialog.title'),
+        content: t('unsaved_changes_dialog.content'),
+        okText: t('unsaved_changes_dialog.save'),
+        cancelText: t('unsaved_changes_dialog.discard'),
         onOk: async () => {
           try {
             await saveConfigs();
-            message.success('Settings saved successfully');
+            message.success(t('messages.saved_successfully'));
             closeWindow();
           } catch (error: any) {
-            message.error(error.message || 'Failed to save settings');
+            message.error(error.message || t('messages.save_failed'));
           }
         },
         onCancel: () => {
@@ -129,25 +131,25 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
         const importedConfig = JSON.parse(text);
 
         modal.confirm({
-          title: 'Import Settings',
-          content: 'This will replace all your current settings. Are you sure?',
-          okText: 'Import',
-          cancelText: 'Cancel',
+          title: t('import_dialog.title'),
+          content: t('import_dialog.content'),
+          okText: t('import_dialog.ok'),
+          cancelText: t('import_dialog.cancel'),
           onOk: async () => {
             try {
               // Save imported config
               if (typeof window !== 'undefined' && (window as any).api) {
                 await (window as any).api.saveUserModelConfigs(importedConfig);
-                message.success('Settings imported successfully');
+                message.success(t('messages.imported_successfully'));
                 window.location.reload(); // Reload to apply new settings
               }
             } catch (error: any) {
-              message.error(error.message || 'Failed to import settings');
+              message.error(error.message || t('messages.import_failed'));
             }
           }
         });
       } catch (error: any) {
-        message.error('Invalid settings file format');
+        message.error(t('messages.invalid_file_format'));
       }
     };
     input.click();
@@ -171,10 +173,10 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
         link.click();
         URL.revokeObjectURL(url);
 
-        message.success('Settings exported successfully');
+        message.success(t('messages.exported_successfully'));
       }
     } catch (error: any) {
-      message.error(error.message || 'Failed to export settings');
+      message.error(error.message || t('messages.export_failed'));
     }
   };
 
@@ -183,11 +185,11 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
    */
   const handleReset = () => {
     modal.confirm({
-      title: 'Reset Settings',
-      content: 'This will reset all settings to their default values. This action cannot be undone. Are you sure?',
-      okText: 'Reset',
+      title: t('reset_dialog.title'),
+      content: t('reset_dialog.content'),
+      okText: t('reset_dialog.ok'),
       okType: 'danger',
-      cancelText: 'Cancel',
+      cancelText: t('reset_dialog.cancel'),
       onOk: async () => {
         try {
           if (typeof window !== 'undefined' && (window as any).api) {
@@ -195,11 +197,11 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
             const defaultConfigs = convertLegacyToNewConfig({});
             const legacyConfigs = convertNewToLegacyConfig(defaultConfigs);
             await (window as any).api.saveUserModelConfigs(legacyConfigs);
-            message.success('Settings reset to defaults');
+            message.success(t('messages.reset_successfully'));
             window.location.reload(); // Reload to apply default settings
           }
         } catch (error: any) {
-          message.error(error.message || 'Failed to reset settings');
+          message.error(error.message || t('messages.reset_failed'));
         }
       }
     });
@@ -309,9 +311,9 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
           {/* Status indicator */}
           <div className="text-sm">
             {hasChanges ? (
-              <span className="text-yellow-400">● Unsaved changes</span>
+              <span className="text-yellow-400">● {t('unsaved_changes')}</span>
             ) : (
-              <span className="text-gray-400">All changes saved</span>
+              <span className="text-gray-400">{t('all_changes_saved')}</span>
             )}
           </div>
 
@@ -321,7 +323,7 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
               onClick={handleClose}
               className="bg-transparent border-white/10 text-gray-300 hover:bg-white/5"
             >
-              Close
+              {t('close')}
             </Button>
             <Button
               type="primary"
@@ -330,7 +332,7 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
               disabled={!hasChanges}
               className="bg-blue-600 hover:bg-blue-700 border-none disabled:bg-gray-600"
             >
-              Save
+              {t('save')}
             </Button>
           </div>
         </div>

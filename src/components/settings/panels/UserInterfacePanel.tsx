@@ -8,6 +8,7 @@
 import React from 'react';
 import { SkinOutlined } from '@ant-design/icons';
 import { Typography, Divider, InputNumber } from 'antd';
+import { useTranslation } from 'react-i18next';
 import { ToggleSetting, ThemeSelector, DensitySelector } from '../components';
 import { UISettings } from '@/models/settings';
 import { getDefaultUISettings } from '@/config/settings-defaults';
@@ -26,6 +27,8 @@ export const UserInterfacePanel: React.FC<UserInterfacePanelProps> = ({
   settings = getDefaultUISettings(),
   onSettingsChange
 }) => {
+  const { t } = useTranslation('settings');
+
   const handleChange = (updates: Partial<UISettings>) => {
     if (onSettingsChange) {
       onSettingsChange({ ...settings, ...updates });
@@ -48,11 +51,11 @@ export const UserInterfacePanel: React.FC<UserInterfacePanelProps> = ({
         <div className="flex items-center gap-3 mb-4">
           <SkinOutlined className="text-3xl text-pink-400" />
           <Title level={2} className="!text-white !mb-0">
-            User Interface
+            {t('ui.title')}
           </Title>
         </div>
         <Paragraph className="!text-gray-300 !mb-0">
-          Customize the application appearance and layout
+          {t('ui.description')}
         </Paragraph>
       </div>
 
@@ -63,7 +66,7 @@ export const UserInterfacePanel: React.FC<UserInterfacePanelProps> = ({
           <div className="flex-1 min-h-0 overflow-y-auto p-6 space-y-8">
             {/* Theme */}
             <ThemeSelector
-              label="Theme"
+              label={t('ui.theme')}
               value={settings.theme}
               onChange={(value) => handleChange({ theme: value })}
             />
@@ -72,10 +75,10 @@ export const UserInterfacePanel: React.FC<UserInterfacePanelProps> = ({
 
             {/* Font Settings */}
             <div>
-              <Text className="!text-white text-lg font-semibold">Font Settings</Text>
+              <Text className="!text-white text-lg font-semibold">{t('ui.font_size')}</Text>
               <div className="mt-4">
                 <div>
-                  <div className="text-white font-medium mb-2">Font Size</div>
+                  <div className="text-white font-medium mb-2">{t('ui.font_size')}</div>
                   <div className="flex items-center gap-2">
                     <InputNumber
                       value={settings.fontSize}
@@ -86,7 +89,7 @@ export const UserInterfacePanel: React.FC<UserInterfacePanelProps> = ({
                       addonAfter="px"
                     />
                   </div>
-                  <div className="text-gray-400 text-xs mt-1">10 - 32 px</div>
+                  <div className="text-gray-400 text-xs mt-1">{t('ui.font_size_desc')}</div>
                 </div>
               </div>
             </div>
@@ -95,10 +98,10 @@ export const UserInterfacePanel: React.FC<UserInterfacePanelProps> = ({
 
             {/* Layout Settings */}
             <div>
-              <Text className="!text-white text-lg font-semibold">Layout Settings</Text>
+              <Text className="!text-white text-lg font-semibold">{t('ui.density')}</Text>
               <div className="mt-4">
                 <DensitySelector
-                  label="Interface Density"
+                  label={t('ui.density')}
                   value={settings.density}
                   onChange={(value) => handleChange({ density: value })}
                 />
@@ -109,23 +112,23 @@ export const UserInterfacePanel: React.FC<UserInterfacePanelProps> = ({
 
             {/* Editor Settings */}
             <div>
-              <Text className="!text-white text-lg font-semibold">Editor Settings</Text>
+              <Text className="!text-white text-lg font-semibold">{t('ui.editor_settings')}</Text>
               <div className="mt-4 space-y-2">
                 <ToggleSetting
-                  label="Show Line Numbers"
-                  description="Display line numbers in code blocks and text editing areas"
+                  label={t('ui.show_line_numbers')}
+                  description={t('ui.show_line_numbers_desc')}
                   checked={settings.editor.showLineNumbers}
                   onChange={(checked) => handleEditorChange({ showLineNumbers: checked })}
                 />
                 <ToggleSetting
-                  label="Word Wrap"
-                  description="Automatically wrap long text to avoid horizontal scrolling"
+                  label={t('ui.word_wrap')}
+                  description={t('ui.word_wrap_desc')}
                   checked={settings.editor.wordWrap}
                   onChange={(checked) => handleEditorChange({ wordWrap: checked })}
                 />
                 <ToggleSetting
-                  label="Show Minimap"
-                  description="Display minimap navigation on the right side of long code blocks"
+                  label={t('ui.show_minimap')}
+                  description={t('ui.show_minimap_desc')}
                   checked={settings.editor.showMinimap}
                   onChange={(checked) => handleEditorChange({ showMinimap: checked })}
                 />
