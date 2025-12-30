@@ -106,15 +106,25 @@ export const SettingsSidebar: React.FC<SettingsSidebarProps> = ({
             key={item.id}
             onClick={() => onTabChange(item.id)}
             className={clsx(
-              'w-full flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-all duration-200',
-              'text-left text-sm font-medium',
+              'w-full flex items-center gap-3 px-4 py-3 rounded-lg mb-1',
+              'text-left text-sm font-medium relative',
+              'transition-all duration-200 ease-in-out',
+              'hover:scale-[1.02] active:scale-[0.98]',
               activeTab === item.id
-                ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+                ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30 shadow-lg shadow-blue-500/10'
                 : 'text-gray-300 hover:bg-white/5 hover:text-white border border-transparent',
               item.comingSoon && 'opacity-60'
             )}
           >
-            <span className="text-lg">{item.icon}</span>
+            {activeTab === item.id && (
+              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-blue-400 rounded-r-full" />
+            )}
+            <span className={clsx(
+              'text-lg transition-transform duration-200',
+              activeTab === item.id && 'scale-110'
+            )}>
+              {item.icon}
+            </span>
             <span className="flex-1">{t(item.labelKey)}</span>
             {item.comingSoon && (
               <span className="text-xs text-gray-500">{t('sidebar.coming_soon')}</span>
@@ -128,14 +138,14 @@ export const SettingsSidebar: React.FC<SettingsSidebarProps> = ({
         <Button
           block
           onClick={onImport}
-          className="bg-white/5 border-white/10 text-gray-200 hover:bg-white/10 hover:border-white/20"
+          className="bg-white/5 border-white/10 text-gray-200 hover:bg-white/10 hover:border-white/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
         >
           {t('import')}
         </Button>
         <Button
           block
           onClick={onExport}
-          className="bg-white/5 border-white/10 text-gray-200 hover:bg-white/10 hover:border-white/20"
+          className="bg-white/5 border-white/10 text-gray-200 hover:bg-white/10 hover:border-white/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
         >
           {t('export')}
         </Button>
@@ -143,7 +153,7 @@ export const SettingsSidebar: React.FC<SettingsSidebarProps> = ({
           block
           danger
           onClick={onReset}
-          className="bg-red-500/10 border-red-500/30 hover:bg-red-500/20 hover:border-red-500/50"
+          className="bg-red-500/10 border-red-500/30 hover:bg-red-500/20 hover:border-red-500/50 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
         >
           {t('reset_settings')}
         </Button>

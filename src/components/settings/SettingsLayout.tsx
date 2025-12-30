@@ -8,6 +8,7 @@
 import React, { useState } from 'react';
 import { Button, App, Spin } from 'antd';
 import { useTranslation } from 'react-i18next';
+import { motion, AnimatePresence } from 'framer-motion';
 import { SettingsSidebar } from './SettingsSidebar';
 import { ProvidersPanel } from './panels/ProvidersPanel';
 import { GeneralPanel } from './panels/GeneralPanel';
@@ -300,8 +301,19 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
         />
 
         {/* Main content area */}
-        <div className="flex-1 overflow-hidden">
-          {renderPanel()}
+        <div className="flex-1 overflow-hidden relative">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2, ease: 'easeInOut' }}
+              className="absolute inset-0 overflow-hidden"
+            >
+              {renderPanel()}
+            </motion.div>
+          </AnimatePresence>
         </div>
       </div>
 
@@ -309,9 +321,16 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
       <div className="flex-shrink-0 border-t border-white/10 px-8 py-4 bg-black/20 backdrop-blur-sm">
         <div className="flex items-center justify-between">
           {/* Status indicator */}
-          <div className="text-sm">
+          <div className="text-sm flex items-center gap-2">
             {hasChanges ? (
-              <span className="text-yellow-400">● {t('unsaved_changes')}</span>
+              <>
+                <motion.span
+                  className="inline-block w-2 h-2 bg-yellow-400 rounded-full"
+                  animate={{ opacity: [1, 0.3, 1] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                />
+                <span className="text-yellow-400">{t('unsaved_changes')}</span>
+              </>
             ) : (
               <span className="text-gray-400">{t('all_changes_saved')}</span>
             )}
@@ -321,7 +340,7 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
           <div className="flex gap-3">
             <Button
               onClick={handleClose}
-              className="bg-transparent border-white/10 text-gray-300 hover:bg-white/5"
+              className="bg-transparent border-white/10 text-gray-300 hover:bg-white/5 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
             >
               {t('close')}
             </Button>
@@ -330,7 +349,7 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
               onClick={handleSave}
               loading={saving}
               disabled={!hasChanges}
-              className="bg-blue-600 hover:bg-blue-700 border-none disabled:bg-gray-600"
+              className="bg-blue-600 hover:bg-blue-700 border-none disabled:bg-gray-600 disabled:cursor-not-allowed transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:hover:scale-100"
             >
               {t('save')}
             </Button>
