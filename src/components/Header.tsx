@@ -97,7 +97,7 @@ export default function Header() {
           className='!text-text-01-dark hover:!bg-purple-500/10'
           style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
         >
-          Settings
+          {t('settings')}
         </Button>
 
         {/* Language Switcher */}

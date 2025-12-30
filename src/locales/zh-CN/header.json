@@ -2,5 +2,6 @@
   "toolbox": "工具箱",
   "history": "历史记录",
   "execution_history": "执行历史",
-  "scheduled_task": "定时任务"
+  "scheduled_task": "定时任务",
+  "settings": "设置"
 }
