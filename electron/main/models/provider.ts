@@ -5,6 +5,8 @@
  * POSITION: Core types for LLM provider configuration
  */
 
+import type { GeneralSettings, ChatSettings } from './settings';
+
 export type ProviderType = 'deepseek' | 'qwen' | 'google' | 'anthropic' | 'openrouter';
 
 export interface ModelConfig {
@@ -37,4 +39,6 @@ export interface UserModelConfigs {
     model?: string;
   };
   selectedProvider?: ProviderType;
+  generalSettings?: GeneralSettings;
+  chatSettings?: ChatSettings;
 }

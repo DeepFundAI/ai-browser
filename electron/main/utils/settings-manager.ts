@@ -10,7 +10,6 @@ import type { GeneralSettings, ChatSettings, AgentConfig } from '../models';
 
 // Default values
 const DEFAULT_GENERAL_SETTINGS: GeneralSettings = {
-  toolModel: 'deepseek-chat',
   language: 'en',
   startup: {
     autoStart: false,
@@ -18,7 +17,7 @@ const DEFAULT_GENERAL_SETTINGS: GeneralSettings = {
   },
   window: {
     minimizeToTray: true,
-    closeToTray: false
+    closeToTray: true
   }
 };
 

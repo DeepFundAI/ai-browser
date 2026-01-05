@@ -96,6 +96,15 @@ export class ConfigManager {
   public saveUserModelConfigs(configs: UserModelConfigs): void {
     store.set('modelConfigs', configs);
     console.log('[ConfigManager] User model configurations saved');
+
+    // Sync to SettingsManager for unified access
+    const settingsManager = SettingsManager.getInstance();
+    if (configs.generalSettings) {
+      settingsManager.saveGeneralSettings(configs.generalSettings);
+    }
+    if (configs.chatSettings) {
+      settingsManager.saveChatSettings(configs.chatSettings);
+    }
   }
 
   public getModelConfig(provider: ProviderType): ModelConfig | null {

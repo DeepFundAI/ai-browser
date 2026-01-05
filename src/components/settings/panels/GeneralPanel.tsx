@@ -1,25 +1,23 @@
 /**
  * General settings panel
  * INPUT: Settings from parent component
- * OUTPUT: Tool model, language, startup, and window settings
+ * OUTPUT: Language, startup, and window settings
  * POSITION: Second tab in settings window (after Providers)
  */
 
-import React, { useMemo } from 'react';
+import React from 'react';
 import { SettingOutlined } from '@ant-design/icons';
 import { Typography, Divider } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { SelectSetting, ToggleSetting } from '../components';
-import { GeneralSettings, SelectOptionGroup } from '@/models/settings';
+import { GeneralSettings } from '@/models/settings';
 import { getDefaultGeneralSettings } from '@/config/settings-defaults';
-import { ProviderConfigs } from '@/utils/config-converter';
 
 const { Title, Paragraph, Text } = Typography;
 
 interface GeneralPanelProps {
   settings?: GeneralSettings;
   onSettingsChange?: (settings: GeneralSettings) => void;
-  providers?: ProviderConfigs | null;
 }
 
 /**
@@ -27,8 +25,7 @@ interface GeneralPanelProps {
  */
 export const GeneralPanel: React.FC<GeneralPanelProps> = ({
   settings = getDefaultGeneralSettings(),
-  onSettingsChange,
-  providers
+  onSettingsChange
 }) => {
   const { t } = useTranslation('settings');
 
@@ -37,32 +34,6 @@ export const GeneralPanel: React.FC<GeneralPanelProps> = ({
       onSettingsChange({ ...settings, ...updates });
     }
   };
-
-  // Build grouped model options from providers config
-  const groupedModelOptions = useMemo((): SelectOptionGroup[] => {
-    if (!providers) return [];
-
-    const groups: SelectOptionGroup[] = [];
-
-    Object.values(providers).forEach(config => {
-      // Only require models to exist, not provider enabled status
-      if (!config.models || config.models.length === 0) return;
-
-      const enabledModels = config.models.filter(model => model.enabled);
-
-      if (enabledModels.length > 0) {
-        groups.push({
-          label: config.name,
-          options: enabledModels.map(model => ({
-            label: model.name || model.id,
-            value: model.id
-          }))
-        });
-      }
-    });
-
-    return groups;
-  }, [providers]);
 
   const languageOptions = [
     { label: 'English', value: 'en' },
@@ -89,24 +60,6 @@ export const GeneralPanel: React.FC<GeneralPanelProps> = ({
         <div className="bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 h-full flex flex-col">
           {/* Scrollable content inside card */}
           <div className="flex-1 min-h-0 overflow-y-auto p-6 space-y-6">
-        {/* Model Selection */}
-        <div>
-          <Text className="!text-white text-lg font-semibold">{t('general.tool_model')}</Text>
-          <div className="mt-4">
-            <SelectSetting
-              label={t('general.tool_model')}
-              description={t('general.tool_model_desc')}
-              value={settings.toolModel}
-              groupedOptions={groupedModelOptions}
-              onChange={(value) => handleChange({ toolModel: value })}
-              placeholder={groupedModelOptions.length > 0 ? t('general.tool_model') : t('providers.no_models')}
-              showSearch
-            />
-          </div>
-        </div>
-
-        <Divider className="!border-white/10" />
-
         {/* Language */}
         <div>
           <Text className="!text-white text-lg font-semibold">{t('general.language')}</Text>

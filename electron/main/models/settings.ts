@@ -6,7 +6,6 @@
  */
 
 export interface GeneralSettings {
-  toolModel: string;
   language: 'en' | 'zh';
   startup: {
     autoStart: boolean;

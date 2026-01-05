@@ -21,7 +21,6 @@ import {
  */
 export function getDefaultGeneralSettings(): GeneralSettings {
   return {
-    toolModel: '',
     language: 'en',
     startup: {
       autoStart: false,
@@ -29,7 +28,7 @@ export function getDefaultGeneralSettings(): GeneralSettings {
     },
     window: {
       minimizeToTray: true,
-      closeToTray: false
+      closeToTray: true
     }
   };
 }

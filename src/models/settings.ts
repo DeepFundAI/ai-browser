@@ -88,7 +88,6 @@ export interface FetchModelsResult {
 }
 
 export interface GeneralSettings {
-  toolModel: string; // Model ID for automated tasks (thread title generation, etc.)
   language: 'en' | 'zh';
   startup: {
     autoStart: boolean;
