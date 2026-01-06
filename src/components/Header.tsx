@@ -4,7 +4,6 @@ import { HistoryOutlined, ToolOutlined, SettingOutlined } from '@ant-design/icon
 import { useRouter } from 'next/router'
 import { HistoryPanel } from '@/components/history'
 import { useHistoryStore } from '@/stores/historyStore'
-import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { useTranslation } from 'react-i18next'
 
 export default function Header() {
@@ -99,11 +98,6 @@ export default function Header() {
         >
           {t('settings')}
         </Button>
-
-        {/* Language Switcher */}
-        <div style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}>
-          <LanguageSwitcher />
-        </div>
       </div>
 
       {/* Global history task panel - passing scheduled task info */}

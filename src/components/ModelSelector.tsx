@@ -8,8 +8,8 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Select, Button, App } from 'antd';
 import { SettingOutlined } from '@ant-design/icons';
-import type { AppSettings, ProviderConfig, ModelInfo } from '@/models/settings';
-import { useSettingsSubscription } from '@/hooks/useSettingsSubscription';
+import type { AppSettings } from '@/models/settings';
+import { useSettingsStore } from '@/stores/settingsStore';
 import { logger } from '@/utils/logger';
 
 const { Option, OptGroup } = Select;
@@ -41,36 +41,20 @@ const getMaxTokensForModel = (modelId: string): number => {
 
 export const ModelSelector: React.FC = () => {
   const { message } = App.useApp();
-  const [appSettings, setAppSettings] = useState<AppSettings | null>(null);
+  const { settings: appSettings, saveSettings } = useSettingsStore();
   const [selectedModel, setSelectedModel] = useState<string | undefined>(undefined);
 
-  const loadSettings = useCallback(async () => {
-    const response = await window.api.getAppSettings();
-    if (response?.success && response.data) {
-      setAppSettings(response.data);
-
-      // Find the first enabled provider with selected model as default
-      const enabledProvider = Object.values(response.data.providers).find(
+  // Update selected model when settings change
+  useEffect(() => {
+    if (appSettings?.providers) {
+      const enabledProvider = Object.values(appSettings.providers).find(
         (p) => p.enabled && p.apiKey && p.selectedModel && p.models?.length > 0
       );
       if (enabledProvider) {
         setSelectedModel(`${enabledProvider.id}:${enabledProvider.selectedModel}`);
       }
     }
-  }, []);
-
-  // Load settings on mount
-  useEffect(() => {
-    loadSettings();
-  }, [loadSettings]);
-
-  // Subscribe to settings changes (from settings panel or other sources)
-  const handleSettingsUpdate = useCallback(() => {
-    logger.debug('Settings updated, reloading...', 'ModelSelector');
-    loadSettings();
-  }, [loadSettings]);
-
-  useSettingsSubscription(handleSettingsUpdate);
+  }, [appSettings]);
 
   // Build model options grouped by provider
   const modelOptions = useMemo((): ModelOption[] => {
@@ -139,9 +123,7 @@ export const ModelSelector: React.FC = () => {
         providers: updatedProviders
       };
 
-      await window.api.saveAppSettings(updatedSettings);
-      setAppSettings(updatedSettings);
-
+      await saveSettings(updatedSettings);
       message.success(`Switched to ${modelId}`);
     } catch (error) {
       message.error(`Failed to switch model: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -193,7 +175,6 @@ export const ModelSelector: React.FC = () => {
           return label.includes(input.toLowerCase());
         }}
         popupMatchSelectWidth={false}
-        dropdownStyle={{ minWidth: 300 }}
       >
         {Object.entries(groupedOptions).map(([providerId, models]) => (
           <OptGroup key={providerId} label={models[0].providerName}>

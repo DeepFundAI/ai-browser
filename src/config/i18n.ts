@@ -31,7 +31,7 @@ import enUS_playback from '@/locales/en-US/playback.json';
 import enUS_settings from '@/locales/en-US/settings.json';
 
 const resources = {
-  'zh-CN': {
+  'zh': {
     common: zhCN_common,
     header: zhCN_header,
     home: zhCN_home,
@@ -46,7 +46,7 @@ const resources = {
     playback: zhCN_playback,
     settings: zhCN_settings,
   },
-  'en-US': {
+  'en': {
     common: enUS_common,
     header: enUS_header,
     home: enUS_home,
@@ -67,8 +67,8 @@ i18n
   .use(initReactI18next)  // Pass i18n to react-i18next
   .init({
     resources,
-    lng: 'en-US',           // Set initial language to English
-    fallbackLng: 'en-US',   // Default language
+    lng: 'en',              // Set initial language to English
+    fallbackLng: 'en',      // Default language
     defaultNS: 'common',    // Default namespace
     interpolation: {
       escapeValue: false,   // React already escapes

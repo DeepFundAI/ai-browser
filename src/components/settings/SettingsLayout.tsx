@@ -21,6 +21,8 @@ import { AboutPanel } from './panels/AboutPanel';
 import { useSettingsState } from '@/hooks/useSettingsState';
 import { getDefaultSettings } from '@/config/settings-defaults';
 import { logger } from '@/utils/logger';
+import i18n from '@/config/i18n';
+import { useLanguageStore } from '@/stores/languageStore';
 
 export type SettingsTab =
   | 'general'
@@ -103,8 +105,19 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
    */
   const handleSave = async () => {
     try {
+      // Check if language has changed
+      const oldLanguage = i18n.language;
+      const newLanguage = general?.language;
+
       await saveConfigs();
       message.success(t('messages.saved_successfully'));
+
+      // Apply language change if needed
+      if (newLanguage && newLanguage !== oldLanguage) {
+        await i18n.changeLanguage(newLanguage);
+        useLanguageStore.getState().setLanguage(newLanguage);
+        logger.info(`Language changed from ${oldLanguage} to ${newLanguage}`, 'SettingsLayout');
+      }
     } catch (error: any) {
       message.error(error.message || t('messages.save_failed'));
     }
@@ -122,8 +135,20 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
         cancelText: t('unsaved_changes_dialog.discard'),
         onOk: async () => {
           try {
+            // Check if language has changed
+            const oldLanguage = i18n.language;
+            const newLanguage = general?.language;
+
             await saveConfigs();
             message.success(t('messages.saved_successfully'));
+
+            // Apply language change if needed
+            if (newLanguage && newLanguage !== oldLanguage) {
+              await i18n.changeLanguage(newLanguage);
+              useLanguageStore.getState().setLanguage(newLanguage);
+              logger.info(`Language changed from ${oldLanguage} to ${newLanguage}`, 'SettingsLayout');
+            }
+
             closeWindow();
           } catch (error: any) {
             message.error(error.message || t('messages.save_failed'));

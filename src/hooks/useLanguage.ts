@@ -5,8 +5,8 @@ import zhCN from 'antd/locale/zh_CN';
 import enUS from 'antd/locale/en_US';
 
 const antdLocales = {
-  'zh-CN': zhCN,
-  'en-US': enUS,
+  'zh': zhCN,
+  'en': enUS,
 };
 
 export const useLanguage = () => {
