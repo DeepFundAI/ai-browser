@@ -158,15 +158,15 @@ export const ModelSelector: React.FC = () => {
   // Empty state - show configure button
   if (modelOptions.length === 0) {
     return (
-      <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/20 bg-white/5">
-        <SettingOutlined className="text-gray-400 text-base" />
-        <span className="text-xs text-gray-400">No models</span>
+      <div className="group flex items-center gap-2 px-3.5 py-2 rounded-xl border border-white/20 bg-white/5 backdrop-blur-sm hover:bg-white/10 hover:border-blue-400/40 hover:shadow-[0_0_20px_rgba(59,130,246,0.2)] transition-all duration-300">
+        <SettingOutlined className="text-gray-400 group-hover:text-blue-400 text-base transition-colors duration-300" />
+        <span className="text-xs text-gray-400 group-hover:text-gray-300 transition-colors duration-300">No models</span>
         <Button
           type="link"
           size="small"
           icon={<SettingOutlined />}
           onClick={handleOpenSettings}
-          className="!text-blue-400 !p-0 !h-auto !text-xs"
+          className="!text-blue-400 hover:!text-blue-300 !p-0 !h-auto !text-xs transition-colors duration-300"
         >
           Configure
         </Button>
@@ -176,8 +176,8 @@ export const ModelSelector: React.FC = () => {
 
   // Normal state - show compact selector with border
   return (
-    <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/20 bg-white/5">
-      <SettingOutlined className="text-gray-400 text-base flex-shrink-0" />
+    <div className="group flex items-center gap-2.5 px-3.5 py-2 rounded-xl border border-white/20 bg-white/5 backdrop-blur-sm hover:bg-white/10 hover:border-purple-400/40 hover:shadow-[0_0_20px_rgba(145,75,241,0.2)] transition-all duration-300">
+      <SettingOutlined className="text-gray-400 group-hover:text-purple-400 text-base flex-shrink-0 transition-colors duration-300" />
       <Select
         value={selectedModel}
         onChange={handleModelChange}
