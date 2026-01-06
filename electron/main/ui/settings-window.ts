@@ -8,11 +8,21 @@ let settingsWindow: BrowserWindow | null = null;
 /**
  * Opens the settings window
  * Implements singleton pattern to prevent duplicate windows
+ * @param panel - Optional panel to navigate to (e.g., 'providers', 'general')
  */
-export function openSettingsWindow() {
+export function openSettingsWindow(panel?: string) {
   // Reuse existing window if available
   if (settingsWindow && !settingsWindow.isDestroyed()) {
     settingsWindow.focus();
+    // Navigate to specific panel if provided
+    if (panel) {
+      const hash = `#${panel}`;
+      const currentURL = settingsWindow.webContents.getURL();
+      const baseURL = currentURL.split('#')[0];
+      settingsWindow.loadURL(`${baseURL}${hash}`).catch(err => {
+        console.error('[Settings Window] Failed to navigate to panel:', err);
+      });
+    }
     return;
   }
 
@@ -47,10 +57,11 @@ export function openSettingsWindow() {
     },
   });
 
-  // Load settings page
+  // Load settings page with optional panel hash
+  const hash = panel ? `#${panel}` : '';
   const settingsURL = isDev
-    ? 'http://localhost:5173/settings'
-    : `client://./settings.html`;
+    ? `http://localhost:5173/settings${hash}`
+    : `client://./settings.html${hash}`;
 
   settingsWindow.loadURL(settingsURL).catch(err => {
     console.error('[Settings Window] Failed to load URL:', err);

@@ -2,10 +2,10 @@ import { ipcMain } from 'electron';
 import { openSettingsWindow, closeSettingsWindow } from '../ui/settings-window';
 
 export function registerSettingsHandlers() {
-  // Open settings window
-  ipcMain.handle('settings:open', async () => {
+  // Open settings window with optional panel parameter
+  ipcMain.handle('settings:open', async (_event, panel?: string) => {
     try {
-      openSettingsWindow();
+      openSettingsWindow(panel);
       return { success: true };
     } catch (error: any) {
       console.error('[SettingsHandlers] Failed to open settings window:', error);

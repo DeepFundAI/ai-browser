@@ -2,11 +2,12 @@
  * Simple model selector component
  * INPUT: AppSettings from config panel
  * OUTPUT: Selected model for chat
- * POSITION: Home page model selection
+ * POSITION: Home page model selection (bottom-left)
  */
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Select, App } from 'antd';
+import { Select, Button, App } from 'antd';
+import { SettingOutlined } from '@ant-design/icons';
 import type { AppSettings, ProviderConfig, ModelInfo } from '@/models/settings';
 import { useSettingsSubscription } from '@/hooks/useSettingsSubscription';
 import { logger } from '@/utils/logger';
@@ -147,27 +148,52 @@ export const ModelSelector: React.FC = () => {
     }
   };
 
+  const handleOpenSettings = useCallback(async () => {
+    if (typeof window !== 'undefined' && (window as any).api?.invoke) {
+      // Open settings window and navigate to Providers panel
+      await (window as any).api.invoke('settings:open', 'providers');
+    }
+  }, []);
+
+  // Empty state - show configure button
   if (modelOptions.length === 0) {
     return (
-      <div className="w-full px-4 pt-3 pb-3 text-center text-yellow-400">
-        No models configured. Please configure providers in Settings.
+      <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/20 bg-white/5">
+        <SettingOutlined className="text-gray-400 text-base" />
+        <span className="text-xs text-gray-400">No models</span>
+        <Button
+          type="link"
+          size="small"
+          icon={<SettingOutlined />}
+          onClick={handleOpenSettings}
+          className="!text-blue-400 !p-0 !h-auto !text-xs"
+        >
+          Configure
+        </Button>
       </div>
     );
   }
 
+  // Normal state - show compact selector with border
   return (
-    <div className="w-full px-4 pt-3 pb-3">
+    <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/20 bg-white/5">
+      <SettingOutlined className="text-gray-400 text-base flex-shrink-0" />
       <Select
         value={selectedModel}
         onChange={handleModelChange}
-        className="w-full custom-select"
-        size="large"
+        className="custom-select-compact"
+        size="small"
         showSearch
-        placeholder="Select a model..."
+        placeholder="Select model"
+        variant="borderless"
+        suffixIcon={null}
+        style={{ minWidth: 180, maxWidth: 280 }}
         filterOption={(input, option) => {
           const label = option?.children?.toString().toLowerCase() || '';
           return label.includes(input.toLowerCase());
         }}
+        popupMatchSelectWidth={false}
+        dropdownStyle={{ minWidth: 300 }}
       >
         {Object.entries(groupedOptions).map(([providerId, models]) => (
           <OptGroup key={providerId} label={models[0].providerName}>

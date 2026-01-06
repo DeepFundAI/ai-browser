@@ -5,7 +5,7 @@
  * POSITION: Root component for settings window
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, App, Spin } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -20,6 +20,7 @@ import { NetworkPanel } from './panels/NetworkPanel';
 import { AboutPanel } from './panels/AboutPanel';
 import { useSettingsState } from '@/hooks/useSettingsState';
 import { getDefaultSettings } from '@/config/settings-defaults';
+import { logger } from '@/utils/logger';
 
 export type SettingsTab =
   | 'general'
@@ -65,6 +66,37 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
     saveConfigs,
     resetConfigs
   } = useSettingsState();
+
+  // Listen for URL hash changes to navigate to specific panel
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#', '');
+      if (hash && hash !== activeTab) {
+        const validTabs: SettingsTab[] = [
+          'general',
+          'providers',
+          'chat',
+          'agent',
+          'scheduled-tasks',
+          'user-interface',
+          'network',
+          'memory',
+          'about'
+        ];
+        if (validTabs.includes(hash as SettingsTab)) {
+          logger.debug(`Navigating to panel: ${hash}`, 'SettingsLayout');
+          setActiveTab(hash as SettingsTab);
+        }
+      }
+    };
+
+    // Check initial hash
+    handleHashChange();
+
+    // Listen for hash changes
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, [activeTab]);
 
   /**
    * Handle save button click

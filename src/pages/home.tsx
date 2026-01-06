@@ -84,48 +84,46 @@ export default function Home() {
                         <p>{t('greeting_intro')}</p>
                     </div>
 
-                    {/* Unified Input Area: Model Config + Query Input */}
+                    {/* Unified Input Area: Query Input with Model Selector */}
                     <div className='gradient-border w-[740px] mt-[30px]' style={{ height: 'auto' }}>
-                        <div className='bg-tool-call rounded-xl w-full h-full'>
-                            {/* Model Selector */}
-                            <ModelSelector />
-
-                            {/* Query input box */}
-                            <div className='h-[160px] p-4'>
-                                <div className='relative h-full border border-solid border-white/20 rounded'>
-                                    <Input.TextArea
-                                        value={query}
-                                        onChange={(e) => setQuery(e.target.value)}
-                                        onKeyDown={handleKeyDown}
-                                        className='!h-full !bg-transparent !text-text-01-dark !placeholder-text-12-dark !py-3 !px-4 !pr-20 !border-none !outline-none focus:!shadow-none'
-                                        placeholder={t('input_placeholder')}
-                                        autoSize={false}
-                                    />
-                                    {/* Action buttons */}
-                                    <div className='absolute bottom-3 right-3 flex items-center gap-2'>
-                                        {/* Voice input button */}
-                                        <Button
-                                            type='text'
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                                toggleRecording();
-                                            }}
-                                            className='!p-0 !w-8 !h-8 !min-w-0 flex items-center justify-center text-lg'
-                                            title={isRecording ? t('voice_input_stop') : t('voice_input_start')}
-                                        >
-                                            {isRecording ? <AudioOutlined /> : <AudioMutedOutlined />}
-                                        </Button>
-                                        {/* Send button */}
-                                        <Button
-                                            type='text'
-                                            onClick={handleSendMessage}
-                                            disabled={!query.trim()}
-                                            className='!p-0 !w-8 !h-8 !min-w-0 flex items-center justify-center text-lg'
-                                        >
-                                            <SendMessage/>
-                                        </Button>
-                                    </div>
+                        <div className='bg-tool-call rounded-xl w-full h-full p-4'>
+                            <div className='relative h-[160px] border border-solid border-white/20 rounded'>
+                                <Input.TextArea
+                                    value={query}
+                                    onChange={(e) => setQuery(e.target.value)}
+                                    onKeyDown={handleKeyDown}
+                                    className='!h-full !bg-transparent !text-text-01-dark !placeholder-text-12-dark !py-3 !px-4 !pb-12 !pr-20 !border-none !outline-none focus:!shadow-none'
+                                    placeholder={t('input_placeholder')}
+                                    autoSize={false}
+                                />
+                                {/* Model Selector at bottom-left */}
+                                <div className='absolute bottom-3 left-3'>
+                                    <ModelSelector />
+                                </div>
+                                {/* Action buttons at bottom-right */}
+                                <div className='absolute bottom-3 right-3 flex items-center gap-2'>
+                                    {/* Voice input button */}
+                                    <Button
+                                        type='text'
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            toggleRecording();
+                                        }}
+                                        className='!p-0 !w-8 !h-8 !min-w-0 flex items-center justify-center text-lg'
+                                        title={isRecording ? t('voice_input_stop') : t('voice_input_start')}
+                                    >
+                                        {isRecording ? <AudioOutlined /> : <AudioMutedOutlined />}
+                                    </Button>
+                                    {/* Send button */}
+                                    <Button
+                                        type='text'
+                                        onClick={handleSendMessage}
+                                        disabled={!query.trim()}
+                                        className='!p-0 !w-8 !h-8 !min-w-0 flex items-center justify-center text-lg'
+                                    >
+                                        <SendMessage/>
+                                    </Button>
                                 </div>
                             </div>
                         </div>
