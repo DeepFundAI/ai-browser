@@ -7,17 +7,12 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { isEqual } from 'lodash';
-import {
-  convertLegacyToNewConfig,
-  convertNewToLegacyConfig,
-  SettingsConfigs,
-  ProviderConfigs
-} from '@/utils/config-converter';
-import { GeneralSettings, ChatSettings, UISettings, NetworkSettings, ProviderConfig } from '@/models/settings';
+import { AppSettings, GeneralSettings, ChatSettings, UISettings, NetworkSettings, ProviderConfig } from '@/models/settings';
+import { getDefaultSettings } from '@/config/settings-defaults';
 
 export function useSettingsState() {
-  const [originalConfigs, setOriginalConfigs] = useState<SettingsConfigs | null>(null);
-  const [currentConfigs, setCurrentConfigs] = useState<SettingsConfigs | null>(null);
+  const [originalConfigs, setOriginalConfigs] = useState<AppSettings | null>(null);
+  const [currentConfigs, setCurrentConfigs] = useState<AppSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -29,11 +24,21 @@ export function useSettingsState() {
     setLoading(true);
     try {
       if (typeof window !== 'undefined' && (window as any).api) {
-        const response = await (window as any).api.getUserModelConfigs();
-        const legacyConfigs = response?.data?.configs || response || {};
-        const newConfigs = convertLegacyToNewConfig(legacyConfigs);
-        setOriginalConfigs(newConfigs);
-        setCurrentConfigs(newConfigs);
+        const response = await (window as any).api.getAppSettings();
+        let settings = response?.data || response;
+
+        // Merge with defaults if providers are empty
+        if (!settings || !settings.providers || Object.keys(settings.providers).length === 0) {
+          const defaults = getDefaultSettings();
+          settings = {
+            ...defaults,
+            ...settings,
+            providers: defaults.providers
+          };
+        }
+
+        setOriginalConfigs(settings);
+        setCurrentConfigs(settings);
       }
     } catch (error) {
       console.error('Failed to load settings:', error);
@@ -51,7 +56,7 @@ export function useSettingsState() {
    * Update provider configurations
    */
   const updateProviders = useCallback((
-    newProviders: ProviderConfigs | ((prev: ProviderConfigs) => ProviderConfigs)
+    newProviders: Record<string, ProviderConfig> | ((prev: Record<string, ProviderConfig>) => Record<string, ProviderConfig>)
   ) => {
     setCurrentConfigs(prev => {
       if (!prev) return prev;
@@ -181,8 +186,7 @@ export function useSettingsState() {
     setSaving(true);
     try {
       if (typeof window !== 'undefined' && (window as any).api) {
-        const legacyConfigs = convertNewToLegacyConfig(currentConfigs);
-        await (window as any).api.saveUserModelConfigs(legacyConfigs);
+        await (window as any).api.saveAppSettings(currentConfigs);
         setOriginalConfigs(currentConfigs);
         return true;
       }

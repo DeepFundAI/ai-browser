@@ -6,6 +6,7 @@ import type { ProviderType, UserModelConfigs } from './model-config';
 import type { AgentConfig } from './agent-config';
 import type { McpToolSchema } from './mcp';
 import type { EkoResult } from '@jarvis-agent/core/dist/types';
+import type { AppSettings } from '@/models/settings';
 
 // Unified IPC response structure
 interface IpcResponse<T = void> {
@@ -31,13 +32,10 @@ declare global {
       ekoCancelTask: (taskId: string) => Promise<IpcResponse<void>>
       sendHumanResponse: (response: any) => Promise<IpcResponse<void>>
 
-      // Model configuration APIs
-      getUserModelConfigs: () => Promise<IpcResponse<{ configs: UserModelConfigs }>>
-      saveUserModelConfigs: (configs: UserModelConfigs) => Promise<IpcResponse<void>>
-      getModelConfig: (provider: ProviderType) => Promise<IpcResponse<any>>
-      getApiKeySource: (provider: ProviderType) => Promise<IpcResponse<{ source: 'user' | 'env' | 'none' }>>
-      getSelectedProvider: () => Promise<IpcResponse<{ provider: ProviderType }>>
-      setSelectedProvider: (provider: ProviderType) => Promise<IpcResponse<void>>
+      // Unified settings APIs
+      getAppSettings: () => Promise<IpcResponse<AppSettings>>
+      saveAppSettings: (settings: AppSettings) => Promise<IpcResponse<void>>
+      onSettingsUpdated: (callback: (event: { timestamp: number }) => void) => () => void
 
       // Agent configuration APIs
       getAgentConfig: () => Promise<IpcResponse<{ agentConfig: AgentConfig }>>

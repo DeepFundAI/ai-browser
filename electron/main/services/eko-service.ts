@@ -179,7 +179,7 @@ export class EkoService {
     }
 
     // Create FileAgent with task-specific work directory
-    if (agentConfig.fileAgent.enabled) {
+    if (agentConfig?.fileAgent?.enabled) {
       const taskWorkPath = this.getTaskWorkPath(taskId);
       fs.mkdirSync(taskWorkPath, { recursive: true });
       agents.push(
@@ -198,7 +198,7 @@ export class EkoService {
     this.mcpClient = new SimpleSseMcpClient("http://localhost:5173/api/mcp/sse");
 
     // Only create BrowserAgent once (no file storage involved)
-    if (agentConfig.browserAgent.enabled) {
+    if (agentConfig?.browserAgent?.enabled) {
       this.browserAgent = new BrowserAgent(this.detailView, this.mcpClient, agentConfig.browserAgent.customPrompt);
     }
 
@@ -228,7 +228,7 @@ export class EkoService {
     const agentConfig = configManager.getAgentConfig();
 
     // Recreate BrowserAgent with new config
-    if (agentConfig.browserAgent.enabled) {
+    if (agentConfig?.browserAgent?.enabled) {
       this.browserAgent = new BrowserAgent(this.detailView, this.mcpClient, agentConfig.browserAgent.customPrompt);
     } else {
       this.browserAgent = null;

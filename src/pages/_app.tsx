@@ -7,6 +7,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { useEffect } from 'react';
 import { useLanguageStore } from '@/stores/languageStore';
 import i18n from '@/config/i18n';
+import { logger } from '@/utils/logger';
 
 export default function MyApp({ Component, pageProps }: AppProps) {
   const { antdLocale } = useLanguage();
@@ -16,12 +17,11 @@ export default function MyApp({ Component, pageProps }: AppProps) {
   useEffect(() => {
     const loadSavedLanguage = async () => {
       if (typeof window !== 'undefined' && (window as any).api) {
-        const response = await (window as any).api.invoke('config:get-language');
-        if (response?.success && response.data?.language) {
-          await i18n.changeLanguage(response.data.language);
-          setLanguage(response.data.language);
-          console.log(`[App] Loaded saved language: ${response.data.language}`);
-        }
+        const response = await (window as any).api.getAppSettings();
+        const language = response?.data?.general?.language || response?.general?.language || 'en';
+        await i18n.changeLanguage(language);
+        setLanguage(language);
+        logger.info(`Loaded saved language: ${language}`, 'App');
       }
     };
 

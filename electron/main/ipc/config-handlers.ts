@@ -1,26 +1,36 @@
-import { ipcMain } from "electron";
-import { ConfigManager, type UserModelConfigs, type ProviderType } from "../utils/config-manager";
+/**
+ * Unified settings IPC handlers
+ * INPUT: IPC requests from renderer
+ * OUTPUT: AppSettings read/write operations
+ * POSITION: Bridge between renderer and settings manager
+ */
+
+import { ipcMain, BrowserWindow } from "electron";
 import { SettingsManager } from "../utils/settings-manager";
 import { windowContextManager } from "../services/window-context-manager";
-import { store } from "../utils/store";
 import { successResponse, errorResponse } from "../utils/ipc-response";
+import type { AppSettings } from "../models";
 
 export function registerConfigHandlers() {
-  ipcMain.handle('config:get-user-configs', async () => {
+  const settingsManager = SettingsManager.getInstance();
+
+  // Get complete app settings
+  ipcMain.handle('settings:get', async () => {
     try {
-      const configManager = ConfigManager.getInstance();
-      return successResponse({ configs: configManager.getUserModelConfigs() });
+      const settings = settingsManager.getAppSettings();
+      return successResponse(settings);
     } catch (error: any) {
-      console.error('[ConfigHandlers] get-user-configs error:', error);
+      console.error('[ConfigHandlers] Failed to get settings:', error);
       return errorResponse(error);
     }
   });
 
-  ipcMain.handle('config:save-user-configs', async (_event, configs: UserModelConfigs) => {
+  // Save complete app settings
+  ipcMain.handle('settings:save', async (_event, settings: AppSettings) => {
     try {
-      const configManager = ConfigManager.getInstance();
-      configManager.saveUserModelConfigs(configs);
+      settingsManager.saveAppSettings(settings);
 
+      // Notify all EkoService instances to reload config
       const contexts = windowContextManager.getAllContexts();
       contexts.forEach(context => {
         if (context.ekoService) {
@@ -28,82 +38,35 @@ export function registerConfigHandlers() {
         }
       });
 
-      return successResponse();
-    } catch (error: any) {
-      console.error('[ConfigHandlers] save-user-configs error:', error);
-      return errorResponse(error);
-    }
-  });
-
-  ipcMain.handle('config:get-model-config', async (_event, provider: ProviderType) => {
-    try {
-      const configManager = ConfigManager.getInstance();
-      return successResponse({ config: configManager.getModelConfig(provider) });
-    } catch (error: any) {
-      console.error('[ConfigHandlers] get-model-config error:', error);
-      return errorResponse(error);
-    }
-  });
-
-  ipcMain.handle('config:get-api-key-source', async (_event, provider: ProviderType) => {
-    try {
-      const configManager = ConfigManager.getInstance();
-      return successResponse({ source: configManager.getApiKeySource(provider) });
-    } catch (error: any) {
-      console.error('[ConfigHandlers] get-api-key-source error:', error);
-      return errorResponse(error);
-    }
-  });
-
-  ipcMain.handle('config:get-selected-provider', async () => {
-    try {
-      const configManager = ConfigManager.getInstance();
-      return successResponse({ provider: configManager.getSelectedProvider() });
-    } catch (error: any) {
-      console.error('[ConfigHandlers] get-selected-provider error:', error);
-      return errorResponse(error);
-    }
-  });
-
-  ipcMain.handle('config:set-selected-provider', async (_event, provider: ProviderType) => {
-    try {
-      const configManager = ConfigManager.getInstance();
-      configManager.setSelectedProvider(provider);
-
-      const contexts = windowContextManager.getAllContexts();
-      contexts.forEach(context => {
-        if (context.ekoService) {
-          context.ekoService.reloadConfig();
+      // Broadcast lightweight notification to all windows
+      // Components should reload their own config after receiving this event
+      BrowserWindow.getAllWindows().forEach((win) => {
+        if (!win.isDestroyed()) {
+          win.webContents.send('settings-updated', { timestamp: Date.now() });
         }
       });
 
+      console.log('[ConfigHandlers] Settings saved and notification broadcasted');
       return successResponse();
     } catch (error: any) {
-      console.error('[ConfigHandlers] set-selected-provider error:', error);
+      console.error('[ConfigHandlers] Failed to save settings:', error);
       return errorResponse(error);
     }
   });
 
-  ipcMain.handle('config:get-language', async () => {
-    try {
-      const language = store.get('app.language', 'en-US');
-      return successResponse({ language });
-    } catch (error: any) {
-      console.error('[ConfigHandlers] get-language error:', error);
-      return successResponse({ language: 'en-US' });
-    }
-  });
-
+  // Language change handler (for i18n)
   ipcMain.handle('language-changed', async (_event, language: string) => {
     try {
-      store.set('app.language', language);
+      const settings = settingsManager.getAppSettings();
+      settings.general.language = language as 'en' | 'zh';
+      settingsManager.saveAppSettings(settings);
       console.log(`[ConfigHandlers] Language changed to: ${language}`);
       return successResponse();
     } catch (error: any) {
-      console.error('[ConfigHandlers] language-changed error:', error);
+      console.error('[ConfigHandlers] Failed to change language:', error);
       return errorResponse(error);
     }
   });
 
-  console.log('[IPC] Configuration handlers registered');
+  console.log('[IPC] Config handlers registered');
 }

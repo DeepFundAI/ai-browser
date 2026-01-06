@@ -100,7 +100,16 @@ export function getDefaultSettings(): AppSettings {
     agent: {
       systemPrompt: '',
       enabledTools: [],
-      customTools: []
+      customTools: [],
+      mcpTools: {},
+      browserAgent: {
+        enabled: true,
+        customPrompt: ''
+      },
+      fileAgent: {
+        enabled: true,
+        customPrompt: ''
+      }
     },
     ui: getDefaultUISettings(),
     network: getDefaultNetworkSettings()

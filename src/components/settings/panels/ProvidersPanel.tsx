@@ -28,7 +28,6 @@ import {
   createCustomProviderConfig
 } from '@/models/settings';
 import { useFetchModels } from '@/hooks/useFetchModels';
-import { ProviderConfigs } from '@/utils/config-converter';
 import { AddCustomProviderModal } from './AddCustomProviderModal';
 
 const { Title, Paragraph, Text, Link } = Typography;
@@ -160,8 +159,8 @@ const AddModelInline: React.FC<AddModelInlineProps> = ({ onAdd }) => {
 };
 
 interface ProvidersPanelProps {
-  configs: ProviderConfigs;
-  onConfigsChange: (newConfigs: ProviderConfigs | ((prev: ProviderConfigs) => ProviderConfigs)) => void;
+  configs: Record<string, ProviderConfig>;
+  onConfigsChange: (newConfigs: Record<string, ProviderConfig> | ((prev: Record<string, ProviderConfig>) => Record<string, ProviderConfig>)) => void;
   onAddProvider?: (provider: ProviderConfig) => void;
   onRemoveProvider?: (providerId: string) => void;
 }

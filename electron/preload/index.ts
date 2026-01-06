@@ -33,13 +33,15 @@ const api = {
   ekoRestoreTask: (workflow: any, contextParams?: Record<string, any>, chainPlanRequest?: any, chainPlanResult?: string) =>
     safeInvoke('eko:restore-task', workflow, contextParams, chainPlanRequest, chainPlanResult),
 
-  // Model configuration APIs
-  getUserModelConfigs: () => safeInvoke('config:get-user-configs'),
-  saveUserModelConfigs: (configs: any) => safeInvoke('config:save-user-configs', configs),
-  getModelConfig: (provider: 'deepseek' | 'qwen' | 'google' | 'anthropic' | 'openrouter') => safeInvoke('config:get-model-config', provider),
-  getApiKeySource: (provider: 'deepseek' | 'qwen' | 'google' | 'anthropic' | 'openrouter') => safeInvoke('config:get-api-key-source', provider),
-  getSelectedProvider: () => safeInvoke('config:get-selected-provider'),
-  setSelectedProvider: (provider: 'deepseek' | 'qwen' | 'google' | 'anthropic' | 'openrouter') => safeInvoke('config:set-selected-provider', provider),
+  // Unified settings APIs
+  getAppSettings: () => safeInvoke('settings:get'),
+  saveAppSettings: (settings: any) => safeInvoke('settings:save', settings),
+  onSettingsUpdated: (callback: (event: { timestamp: number }) => void) => {
+    const handler = (_: any, event: any) => callback(event);
+    ipcRenderer.on('settings-updated', handler);
+    // Return cleanup function
+    return () => ipcRenderer.removeListener('settings-updated', handler);
+  },
 
   // Agent configuration APIs
   getAgentConfig: () => safeInvoke('agent:get-config'),

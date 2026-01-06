@@ -19,7 +19,7 @@ import { UserInterfacePanel } from './panels/UserInterfacePanel';
 import { NetworkPanel } from './panels/NetworkPanel';
 import { AboutPanel } from './panels/AboutPanel';
 import { useSettingsState } from '@/hooks/useSettingsState';
-import { convertLegacyToNewConfig, convertNewToLegacyConfig } from '@/utils/config-converter';
+import { getDefaultSettings } from '@/config/settings-defaults';
 
 export type SettingsTab =
   | 'general'
@@ -140,7 +140,7 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
             try {
               // Save imported config
               if (typeof window !== 'undefined' && (window as any).api) {
-                await (window as any).api.saveUserModelConfigs(importedConfig);
+                await (window as any).api.saveAppSettings(importedConfig);
                 message.success(t('messages.imported_successfully'));
                 window.location.reload(); // Reload to apply new settings
               }
@@ -162,10 +162,10 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
   const handleExport = async () => {
     try {
       if (typeof window !== 'undefined' && (window as any).api) {
-        const response = await (window as any).api.getUserModelConfigs();
-        const configs = response?.data?.configs || response || {};
+        const response = await (window as any).api.getAppSettings();
+        const settings = response?.data || response || {};
 
-        const dataStr = JSON.stringify(configs, null, 2);
+        const dataStr = JSON.stringify(settings, null, 2);
         const dataBlob = new Blob([dataStr], { type: 'application/json' });
         const url = URL.createObjectURL(dataBlob);
         const link = document.createElement('a');
@@ -182,7 +182,7 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
   };
 
   /**
-   * Handle reset settings
+   * Handle reset settings to defaults
    */
   const handleReset = () => {
     modal.confirm({
@@ -194,10 +194,11 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
       onOk: async () => {
         try {
           if (typeof window !== 'undefined' && (window as any).api) {
-            // Save default settings by creating new configs with defaults
-            const defaultConfigs = convertLegacyToNewConfig({});
-            const legacyConfigs = convertNewToLegacyConfig(defaultConfigs);
-            await (window as any).api.saveUserModelConfigs(legacyConfigs);
+            // Get true default settings
+            const defaultSettings = getDefaultSettings();
+
+            // Save default settings
+            await (window as any).api.saveAppSettings(defaultSettings);
             message.success(t('messages.reset_successfully'));
             window.location.reload(); // Reload to apply default settings
           }
@@ -226,7 +227,6 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
           <GeneralPanel
             settings={general}
             onSettingsChange={updateGeneral}
-            providers={providers}
           />
         ) : null;
       case 'providers':

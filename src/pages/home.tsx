@@ -6,7 +6,7 @@ import { AudioOutlined, AudioMutedOutlined } from '@ant-design/icons'
 import { SendMessage } from '@/icons/deepfundai-icons'
 import { ScheduledTaskModal, ScheduledTaskListPanel } from '@/components/scheduled-task'
 import { useScheduledTaskStore } from '@/stores/scheduled-task-store'
-import { ModelConfigBar } from '@/components/ModelConfigBar'
+import { ModelSelector } from '@/components/ModelSelector'
 import { ChromeBrowserBackground } from '@/components/fellou/ChromeBrowserBackground'
 import { useTranslation } from 'react-i18next'
 import { useVoiceInput } from '@/hooks/useVoiceInput'
@@ -87,8 +87,8 @@ export default function Home() {
                     {/* Unified Input Area: Model Config + Query Input */}
                     <div className='gradient-border w-[740px] mt-[30px]' style={{ height: 'auto' }}>
                         <div className='bg-tool-call rounded-xl w-full h-full'>
-                            {/* Model Configuration Bar */}
-                            <ModelConfigBar />
+                            {/* Model Selector */}
+                            <ModelSelector />
 
                             {/* Query input box */}
                             <div className='h-[160px] p-4'>

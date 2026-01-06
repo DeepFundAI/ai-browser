@@ -114,6 +114,20 @@ export interface AgentSettings {
   systemPrompt: string;
   enabledTools: string[];
   customTools: CustomToolConfig[];
+  mcpTools: {
+    [toolName: string]: {
+      enabled: boolean;
+      config?: Record<string, any>;
+    };
+  };
+  browserAgent: {
+    enabled: boolean;
+    customPrompt?: string;
+  };
+  fileAgent: {
+    enabled: boolean;
+    customPrompt?: string;
+  };
 }
 
 export interface CustomToolConfig {

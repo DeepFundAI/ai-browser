@@ -1,54 +1,93 @@
 /**
- * Application settings manager
+ * Unified application settings manager
  * INPUT: Electron store for persistence
- * OUTPUT: General, Chat, and Agent settings management
- * POSITION: Singleton manager for all application settings
+ * OUTPUT: Centralized settings with single data source
+ * POSITION: Singleton for all app settings
  */
 
 import { store } from './store';
-import type { GeneralSettings, ChatSettings, AgentConfig } from '../models';
+import type { AppSettings, GeneralSettings, ChatSettings, AgentConfig, CustomToolConfig, ProviderConfig } from '../models';
+import { BUILTIN_PROVIDER_IDS, createBuiltinProviderConfig } from '../models/settings';
 
-// Default values
-const DEFAULT_GENERAL_SETTINGS: GeneralSettings = {
-  language: 'en',
-  startup: {
-    autoStart: false,
-    startMinimized: false
-  },
-  window: {
-    minimizeToTray: true,
-    closeToTray: true
-  }
-};
+/**
+ * Default application settings
+ */
+const getDefaultAppSettings = (): AppSettings => {
+  // Initialize all builtin providers
+  const providers: Record<string, ProviderConfig> = {};
+  BUILTIN_PROVIDER_IDS.forEach(providerId => {
+    providers[providerId] = createBuiltinProviderConfig(providerId);
+  });
 
-const DEFAULT_CHAT_SETTINGS: ChatSettings = {
-  temperature: 0.7,
-  maxTokens: 2048,
-  streaming: true,
-  showTokenUsage: false,
-  markdownRendering: true,
-  soundEffects: false,
-  autoSaveHistory: true,
-  historyRetentionDays: 30
-};
-
-const DEFAULT_AGENT_CONFIG: AgentConfig = {
-  browserAgent: {
-    enabled: true,
-    customPrompt: ''
-  },
-  fileAgent: {
-    enabled: true,
-    customPrompt: ''
-  },
-  mcpTools: {}
+  return {
+    providers,
+    general: {
+      language: 'en',
+      startup: {
+        autoStart: false,
+        startMinimized: false
+      },
+      window: {
+        minimizeToTray: true,
+        closeToTray: true
+      }
+    },
+    chat: {
+      temperature: 0.7,
+      maxTokens: 2048,
+      streaming: true,
+      showTokenUsage: false,
+      markdownRendering: true,
+      soundEffects: false,
+      autoSaveHistory: true,
+      historyRetentionDays: 30
+    },
+    agent: {
+      systemPrompt: '',
+      enabledTools: [],
+      customTools: [],
+      mcpTools: {},
+      browserAgent: {
+        enabled: true,
+        customPrompt: ''
+      },
+      fileAgent: {
+        enabled: true,
+        customPrompt: ''
+      }
+    },
+    ui: {
+      theme: 'dark',
+      fontSize: 14,
+      density: 'comfortable',
+      editor: {
+        showLineNumbers: false,
+        wordWrap: true,
+        showMinimap: false
+      }
+    },
+    network: {
+      proxy: {
+        enabled: false,
+        type: 'http',
+        server: '',
+        port: 8080,
+        username: '',
+        password: ''
+      },
+      requestTimeout: 30,
+      retryAttempts: 3,
+      customUserAgent: ''
+    }
+  };
 };
 
 /**
- * Singleton manager for application settings
+ * Singleton settings manager
  */
 export class SettingsManager {
   private static instance: SettingsManager;
+  private readonly SETTINGS_KEY = 'appSettings';
 
   private constructor() {}
 
@@ -59,55 +98,68 @@ export class SettingsManager {
     return SettingsManager.instance;
   }
 
-  // General Settings
+  /**
+   * Get complete app settings
+   */
+  public getAppSettings(): AppSettings {
+    return store.get(this.SETTINGS_KEY, getDefaultAppSettings()) as AppSettings;
+  }
+
+  /**
+   * Save complete app settings
+   */
+  public saveAppSettings(settings: AppSettings): void {
+    store.set(this.SETTINGS_KEY, settings);
+    console.log('[SettingsManager] Settings saved');
+  }
+
+  /**
+   * Read-only convenience getters
+   */
   public getGeneralSettings(): GeneralSettings {
-    return store.get('generalSettings', DEFAULT_GENERAL_SETTINGS) as GeneralSettings;
+    return this.getAppSettings().general;
   }
 
-  public saveGeneralSettings(settings: GeneralSettings): void {
-    store.set('generalSettings', settings);
-    console.log('[SettingsManager] General settings saved');
-  }
-
-  // Chat Settings
   public getChatSettings(): ChatSettings {
-    return store.get('chatSettings', DEFAULT_CHAT_SETTINGS) as ChatSettings;
+    return this.getAppSettings().chat;
   }
 
-  public saveChatSettings(settings: ChatSettings): void {
-    store.set('chatSettings', settings);
-    console.log('[SettingsManager] Chat settings saved');
-  }
-
-  // Agent Config
   public getAgentConfig(): AgentConfig {
-    return store.get('agentConfig', DEFAULT_AGENT_CONFIG) as AgentConfig;
+    const agentConfig = this.getAppSettings().agent;
+    // Ensure browserAgent field exists for backward compatibility
+    if (!agentConfig.browserAgent) {
+      agentConfig.browserAgent = {
+        enabled: true,
+        customPrompt: ''
+      };
+    }
+    // Ensure fileAgent field exists for backward compatibility
+    if (!agentConfig.fileAgent) {
+      agentConfig.fileAgent = {
+        enabled: true,
+        customPrompt: ''
+      };
+    }
+    return agentConfig;
   }
 
-  public saveAgentConfig(config: AgentConfig): void {
-    store.set('agentConfig', config);
-    console.log('[SettingsManager] Agent config saved');
+  public getProviderConfig(id: string): ProviderConfig | undefined {
+    return this.getAppSettings().providers[id];
   }
 
+  /**
+   * MCP tools helpers
+   */
   public getMcpToolConfig(toolName: string): { enabled: boolean; config?: Record<string, any> } {
-    const agentConfig = this.getAgentConfig();
-    return agentConfig.mcpTools[toolName] || { enabled: true };
-  }
-
-  public setMcpToolConfig(toolName: string, config: { enabled: boolean; config?: Record<string, any> }): void {
-    const agentConfig = this.getAgentConfig();
-    agentConfig.mcpTools[toolName] = config;
-    this.saveAgentConfig(agentConfig);
+    return this.getAgentConfig().mcpTools[toolName] || { enabled: true };
   }
 
   public getAllMcpToolsConfig(availableTools: string[]): Record<string, { enabled: boolean; config?: Record<string, any> }> {
     const agentConfig = this.getAgentConfig();
     const result: Record<string, { enabled: boolean; config?: Record<string, any> }> = {};
-
     availableTools.forEach(toolName => {
       result[toolName] = agentConfig.mcpTools[toolName] || { enabled: true };
     });
-
     return result;
   }
 
@@ -116,5 +168,26 @@ export class SettingsManager {
     return Object.entries(allConfigs)
       .filter(([_, config]) => config.enabled)
       .map(([name]) => name);
+  }
+
+  /**
+   * Save agent configuration
+   */
+  public saveAgentConfig(agentConfig: AgentConfig): void {
+    const settings = this.getAppSettings();
+    settings.agent = agentConfig;
+    this.saveAppSettings(settings);
+  }
+
+  /**
+   * Set MCP tool configuration
+   */
+  public setMcpToolConfig(toolName: string, config: { enabled: boolean; config?: Record<string, any> }): void {
+    const settings = this.getAppSettings();
+    if (!settings.agent.mcpTools) {
+      settings.agent.mcpTools = {};
+    }
+    settings.agent.mcpTools[toolName] = config;
+    this.saveAppSettings(settings);
   }
 }

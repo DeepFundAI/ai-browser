@@ -9,13 +9,7 @@ import { config } from "dotenv";
 import path from "node:path";
 import { app } from "electron";
 import fs from "fs";
-import { store } from "./store";
-import type { ProviderType, ModelConfig, UserModelConfigs } from "../models";
 import { SettingsManager } from "./settings-manager";
-
-// Re-export types for backward compatibility
-export type { ProviderType, ModelConfig, UserModelConfigs } from "../models";
-export type { AgentConfig, GeneralSettings, ChatSettings } from "../models";
 
 export class ConfigManager {
   private static instance: ConfigManager;
@@ -89,105 +83,7 @@ export class ConfigManager {
     }
   }
 
-  public getUserModelConfigs(): UserModelConfigs {
-    return store.get('modelConfigs', {}) as UserModelConfigs;
-  }
-
-  public saveUserModelConfigs(configs: UserModelConfigs): void {
-    store.set('modelConfigs', configs);
-    console.log('[ConfigManager] User model configurations saved');
-
-    // Sync to SettingsManager for unified access
-    const settingsManager = SettingsManager.getInstance();
-    if (configs.generalSettings) {
-      settingsManager.saveGeneralSettings(configs.generalSettings);
-    }
-    if (configs.chatSettings) {
-      settingsManager.saveChatSettings(configs.chatSettings);
-    }
-  }
-
-  public getModelConfig(provider: ProviderType): ModelConfig | null {
-    const userConfigs = this.getUserModelConfigs();
-
-    switch (provider) {
-      case 'deepseek':
-        return {
-          provider: 'deepseek',
-          model: userConfigs.deepseek?.model || 'deepseek-chat',
-          apiKey: userConfigs.deepseek?.apiKey || process.env.DEEPSEEK_API_KEY || '',
-          baseURL: userConfigs.deepseek?.baseURL || process.env.DEEPSEEK_BASE_URL || 'https://api.deepseek.com/v1'
-        };
-
-      case 'qwen':
-        return {
-          provider: 'openai',
-          model: userConfigs.qwen?.model || 'qwen-max',
-          apiKey: userConfigs.qwen?.apiKey || process.env.QWEN_API_KEY || '',
-          baseURL: 'https://dashscope.aliyuncs.com/compatible-mode/v1'
-        };
-
-      case 'google':
-        return {
-          provider: 'google',
-          model: userConfigs.google?.model || 'gemini-1.5-flash-latest',
-          apiKey: userConfigs.google?.apiKey || process.env.GOOGLE_API_KEY || ''
-        };
-
-      case 'anthropic':
-        return {
-          provider: 'anthropic',
-          model: userConfigs.anthropic?.model || 'claude-3-5-sonnet-latest',
-          apiKey: userConfigs.anthropic?.apiKey || process.env.ANTHROPIC_API_KEY || ''
-        };
-
-      case 'openrouter':
-        return {
-          provider: 'openrouter',
-          model: userConfigs.openrouter?.model || 'anthropic/claude-3.5-sonnet',
-          apiKey: userConfigs.openrouter?.apiKey || process.env.OPENROUTER_API_KEY || ''
-        };
-
-      default:
-        return null;
-    }
-  }
-
-  public getApiKeySource(provider: ProviderType): 'user' | 'env' | 'none' {
-    const userConfigs = this.getUserModelConfigs();
-
-    if (userConfigs[provider]?.apiKey) {
-      return 'user';
-    }
-
-    const envKeys: Record<ProviderType, string> = {
-      deepseek: 'DEEPSEEK_API_KEY',
-      qwen: 'QWEN_API_KEY',
-      google: 'GOOGLE_API_KEY',
-      anthropic: 'ANTHROPIC_API_KEY',
-      openrouter: 'OPENROUTER_API_KEY'
-    };
-
-    const envKey = envKeys[provider];
-    if (process.env[envKey]) {
-      return 'env';
-    }
-
-    return 'none';
-  }
-
-  public getSelectedProvider(): ProviderType {
-    const userConfigs = this.getUserModelConfigs();
-    return userConfigs.selectedProvider || 'deepseek';
-  }
-
-  public setSelectedProvider(provider: ProviderType): void {
-    const userConfigs = this.getUserModelConfigs();
-    userConfigs.selectedProvider = provider;
-    this.saveUserModelConfigs(userConfigs);
-  }
-
-  private getMaxTokensForModel(provider: ProviderType, model: string): number {
+  private getMaxTokensForModel(provider: string, model: string): number {
     const tokenLimits: Record<string, number> = {
       'deepseek-chat': 8192,
       'deepseek-reasoner': 65536,
@@ -215,98 +111,79 @@ export class ConfigManager {
   }
 
   public getLLMsConfig(): any {
-    const selectedProvider = this.getSelectedProvider();
-    const providerConfig = this.getModelConfig(selectedProvider);
+    // Read from unified settings
+    const appSettings = SettingsManager.getInstance().getAppSettings();
 
-    if (!providerConfig) {
-      console.error(`[ConfigManager] No config found for provider: ${selectedProvider}`);
+    // Find the first enabled provider with selectedModel and apiKey
+    const enabledProvider = Object.values(appSettings.providers).find(
+      (p) => p.enabled && p.selectedModel && p.apiKey
+    );
+
+    if (!enabledProvider) {
+      console.error('[ConfigManager] No enabled provider found with selectedModel and apiKey');
+      return { default: null };
+    }
+
+    const { id: providerId, selectedModel, apiKey, baseUrl: baseURL } = enabledProvider;
+
+    if (!selectedModel) {
+      console.error('[ConfigManager] selectedModel is undefined');
       return { default: null };
     }
 
     const logInfo = (msg: string, ...args: any[]) => console.log(`[ConfigManager] ${msg}`, ...args);
-    const maxTokens = this.getMaxTokensForModel(selectedProvider, providerConfig.model);
+    const maxTokens = this.getMaxTokensForModel(providerId, selectedModel);
 
-    let defaultLLM: any;
-
-    switch (selectedProvider) {
-      case 'deepseek':
-        defaultLLM = {
-          provider: providerConfig.provider,
-          model: providerConfig.model,
-          apiKey: providerConfig.apiKey || "",
-          config: {
-            baseURL: providerConfig.baseURL || "https://api.deepseek.com/v1",
-            maxTokens,
-            mode: 'regular',
-          },
-          fetch: (url: string, options?: any) => {
-            const body = JSON.parse((options?.body as string) || '{}');
-            body.thinking = { type: "disabled" };
-            logInfo('Deepseek request:', providerConfig.model);
-            return fetch(url, { ...options, body: JSON.stringify(body) });
-          }
-        };
-        break;
-
-      case 'qwen':
-        defaultLLM = {
-          provider: providerConfig.provider,
-          model: providerConfig.model,
-          apiKey: providerConfig.apiKey || "",
-          config: {
-            baseURL: providerConfig.baseURL || "https://dashscope.aliyuncs.com/compatible-mode/v1",
-            maxTokens,
-            timeout: 60000,
-            temperature: 0.7
-          },
-          fetch: (url: string, options?: any) => {
-            logInfo('Qwen request:', providerConfig.model);
-            return fetch(url, options);
-          }
-        };
-        break;
-
-      case 'google':
-        defaultLLM = {
-          provider: providerConfig.provider,
-          model: providerConfig.model,
-          apiKey: providerConfig.apiKey || "",
-          config: {
-            maxTokens,
-            temperature: 0.7
-          }
-        };
-        break;
-
-      case 'anthropic':
-        defaultLLM = {
-          provider: providerConfig.provider,
-          model: providerConfig.model,
-          apiKey: providerConfig.apiKey || "",
-          config: {
-            maxTokens,
-            temperature: 0.7
-          }
-        };
-        break;
-
-      case 'openrouter':
-        defaultLLM = {
-          provider: providerConfig.provider,
-          model: providerConfig.model,
-          apiKey: providerConfig.apiKey || "",
-          config: {
-            maxTokens
-          }
-        };
-        break;
-
-      default:
-        console.error(`[ConfigManager] Unsupported provider: ${selectedProvider}`);
-        return { default: null };
+    // Determine provider type for jarvis-agent
+    // Most providers use OpenAI-compatible API, with some exceptions
+    let providerType: string;
+    if (providerId === 'google') {
+      providerType = 'google';
+    } else if (providerId === 'anthropic') {
+      providerType = 'anthropic';
+    } else if (providerId === 'deepseek') {
+      providerType = 'deepseek';
+    } else if (providerId === 'openrouter') {
+      providerType = 'openrouter';
+    } else {
+      // Custom providers and qwen default to OpenAI-compatible
+      providerType = 'openai';
     }
 
-    logInfo(`Using provider: ${selectedProvider}, model: ${providerConfig.model}, maxTokens: ${maxTokens}`);
+    // Build LLM config
+    const defaultLLM: any = {
+      provider: providerType,
+      model: selectedModel,
+      apiKey: apiKey || "",
+      config: {
+        maxTokens,
+        temperature: 0.7
+      }
+    };
+
+    // Add baseURL if provider uses it
+    if (baseURL && (providerType === 'openai' || providerType === 'deepseek' || providerType === 'qwen')) {
+      defaultLLM.config.baseURL = baseURL;
+    }
+
+    // Provider-specific customizations
+    if (providerId === 'deepseek') {
+      defaultLLM.config.mode = 'regular';
+      defaultLLM.fetch = (url: string, options?: any) => {
+        const body = JSON.parse((options?.body as string) || '{}');
+        body.thinking = { type: "disabled" };
+        logInfo('Deepseek request:', selectedModel);
+        return fetch(url, { ...options, body: JSON.stringify(body) });
+      };
+    } else if (providerId === 'qwen') {
+      defaultLLM.config.timeout = 60000;
+      defaultLLM.fetch = (url: string, options?: any) => {
+        logInfo('Qwen request:', selectedModel);
+        return fetch(url, options);
+      };
+    }
+
+    logInfo(`Using provider: ${providerId}, model: ${selectedModel}, maxTokens: ${maxTokens}`);
 
     return { default: defaultLLM };
   }
