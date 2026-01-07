@@ -7,6 +7,7 @@
 
 import { ipcMain, BrowserWindow } from "electron";
 import { SettingsManager } from "../utils/settings-manager";
+import { settingsWatcher } from "../utils/settings-watcher";
 import { windowContextManager } from "../services/window-context-manager";
 import { successResponse, errorResponse } from "../utils/ipc-response";
 import type { AppSettings } from "../models";
@@ -29,6 +30,9 @@ export function registerConfigHandlers() {
   ipcMain.handle('settings:save', async (_event, settings: AppSettings) => {
     try {
       settingsManager.saveAppSettings(settings);
+
+      // Trigger SettingsWatcher to apply main process settings
+      settingsWatcher.onSettingsChanged(settings);
 
       // Notify all EkoService instances to reload config
       const contexts = windowContextManager.getAllContexts();

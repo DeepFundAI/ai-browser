@@ -28,6 +28,7 @@ import { MainWindowManager } from "./windows/main-window";
 import { taskScheduler } from "./services/task-scheduler";
 import { windowContextManager } from "./services/window-context-manager";
 import { SettingsManager } from "./utils/settings-manager";
+import { settingsWatcher } from "./utils/settings-watcher";
 import { cwd } from "node:process";
 import { registerAllIpcHandlers } from "./ipc";
 
@@ -224,6 +225,9 @@ async function initializeMainWindow(): Promise<BrowserWindow> {
 
   setupMainWindowCloseHandler(mainWindow, ekoService);
 
+  // Register main window with SettingsWatcher for window-related settings
+  settingsWatcher.setMainWindow(mainWindow);
+
   mainWindow.on('closed', () => {
     try {
       if (mainWindow && !mainWindow.isDestroyed() && mainWindow.webContents) {
@@ -248,8 +252,17 @@ async function initializeMainWindow(): Promise<BrowserWindow> {
 
   await initCookies();
 
+  // Initialize SettingsWatcher (apply all settings including auto-start)
+  settingsWatcher.initialize();
+
   mainWindowManager = new MainWindowManager(serverManager);
   mainWindow = await initializeMainWindow();
+
+  // Handle start minimized setting
+  if (settingsWatcher.shouldStartMinimized()) {
+    mainWindow.hide();
+    console.log('[Main] App started minimized to tray');
+  }
 
   createTray(mainWindow);
   taskScheduler.start();
