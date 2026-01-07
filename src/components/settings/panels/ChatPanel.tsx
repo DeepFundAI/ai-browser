@@ -75,9 +75,9 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
               description={t('chat.max_tokens_desc')}
               value={settings.maxTokens}
               min={1}
-              max={8192}
-              onChange={(value) => handleChange({ maxTokens: value || 2048 })}
-              placeholder="Enter max tokens (1-8192)"
+              max={128000}
+              onChange={(value) => handleChange({ maxTokens: value || 8192 })}
+              placeholder="1-128000 (depends on model limit)"
             />
           </div>
         </div>

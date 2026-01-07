@@ -39,7 +39,7 @@ export function getDefaultGeneralSettings(): GeneralSettings {
 export function getDefaultChatSettings(): ChatSettings {
   return {
     temperature: 0.7,
-    maxTokens: 2048,
+    maxTokens: 8192,
     showTokenUsage: false,
     markdownRendering: true,
     autoSaveHistory: true,

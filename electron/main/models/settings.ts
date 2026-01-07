@@ -131,12 +131,12 @@ export interface GeneralSettings {
 }
 
 export interface ChatSettings {
-  temperature: number;
-  maxTokens: number;
+  temperature: number; // 0.0 - 2.0
+  maxTokens: number; // 1 - 128000 (capped by model limit)
   showTokenUsage: boolean;
   markdownRendering: boolean;
   autoSaveHistory: boolean;
-  historyRetentionDays: number;
+  historyRetentionDays: number; // 1 - 365
 }
 
 export interface CustomToolConfig {

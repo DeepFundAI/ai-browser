@@ -113,6 +113,7 @@ export class ConfigManager {
   public getLLMsConfig(): any {
     // Read from unified settings
     const appSettings = SettingsManager.getInstance().getAppSettings();
+    const chatSettings = appSettings.chat;
 
     // Find the first enabled provider with selectedModel and apiKey
     const enabledProvider = Object.values(appSettings.providers).find(
@@ -132,7 +133,10 @@ export class ConfigManager {
     }
 
     const logInfo = (msg: string, ...args: any[]) => console.log(`[ConfigManager] ${msg}`, ...args);
-    const maxTokens = this.getMaxTokensForModel(providerId, selectedModel);
+    const modelMaxTokens = this.getMaxTokensForModel(providerId, selectedModel);
+
+    // Use user-configured maxTokens, but cap it at model's maximum
+    const maxTokens = Math.min(chatSettings.maxTokens, modelMaxTokens);
 
     // Determine provider type for jarvis-agent
     // Most providers use OpenAI-compatible API, with some exceptions
@@ -150,14 +154,14 @@ export class ConfigManager {
       providerType = 'openai';
     }
 
-    // Build LLM config
+    // Build LLM config with user settings
     const defaultLLM: any = {
       provider: providerType,
       model: selectedModel,
       apiKey: apiKey || "",
       config: {
         maxTokens,
-        temperature: 0.7
+        temperature: chatSettings.temperature
       }
     };
 
@@ -183,7 +187,8 @@ export class ConfigManager {
       };
     }
 
-    logInfo(`Using provider: ${providerId}, model: ${selectedModel}, maxTokens: ${maxTokens}`);
+    logInfo(`Using provider: ${providerId}, model: ${selectedModel}`);
+    logInfo(`Chat settings - temperature: ${chatSettings.temperature}, maxTokens: ${maxTokens} (user: ${chatSettings.maxTokens}, model limit: ${modelMaxTokens})`);
 
     return { default: defaultLLM };
   }
