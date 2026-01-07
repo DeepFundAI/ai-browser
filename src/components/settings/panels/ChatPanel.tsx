@@ -94,12 +94,6 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
               checked={settings.showTokenUsage}
               onChange={(checked) => handleChange({ showTokenUsage: checked })}
             />
-            <ToggleSetting
-              label={t('chat.markdown_rendering')}
-              description={t('chat.markdown_rendering_desc')}
-              checked={settings.markdownRendering}
-              onChange={(checked) => handleChange({ markdownRendering: checked })}
-            />
           </div>
         </div>
 

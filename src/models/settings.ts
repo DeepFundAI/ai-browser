@@ -103,7 +103,6 @@ export interface ChatSettings {
   temperature: number; // 0.0 - 2.0
   maxTokens: number; // 1 - 128000 (depends on model limit, will be capped automatically)
   showTokenUsage: boolean;
-  markdownRendering: boolean;
   autoSaveHistory: boolean;
   historyRetentionDays: number; // 1 - 365
 }

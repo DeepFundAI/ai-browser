@@ -36,7 +36,6 @@ const getDefaultAppSettings = (): AppSettings => {
       temperature: 0.7,
       maxTokens: 8192,
       showTokenUsage: false,
-      markdownRendering: true,
       autoSaveHistory: true,
       historyRetentionDays: 30
     },
