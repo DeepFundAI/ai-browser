@@ -130,7 +130,7 @@
     "temperature": "温度",
     "temperature_desc": "控制回复的随机性（0 = 集中，2 = 创意）",
     "max_tokens": "最大令牌数",
-    "max_tokens_desc": "生成回复的最大长度",
+    "max_tokens_desc": "生成回复的最大长度（会自动限制在模型支持的最大值内）",
     "response_settings": "响应设置",
     "streaming": "启用流式响应",
     "streaming_desc": "实时显示生成的回复",

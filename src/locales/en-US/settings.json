@@ -130,7 +130,7 @@
     "temperature": "Temperature",
     "temperature_desc": "Controls randomness in responses (0 = focused, 2 = creative)",
     "max_tokens": "Max Tokens",
-    "max_tokens_desc": "Maximum length of generated response",
+    "max_tokens_desc": "Maximum length of generated response (auto-capped by model limit)",
     "response_settings": "Response Settings",
     "streaming": "Enable streaming response",
     "streaming_desc": "Display responses as they are generated",
