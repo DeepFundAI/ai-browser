@@ -102,10 +102,8 @@ export interface GeneralSettings {
 export interface ChatSettings {
   temperature: number; // 0.0 - 2.0
   maxTokens: number; // 1 - 8192
-  streaming: boolean;
   showTokenUsage: boolean;
   markdownRendering: boolean;
-  soundEffects: boolean;
   autoSaveHistory: boolean;
   historyRetentionDays: number; // 1 - 365
 }

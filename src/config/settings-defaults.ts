@@ -40,10 +40,8 @@ export function getDefaultChatSettings(): ChatSettings {
   return {
     temperature: 0.7,
     maxTokens: 2048,
-    streaming: true,
     showTokenUsage: false,
     markdownRendering: true,
-    soundEffects: false,
     autoSaveHistory: true,
     historyRetentionDays: 30
   };

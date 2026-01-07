@@ -89,12 +89,6 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
           <Text className="!text-white text-lg font-semibold">{t('chat.response_settings')}</Text>
           <div className="mt-4">
             <ToggleSetting
-              label={t('chat.streaming')}
-              description={t('chat.streaming_desc')}
-              checked={settings.streaming}
-              onChange={(checked) => handleChange({ streaming: checked })}
-            />
-            <ToggleSetting
               label={t('chat.show_token_usage')}
               description={t('chat.show_token_usage_desc')}
               checked={settings.showTokenUsage}
@@ -105,21 +99,6 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
               description={t('chat.markdown_rendering_desc')}
               checked={settings.markdownRendering}
               onChange={(checked) => handleChange({ markdownRendering: checked })}
-            />
-          </div>
-        </div>
-
-        <Divider className="!border-white/10" />
-
-        {/* User Experience */}
-        <div>
-          <Text className="!text-white text-lg font-semibold">{t('chat.sound_effects')}</Text>
-          <div className="mt-4">
-            <ToggleSetting
-              label={t('chat.sound_effects')}
-              description={t('chat.sound_effects_desc')}
-              checked={settings.soundEffects}
-              onChange={(checked) => handleChange({ soundEffects: checked })}
             />
           </div>
         </div>
