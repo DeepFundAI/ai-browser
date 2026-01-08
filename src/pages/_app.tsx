@@ -9,6 +9,7 @@ import { useLanguageStore } from '@/stores/languageStore';
 import { useSettingsStore } from '@/stores/settingsStore';
 import i18n from '@/config/i18n';
 import { logger } from '@/utils/logger';
+import { taskStorage } from '@/services/task-storage';
 
 export default function MyApp({ Component, pageProps }: AppProps) {
   const { antdLocale } = useLanguage();
@@ -17,8 +18,26 @@ export default function MyApp({ Component, pageProps }: AppProps) {
 
   // Load settings on mount and subscribe to changes
   useEffect(() => {
-    // Initial load
-    loadSettings();
+    const initializeApp = async () => {
+      // Load settings first
+      await loadSettings();
+
+      // Cleanup expired tasks if enabled
+      const settings = useSettingsStore.getState().settings;
+      if (settings?.chat?.autoSaveHistory && settings?.chat?.historyRetentionDays) {
+        taskStorage.cleanupExpiredTasks(settings.chat.historyRetentionDays)
+          .then(({ deletedCount }) => {
+            if (deletedCount > 0) {
+              logger.info(`Cleaned up ${deletedCount} expired tasks`, 'App');
+            }
+          })
+          .catch(error => {
+            logger.error('Task cleanup failed', error, 'App');
+          });
+      }
+    };
+
+    initializeApp();
 
     // Listen for settings updates from main process
     const handleSettingsUpdated = async () => {

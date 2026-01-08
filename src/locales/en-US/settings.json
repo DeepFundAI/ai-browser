@@ -142,9 +142,9 @@
     "sound_effects_desc": "Play sounds for notifications and events",
     "history_settings": "History Settings",
     "auto_save_history": "Auto-save chat history",
-    "auto_save_history_desc": "Automatically save conversations for later review",
+    "auto_save_history_desc": "Disable to prevent saving chat history (privacy mode)",
     "history_retention_days": "History retention (days)",
-    "history_retention_days_desc": "How long to keep chat history before deletion"
+    "history_retention_days_desc": "Tasks older than this will be automatically deleted"
   },
 
   "agent": {

@@ -465,6 +465,68 @@ export class TaskStorage {
   }
 
   /**
+   * Clean up expired normal tasks based on retention days
+   * Only affects taskType='normal', does not touch scheduled task execution history
+   */
+  async cleanupExpiredTasks(retentionDays: number): Promise<{
+    success: boolean;
+    deletedCount: number;
+    error?: string;
+  }> {
+    try {
+      await this.init();
+      if (!this.db) throw new Error('Database not initialized');
+
+      const cutoffDate = new Date();
+      cutoffDate.setDate(cutoffDate.getDate() - retentionDays);
+
+      return new Promise((resolve, reject) => {
+        const transaction = this.db!.transaction([this.STORE_NAME], 'readwrite');
+        const store = transaction.objectStore(this.STORE_NAME);
+        const index = store.index('updatedAt');
+
+        // Range query: updatedAt < cutoffDate
+        const range = IDBKeyRange.upperBound(cutoffDate);
+        const request = index.openCursor(range);
+
+        let deletedCount = 0;
+        const errors: any[] = [];
+
+        request.onsuccess = () => {
+          const cursor = request.result;
+          if (cursor) {
+            const task = cursor.value;
+            // Only delete normal tasks
+            if (task.taskType === 'normal') {
+              const deleteRequest = cursor.delete();
+              deleteRequest.onsuccess = () => deletedCount++;
+              deleteRequest.onerror = () => errors.push(deleteRequest.error);
+            }
+            cursor.continue();
+          } else {
+            // Cursor finished
+            resolve({
+              success: errors.length === 0,
+              deletedCount,
+              error: errors.length > 0 ? `${errors.length} deletion errors` : undefined
+            });
+          }
+        };
+
+        request.onerror = () => reject(request.error);
+        transaction.onerror = () => reject(transaction.error);
+      });
+    } catch (error) {
+      console.error('[TaskStorage] cleanupExpiredTasks error:', error);
+      return {
+        success: false,
+        deletedCount: 0,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+
+  /**
    * Close database connection
    */
   close(): void {

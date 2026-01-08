@@ -142,9 +142,9 @@
     "sound_effects_desc": "为通知和事件播放声音",
     "history_settings": "历史设置",
     "auto_save_history": "自动保存对话历史",
-    "auto_save_history_desc": "自动保存对话以便稍后查看",
+    "auto_save_history_desc": "关闭后将不保存聊天历史（隐私模式）",
     "history_retention_days": "历史保留天数",
-    "history_retention_days_desc": "删除前保留对话历史的天数"
+    "history_retention_days_desc": "超过此天数的任务将被自动删除"
   },
 
   "agent": {

@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from 'react';
 import { Task, DisplayMessage } from '@/models';
 import { taskStorage } from '@/services/task-storage';
+import { useSettingsStore } from '@/stores/settingsStore';
 
 interface UseTaskManagerReturn {
   tasks: Task[];
@@ -40,6 +41,13 @@ export const useTaskManager = (): UseTaskManagerReturn => {
   // Save task with debounce optimization
   const saveTask = useCallback(async (task: Task, immediate = false) => {
     try {
+      // Check autoSaveHistory setting
+      const settings = useSettingsStore.getState().settings;
+      if (!settings?.chat?.autoSaveHistory) {
+        // Auto save disabled, skip saving
+        return;
+      }
+
       if (immediate) {
         // Immediate save (when task ends)
         const timer = saveTaskTimers.current.get(task.id);
