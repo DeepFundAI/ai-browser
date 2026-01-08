@@ -83,6 +83,11 @@ export interface AgentGroupMessage {
   result?: string;
   status: 'running' | 'completed' | 'error';
   timestamp: Date;
+  usage?: {
+    promptTokens: number;
+    completionTokens: number;
+    totalTokens: number;
+  };
 }
 
 // User message type

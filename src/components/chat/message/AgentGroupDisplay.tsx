@@ -5,6 +5,7 @@ import { ExpandCollapse, FinishStatus, RuningStatus } from '@/icons/deepfundai-i
 import { AgentGroupMessage, ToolAction, FileAttachment } from '@/models';
 import type { HumanResponseMessage } from '@/models/human-interaction';
 import { AgentMessageContent } from './ContentMessage';
+import { TokenUsageDisplay } from './TokenUsageDisplay';
 import { useTranslation } from 'react-i18next';
 
 interface AgentGroupDisplayProps {
@@ -70,6 +71,11 @@ export const AgentGroupDisplay: React.FC<AgentGroupDisplayProps> = ({
               </div>
             );
           })}
+
+          {/* Token usage display */}
+          <div className="pl-6">
+            <TokenUsageDisplay usage={agentMessage.usage} />
+          </div>
 
           {/* Retry button for error status */}
           {isError && onRetry && (
