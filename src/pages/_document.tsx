@@ -3,16 +3,50 @@ import { createCache, extractStyle, StyleProvider } from '@ant-design/cssinjs';
 import Document, { Head, Html, Main, NextScript } from 'next/document';
 import type { DocumentContext } from 'next/document';
 
-// Inline script to prevent theme flash and apply initial font size
+// Inline script to parse config from UserAgent and apply settings
 const initScript = `
   (function() {
-    // Apply theme
-    const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    document.documentElement.setAttribute('data-theme', systemTheme);
-    document.documentElement.classList.add(systemTheme);
+    // Parse config from UserAgent (format: theme/dark fontsize/14 density/comfortable)
+    let theme = 'dark';
+    let fontSize = 14;
 
-    // Apply font size (default 14px, will be updated by _app.tsx)
-    document.documentElement.style.fontSize = '14px';
+    try {
+      const ua = navigator.userAgent;
+
+      // Extract theme
+      const themeMatch = ua.match(/theme\\/([a-z]+)/);
+      if (themeMatch?.[1]) {
+        const themeValue = themeMatch[1];
+
+        if (themeValue === 'system') {
+          theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        } else {
+          theme = themeValue;
+        }
+      }
+
+      // Extract fontSize
+      const fontSizeMatch = ua.match(/fontsize\\/(\\d+)/);
+      if (fontSizeMatch?.[1]) {
+        fontSize = parseInt(fontSizeMatch[1], 10);
+      }
+    } catch (e) {
+      console.error('[Document] Failed to parse UserAgent config:', e);
+    }
+
+    // Apply theme class and attribute
+    document.documentElement.setAttribute('data-theme', theme);
+
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
+    } else {
+      document.documentElement.classList.add('light');
+      document.documentElement.classList.remove('dark');
+    }
+
+    // Apply font size
+    document.documentElement.style.fontSize = fontSize + 'px';
   })();
 `;
 

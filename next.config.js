@@ -5,12 +5,12 @@ const nextConfig = {
   /* config options here */
   reactStrictMode: true,
   devIndicators: false,
-  
+
   // Disable ESLint checks during build
   eslint: {
     ignoreDuringBuilds: true,
   },
-  
+
   // Disable TypeScript type checking during build
   typescript: {
     ignoreBuildErrors: true,

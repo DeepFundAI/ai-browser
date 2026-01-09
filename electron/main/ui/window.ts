@@ -3,6 +3,21 @@ import path from 'node:path';
 import { isDev } from '../utils/constants';
 import { store } from '../utils/store';
 
+/**
+ * Set UserAgent with app settings for any window
+ */
+export function setWindowUserAgent(win: BrowserWindow) {
+  const settings = store.get('appSettings') as any;
+  const theme = settings?.ui?.theme || 'dark';
+  const fontSize = settings?.ui?.fontSize || 14;
+  const density = settings?.ui?.density || 'comfortable';
+
+  const defaultUA = app.userAgentFallback || 'Mozilla/5.0';
+  const customUA = `${defaultUA} theme/${theme} fontsize/${fontSize} density/${density}`;
+
+  win.webContents.setUserAgent(customUA);
+}
+
 async function setupMacPermissions() {
   // macOS requires explicit microphone permission request
   if (process.platform === 'darwin') {
@@ -35,6 +50,9 @@ export async function createWindow(rendererURL: string) {
       zoomFactor: 1.0,
     },
   });
+
+  // Set custom UserAgent with config
+  setWindowUserAgent(win);
 
   win.webContents.session.setPermissionRequestHandler((_webContents, permission, callback) => {
     // Allow media permissions (includes microphone and camera)

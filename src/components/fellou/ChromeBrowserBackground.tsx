@@ -51,7 +51,7 @@ export function ChromeBrowserBackground() {
   return (
     <>
       {/* Theme-aware background - always visible as fallback */}
-      <div className={`fixed inset-0 z-0 ${effectiveTheme === 'dark' ? 'bg-black' : 'bg-white'}`} />
+      <div className="fixed inset-0 z-0 bg-white dark:bg-black" />
 
       {/* Render background based on WebGL support and fallback state */}
       {useFallback ? (
@@ -64,7 +64,7 @@ export function ChromeBrowserBackground() {
         >
           <GradientTechBackground />
           {/* Theme-aware overlay */}
-          <div className={`absolute inset-0 ${effectiveTheme === 'dark' ? 'bg-black/40' : 'bg-white/5'}`} />
+          <div className="absolute inset-0 bg-white/5 dark:bg-black/40" />
         </motion.div>
       ) : webglSupported !== false ? (
         /* WebGL supported: AnimatedBackground with loading-based opacity control */
@@ -93,7 +93,7 @@ export function ChromeBrowserBackground() {
             <AnimatedBackground speed={0.25} theme={effectiveTheme} />
           </div>
           {/* Theme-aware overlay */}
-          <div className={`absolute inset-0 ${effectiveTheme === 'dark' ? 'bg-black/40' : 'bg-white/5'}`} />
+          <div className="absolute inset-0 bg-white/5 dark:bg-black/40" />
         </motion.div>
       ) : null}
     </>

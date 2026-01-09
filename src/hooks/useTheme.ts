@@ -18,9 +18,22 @@ export interface UseThemeReturn {
 /**
  * Dynamic theme hook with system preference support
  */
+// Parse theme from UserAgent (set by Electron)
+const getThemeFromUserAgent = (): 'light' | 'dark' | 'system' => {
+  if (typeof window === 'undefined') return 'dark';
+
+  const ua = navigator.userAgent;
+  const themeMatch = ua.match(/theme\/([a-z]+)/);
+  if (themeMatch?.[1]) {
+    return themeMatch[1] as 'light' | 'dark' | 'system';
+  }
+
+  return 'dark';
+};
+
 export const useTheme = (): UseThemeReturn => {
   const { settings } = useSettingsStore();
-  const themeMode = settings?.ui?.theme || 'dark';
+  const themeMode = settings?.ui?.theme || getThemeFromUserAgent();
 
   // Track system theme preference
   const [systemTheme, setSystemTheme] = useState<'light' | 'dark'>(() => {

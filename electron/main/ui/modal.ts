@@ -2,6 +2,7 @@ import { BrowserWindow, ipcMain, app } from 'electron';
 import path from 'node:path';
 import { isDev } from '../utils/constants';
 import { t } from '../i18n';
+import { setWindowUserAgent } from './window';
 
 export interface ModalButton {
   label: string;
@@ -70,6 +71,9 @@ export function showModal(options: ModalOptions): Promise<string | null> {
         preload: getPreloadPath(),
       },
     });
+
+    // Set UserAgent with app settings
+    setWindowUserAgent(modalWindow);
 
     // Generate unique channel name for this modal
     const responseChannel = `modal-response-${Date.now()}`;

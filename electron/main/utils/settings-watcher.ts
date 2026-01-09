@@ -8,6 +8,7 @@
 import { app, BrowserWindow } from 'electron';
 import type { AppSettings, GeneralSettings, NetworkSettings, UISettings } from '../models';
 import { SettingsManager } from './settings-manager';
+import { setWindowUserAgent } from '../ui/window';
 
 /**
  * Singleton settings watcher
@@ -199,10 +200,15 @@ export class SettingsWatcher {
    * Handle UI settings changes
    */
   private handleUIChanges(newUI: UISettings, oldUI: UISettings): void {
-    // Theme changes are handled by renderer process
-    // No main process action needed for UI settings currently
-    void newUI;
-    void oldUI;
+    // Check if theme, fontSize, or density changed
+    const themeChanged = newUI.theme !== oldUI.theme;
+    const fontSizeChanged = newUI.fontSize !== oldUI.fontSize;
+    const densityChanged = newUI.density !== oldUI.density;
+
+    if (themeChanged || fontSizeChanged || densityChanged) {
+      console.log('[SettingsWatcher] UI settings changed, updating all windows UserAgent');
+      this.updateAllWindowsUserAgent();
+    }
   }
 
   /**
@@ -212,6 +218,26 @@ export class SettingsWatcher {
     // UI settings are primarily handled by renderer process
     // Main process doesn't need to apply UI settings
     void ui;
+  }
+
+  /**
+   * Update UserAgent for all open windows
+   * Called when UI settings (theme, fontSize, density) change
+   */
+  private updateAllWindowsUserAgent(): void {
+    const allWindows = BrowserWindow.getAllWindows();
+
+    if (allWindows.length === 0) {
+      return;
+    }
+
+    allWindows.forEach((window) => {
+      if (!window.isDestroyed()) {
+        setWindowUserAgent(window);
+      }
+    });
+
+    console.log(`[SettingsWatcher] Updated UserAgent for ${allWindows.length} window(s)`);
   }
 
   /**
