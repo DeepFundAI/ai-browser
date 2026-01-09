@@ -167,7 +167,7 @@ export const ScheduledTaskListPanel: React.FC = () => {
             dataSource={scheduledTasks}
             renderItem={(task) => (
               <List.Item
-                className="!bg-tool-call !border !border-border-message rounded-lg px-4 mb-3"
+                className="!bg-tool-call dark:bg-tool-call-dark !border !border-border-message dark:border-border-message-dark rounded-lg px-4 mb-3"
                 key={task.id}
               >
                 <div className="w-full px-2">
@@ -175,7 +175,7 @@ export const ScheduledTaskListPanel: React.FC = () => {
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <h4 className="text-base font-semibold text-text-01-dark m-0">
+                        <h4 className="text-base font-semibold text-text-01 dark:text-text-01-dark m-0">
                           {task.name}
                         </h4>
                         <Tag color={task.enabled ? 'success' : 'default'}>
@@ -183,7 +183,7 @@ export const ScheduledTaskListPanel: React.FC = () => {
                         </Tag>
                       </div>
                       {task.description && (
-                        <p className="text-sm text-text-12-dark m-0 mb-2">
+                        <p className="text-sm text-text-12 dark:text-text-12-dark m-0 mb-2">
                           {task.description}
                         </p>
                       )}
@@ -199,7 +199,7 @@ export const ScheduledTaskListPanel: React.FC = () => {
                   </div>
 
                   {/* Task information */}
-                  <div className="flex items-center gap-4 text-sm text-text-12-dark mb-3">
+                  <div className="flex items-center gap-4 text-sm text-text-12 dark:text-text-12-dark mb-3">
                     <span>
                       <ClockCircleOutlined className="mr-1" />
                       {getIntervalText(task)}

@@ -41,9 +41,9 @@ export const PlaybackSpeedControl: React.FC<PlaybackSpeedControlProps> = ({
         icon={<MinusOutlined />}
         disabled={!canDecrease}
         onClick={handleDecrease}
-        className="!text-gray-300 hover:!text-white !w-7 !h-7"
+        className="!text-text-12 dark:!text-text-12-dark hover:!text-text-01 dark:hover:!text-text-01-dark !w-7 !h-7"
       />
-      <span className="text-sm text-gray-300 min-w-[32px] text-center">
+      <span className="text-sm text-text-12 dark:text-text-12-dark min-w-[32px] text-center">
         {speed}x
       </span>
       <Button
@@ -52,7 +52,7 @@ export const PlaybackSpeedControl: React.FC<PlaybackSpeedControlProps> = ({
         icon={<PlusOutlined />}
         disabled={!canIncrease}
         onClick={handleIncrease}
-        className="!text-gray-300 hover:!text-white !w-7 !h-7"
+        className="!text-text-12 dark:!text-text-12-dark hover:!text-text-01 dark:hover:!text-text-01-dark !w-7 !h-7"
       />
     </div>
   );

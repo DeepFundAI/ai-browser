@@ -345,7 +345,7 @@ export default function main() {
     return (
         <>
             <Header />
-            <div className='bg-main-view bg-origin-padding bg-no-repeat bg-cover h-[calc(100%_-_48px)] overflow-y-auto text-text-01-dark flex'>
+            <div className='bg-main-view dark:bg-main-view-dark bg-origin-padding bg-no-repeat bg-cover h-[calc(100%_-_48px)] overflow-y-auto text-text-01 dark:text-text-01-dark flex'>
                 <div className='flex-1 h-full transition-all duration-300'>
                     <div className='w-[636px] mx-auto flex flex-col gap-2 pt-7 pb-4 h-full relative'>
                         {/* Task title and history button */}
@@ -391,7 +391,7 @@ export default function main() {
                         {isHistoryMode ? (
                             /* History mode: Show replay button with speed control */
                             <div className='h-30 gradient-border relative'>
-                                <div className="h-full flex items-center justify-center gap-4 bg-tool-call rounded-xl">
+                                <div className="h-full flex items-center justify-center gap-4 bg-tool-call dark:bg-tool-call-dark rounded-xl">
                                     <Button
                                         type="primary"
                                         size="large"

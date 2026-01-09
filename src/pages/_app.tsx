@@ -1,9 +1,9 @@
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import { ConfigProvider, App } from 'antd';
-import theme from '@/config/theme';
 import '@/config/i18n';  // Initialize i18n
 import { useLanguage } from '@/hooks/useLanguage';
+import { useTheme } from '@/hooks/useTheme';
 import { useEffect } from 'react';
 import { useLanguageStore } from '@/stores/languageStore';
 import { useSettingsStore } from '@/stores/settingsStore';
@@ -15,6 +15,9 @@ export default function MyApp({ Component, pageProps }: AppProps) {
   const { antdLocale } = useLanguage();
   const { setLanguage } = useLanguageStore();
   const { settings, loadSettings } = useSettingsStore();
+
+  // Dynamic theme based on settings
+  const { themeConfig } = useTheme();
 
   // Load settings on mount and subscribe to changes
   useEffect(() => {
@@ -64,7 +67,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
   }, [settings, setLanguage]);
 
   return (
-    <ConfigProvider theme={theme} locale={antdLocale}>
+    <ConfigProvider theme={themeConfig} locale={antdLocale}>
       <App className="h-full">
         <Component {...pageProps} />
       </App>

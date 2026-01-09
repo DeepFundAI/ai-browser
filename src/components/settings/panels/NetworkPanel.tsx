@@ -76,23 +76,23 @@ export const NetworkPanel: React.FC<NetworkPanelProps> = ({
       <div className="flex-shrink-0 p-8 pb-0">
         <div className="flex items-center gap-3 mb-4">
           <GlobalOutlined className="text-3xl text-blue-400" />
-          <Title level={2} className="!text-white !mb-0">
+          <Title level={2} className="!text-text-01 dark:!text-text-01-dark !mb-0">
             {t('network.title')}
           </Title>
         </div>
-        <Paragraph className="!text-gray-300 !mb-0">
+        <Paragraph className="!text-text-12 dark:!text-text-12-dark !mb-0">
           {t('network.description')}
         </Paragraph>
       </div>
 
       {/* Card container */}
       <div className="flex-1 min-h-0 p-8 pt-6">
-        <div className="bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 h-full flex flex-col">
+        <div className="bg-white dark:bg-white/5 backdrop-blur-sm rounded-lg border border-gray-200 dark:border-white/10 h-full flex flex-col">
           {/* Scrollable content inside card */}
           <div className="flex-1 min-h-0 overflow-y-auto p-6 space-y-8">
             {/* Proxy Settings */}
             <div>
-              <Text className="!text-white text-lg font-semibold">{t('network.proxy_settings')}</Text>
+              <Text className="!text-text-01 dark:!text-text-01-dark text-lg font-semibold">{t('network.proxy_settings')}</Text>
               <div className="mt-4">
                 <ToggleSetting
                   label={t('network.enable_proxy')}
@@ -102,10 +102,10 @@ export const NetworkPanel: React.FC<NetworkPanelProps> = ({
                 />
 
                 {settings.proxy.enabled && (
-                  <div className="mt-6 p-6 bg-white/5 rounded-lg border border-white/10 space-y-4">
+                  <div className="mt-6 p-6 bg-white dark:bg-white/5 rounded-lg border border-gray-200 dark:border-white/10 space-y-4">
                     {/* Proxy Type */}
                     <div>
-                      <div className="text-white font-medium mb-2">{t('network.proxy_type')}</div>
+                      <div className="text-text-01 dark:text-text-01-dark font-medium mb-2">{t('network.proxy_type')}</div>
                       <Select
                         value={settings.proxy.type}
                         onChange={(value) => handleProxyChange({ type: value })}
@@ -117,16 +117,16 @@ export const NetworkPanel: React.FC<NetworkPanelProps> = ({
                     {/* Proxy Server and Port */}
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <div className="text-white font-medium mb-2">{t('network.proxy_server')}</div>
+                        <div className="text-text-01 dark:text-text-01-dark font-medium mb-2">{t('network.proxy_server')}</div>
                         <Input
                           value={settings.proxy.server}
                           onChange={(e) => handleProxyChange({ server: e.target.value })}
                           placeholder="127.0.0.1"
-                          className="!bg-white/5 !border-white/10 !text-white"
+                          className="!bg-white dark:bg-white/5 !border-gray-200 dark:border-white/10 !text-text-01 dark:!text-text-01-dark"
                         />
                       </div>
                       <div>
-                        <div className="text-white font-medium mb-2">{t('network.port')}</div>
+                        <div className="text-text-01 dark:text-text-01-dark font-medium mb-2">{t('network.port')}</div>
                         <InputNumber
                           value={settings.proxy.port}
                           onChange={(value) => handleProxyChange({ port: value || 8080 })}
@@ -141,21 +141,21 @@ export const NetworkPanel: React.FC<NetworkPanelProps> = ({
                     {/* Username and Password (Optional) */}
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <div className="text-white font-medium mb-2">{t('network.username_optional')}</div>
+                        <div className="text-text-01 dark:text-text-01-dark font-medium mb-2">{t('network.username_optional')}</div>
                         <Input
                           value={settings.proxy.username}
                           onChange={(e) => handleProxyChange({ username: e.target.value })}
                           placeholder={t('network.username_optional')}
-                          className="!bg-white/5 !border-white/10 !text-white"
+                          className="!bg-white dark:bg-white/5 !border-gray-200 dark:border-white/10 !text-text-01 dark:!text-text-01-dark"
                         />
                       </div>
                       <div>
-                        <div className="text-white font-medium mb-2">{t('network.password_optional')}</div>
+                        <div className="text-text-01 dark:text-text-01-dark font-medium mb-2">{t('network.password_optional')}</div>
                         <Input.Password
                           value={settings.proxy.password}
                           onChange={(e) => handleProxyChange({ password: e.target.value })}
                           placeholder={t('network.password_optional')}
-                          className="!bg-white/5 !border-white/10 !text-white"
+                          className="!bg-white dark:bg-white/5 !border-gray-200 dark:border-white/10 !text-text-01 dark:!text-text-01-dark"
                         />
                       </div>
                     </div>
@@ -165,7 +165,7 @@ export const NetworkPanel: React.FC<NetworkPanelProps> = ({
                       <Button
                         onClick={handleTestProxy}
                         loading={testingProxy}
-                        className="bg-white/5 border-white/10 text-gray-300 hover:bg-white/10"
+                        className="!bg-white dark:!bg-white/5 !border-gray-200 dark:!border-white/10 !text-gray-700 dark:!text-gray-300 hover:!bg-gray-100 dark:hover:!bg-white/10"
                       >
                         {t('network.test_proxy')}
                       </Button>
@@ -175,15 +175,15 @@ export const NetworkPanel: React.FC<NetworkPanelProps> = ({
               </div>
             </div>
 
-            <Divider className="!border-white/10" />
+            <Divider className="!border-gray-200 dark:border-white/10" />
 
             {/* Network Parameters */}
             <div>
-              <Text className="!text-white text-lg font-semibold">{t('network.network_parameters')}</Text>
+              <Text className="!text-text-01 dark:!text-text-01-dark text-lg font-semibold">{t('network.network_parameters')}</Text>
               <div className="mt-4 space-y-6">
                 {/* Request Timeout */}
                 <div>
-                  <div className="text-white font-medium mb-3">
+                  <div className="text-text-01 dark:text-text-01-dark font-medium mb-3">
                     {t('network.request_timeout')}: {settings.requestTimeout} {t('network.request_timeout_unit')}
                   </div>
                   <div className="px-1">
@@ -206,7 +206,7 @@ export const NetworkPanel: React.FC<NetworkPanelProps> = ({
 
                 {/* Retry Attempts */}
                 <div>
-                  <div className="text-white font-medium mb-2">{t('network.retry_attempts')}</div>
+                  <div className="text-text-01 dark:text-text-01-dark font-medium mb-2">{t('network.retry_attempts')}</div>
                   <InputNumber
                     value={settings.retryAttempts}
                     onChange={(value) => handleChange({ retryAttempts: value || 0 })}
@@ -221,12 +221,12 @@ export const NetworkPanel: React.FC<NetworkPanelProps> = ({
 
                 {/* Custom User-Agent */}
                 <div>
-                  <div className="text-white font-medium mb-2">{t('network.custom_user_agent')}</div>
+                  <div className="text-text-01 dark:text-text-01-dark font-medium mb-2">{t('network.custom_user_agent')}</div>
                   <Input
                     value={settings.customUserAgent}
                     onChange={(e) => handleChange({ customUserAgent: e.target.value })}
                     placeholder={t('network.custom_user_agent_placeholder')}
-                    className="!bg-white/5 !border-white/10 !text-white"
+                    className="!bg-white dark:bg-white/5 !border-gray-200 dark:border-white/10 !text-text-01 dark:!text-text-01-dark"
                   />
                   <div className="text-gray-400 text-xs mt-1">
                     {t('network.custom_user_agent_desc')}

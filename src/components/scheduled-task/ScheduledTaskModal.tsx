@@ -140,7 +140,7 @@ export const ScheduledTaskModal: React.FC = () => {
         >
           <Input
             placeholder={t('enter_task_name')}
-            className="!bg-main-view !border-border-message !text-text-01-dark"
+            className="!bg-main-view dark:bg-main-view-dark !border-border-message dark:border-border-message-dark !text-text-01 dark:text-text-01-dark"
           />
         </Form.Item>
 
@@ -152,7 +152,7 @@ export const ScheduledTaskModal: React.FC = () => {
           <Input.TextArea
             placeholder={t('enter_task_description')}
             rows={2}
-            className="!bg-main-view !border-border-message !text-text-01-dark"
+            className="!bg-main-view dark:bg-main-view-dark !border-border-message dark:border-border-message-dark !text-text-01 dark:text-text-01-dark"
           />
         </Form.Item>
 

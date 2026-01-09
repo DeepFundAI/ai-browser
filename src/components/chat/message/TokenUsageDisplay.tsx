@@ -25,7 +25,7 @@ export const TokenUsageDisplay: React.FC<TokenUsageDisplayProps> = ({ usage }) =
   }
 
   return (
-    <div className="mt-2 text-xs text-gray-400 flex items-center gap-2">
+    <div className="mt-2 text-xs text-text-12 dark:text-text-12-dark flex items-center gap-2">
       <span className="opacity-60">Tokens:</span>
       <span>{usage.totalTokens.toLocaleString()}</span>
       <span className="opacity-40">

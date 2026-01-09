@@ -47,7 +47,7 @@ export const HumanInteractionCard: React.FC<HumanInteractionCardProps> = ({
           <span className="text-lg">⚠️</span>
           <span className={cn("text-base font-semibold uppercase tracking-wide", BADGE_PENDING)}>Task Pending</span>
         </div>
-        <p className="text-text-01-dark text-[15px] leading-relaxed mb-4">{message.prompt}</p>
+        <p className="text-text-01 dark:text-text-01-dark text-[15px] leading-relaxed mb-4">{message.prompt}</p>
         <Space>
           <Button
             type="primary"
@@ -77,14 +77,14 @@ export const HumanInteractionCard: React.FC<HumanInteractionCardProps> = ({
             {completed ? 'Completed' : 'Task Pending'}
           </span>
         </div>
-        <p className="text-text-01-dark text-sm leading-relaxed mb-3">{message.prompt}</p>
+        <p className="text-text-01 dark:text-text-01-dark text-sm leading-relaxed mb-3">{message.prompt}</p>
         <Input.TextArea
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           disabled={completed}
           placeholder="Please enter your response..."
           rows={2}
-          className="!bg-[rgba(255,255,255,0.05)] !border-[rgba(255,255,255,0.15)] !text-text-01-dark !text-sm !rounded-lg focus:!bg-[rgba(255,255,255,0.08)] focus:!border-[rgba(59,130,246,0.5)] focus:!shadow-[0_0_0_2px_rgba(59,130,246,0.15)]"
+          className="!bg-[rgba(255,255,255,0.05)] !border-[rgba(255,255,255,0.15)] !text-text-01 dark:text-text-01-dark !text-sm !rounded-lg focus:!bg-[rgba(255,255,255,0.08)] focus:!border-[rgba(59,130,246,0.5)] focus:!shadow-[0_0_0_2px_rgba(59,130,246,0.15)]"
         />
         <Button
           type="primary"
@@ -109,7 +109,7 @@ export const HumanInteractionCard: React.FC<HumanInteractionCardProps> = ({
             {completed ? 'Completed' : 'Task Pending'}
           </span>
         </div>
-        <p className="text-text-01-dark text-sm leading-relaxed mb-3">{message.prompt}</p>
+        <p className="text-text-01 dark:text-text-01-dark text-sm leading-relaxed mb-3">{message.prompt}</p>
         <div className="mb-2">
           {message.selectMultiple ? (
             <Checkbox.Group
@@ -152,7 +152,7 @@ export const HumanInteractionCard: React.FC<HumanInteractionCardProps> = ({
             {completed ? 'Completed' : 'Task Pending'}
           </span>
         </div>
-        <p className="text-text-01-dark text-sm leading-relaxed mb-3">{message.prompt}</p>
+        <p className="text-text-01 dark:text-text-01-dark text-sm leading-relaxed mb-3">{message.prompt}</p>
 
         {/* Site card for login scenarios */}
         {message.context?.siteName && (
@@ -172,7 +172,7 @@ export const HumanInteractionCard: React.FC<HumanInteractionCardProps> = ({
                   className="w-5 h-5 rounded"
                 />
               )}
-              <span className="text-text-01-dark text-sm font-medium">{message.context.siteName}</span>
+              <span className="text-text-01 dark:text-text-01-dark text-sm font-medium">{message.context.siteName}</span>
             </div>
             <Button type="primary" size="small">
               Go to login

@@ -113,7 +113,7 @@ export const AddCustomProviderModal: React.FC<AddCustomProviderModalProps> = ({
               Please enter a valid URL (http:// or https://)
             </Text>
           ) : (
-            <Text className="text-gray-400 text-xs block mt-1">
+            <Text className="text-text-12 dark:text-text-12-dark text-xs block mt-1">
               The API endpoint URL (OpenAI-compatible format)
             </Text>
           )}
@@ -132,7 +132,7 @@ export const AddCustomProviderModal: React.FC<AddCustomProviderModalProps> = ({
             />
             <button
               onClick={() => setShowApiKey(!showApiKey)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-text-12 dark:text-text-12-dark hover:text-gray-600"
             >
               {showApiKey ? <EyeInvisibleOutlined /> : <EyeOutlined />}
             </button>

@@ -57,15 +57,15 @@ const ProviderListItem: React.FC<ProviderListItemProps> = ({
         'text-left border',
         isSelected
           ? 'bg-blue-500/20 border-blue-500/50'
-          : 'border-white/10 hover:bg-white/5 hover:border-white/20'
+          : 'border-gray-200 dark:border-white/10 hover:bg-white dark:bg-white/5 hover:border-gray-300 dark:border-white/20'
       )}
     >
       {isCustom ? (
         <ApiOutlined className="text-lg text-purple-400" />
       ) : (
-        <CloudOutlined className="text-lg text-gray-400" />
+        <CloudOutlined className="text-lg text-text-12 dark:text-text-12-dark" />
       )}
-      <span className="flex-1 text-sm font-medium text-gray-200 truncate">
+      <span className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-200 truncate">
         {provider.name}
       </span>
       {isCustom && (
@@ -93,10 +93,10 @@ interface ModelListItemProps {
 
 const ModelListItem: React.FC<ModelListItemProps> = ({ model, onToggle }) => {
   return (
-    <div className="flex items-center justify-between px-4 py-3 rounded-lg bg-white/5 hover:bg-white/10 transition-all mb-2">
+    <div className="flex items-center justify-between px-4 py-3 rounded-lg bg-white dark:bg-white/5 hover:bg-gray-100 dark:bg-white/10 transition-all mb-2">
       <div className="flex-1">
-        <div className="text-white font-medium text-sm">{model.name}</div>
-        <div className="text-gray-400 text-xs mt-0.5">{model.id}</div>
+        <div className="text-text-01 dark:text-text-01-darkfont-medium text-sm">{model.name}</div>
+        <div className="text-text-12 dark:text-text-12-dark text-xs mt-0.5">{model.id}</div>
       </div>
       <Switch
         checked={model.enabled}
@@ -136,21 +136,21 @@ const AddModelInline: React.FC<AddModelInlineProps> = ({ onAdd }) => {
         placeholder={t('providers.model_id_placeholder')}
         value={modelId}
         onChange={(e) => setModelId(e.target.value)}
-        className="flex-1 bg-white/5 border-white/10 text-white placeholder-gray-400"
+        className="flex-1 bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-text-01 dark:text-text-01-darkplaceholder-gray-400 dark:placeholder-gray-400"
         size="small"
       />
       <Input
         placeholder={t('providers.model_name_placeholder')}
         value={modelName}
         onChange={(e) => setModelName(e.target.value)}
-        className="flex-1 bg-white/5 border-white/10 text-white placeholder-gray-400"
+        className="flex-1 bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-text-01 dark:text-text-01-darkplaceholder-gray-400 dark:placeholder-gray-400"
         size="small"
       />
       <Button
         icon={<PlusOutlined />}
         onClick={handleAdd}
         size="small"
-        className="bg-white/5 border-white/10 text-white hover:bg-white/10"
+        className="bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-text-01 dark:text-text-01-darkhover:bg-gray-100 dark:bg-white/10"
       >
         {t('providers.add_model')}
       </Button>
@@ -407,7 +407,7 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
       <div className="flex items-center justify-between mb-6 flex-shrink-0">
         <div className="flex items-center gap-3">
           <CloudOutlined className="text-3xl text-blue-400" />
-          <Title level={2} className="!text-white !mb-0">
+          <Title level={2} className="!text-text-01 dark:!text-text-01-dark !mb-0">
             {t('providers.title')}
           </Title>
         </div>
@@ -424,10 +424,10 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
       {/* Search */}
       <Input
         placeholder={t('providers.search_providers')}
-        prefix={<SearchOutlined className="text-gray-400" />}
+        prefix={<SearchOutlined className="text-text-12 dark:text-text-12-dark" />}
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
-        className="mb-6 bg-white/5 border-white/10 text-white placeholder-gray-400 flex-shrink-0"
+        className="mb-6 bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-text-01 dark:text-text-01-darkplaceholder-gray-400 dark:placeholder-gray-400 flex-shrink-0"
       />
 
       {/* Main content: Provider list + Details */}
@@ -445,7 +445,7 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
         </div>
 
         {/* Right: Provider details */}
-        <div className="flex-1 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 overflow-hidden flex flex-col min-w-0">
+        <div className="flex-1 bg-white dark:bg-white/5 backdrop-blur-sm rounded-lg border border-gray-200 dark:border-white/10 overflow-hidden flex flex-col min-w-0">
           {currentConfig ? (
             <div className="p-6 overflow-y-auto flex-1">
               <div className="space-y-6">
@@ -453,7 +453,7 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
-                    <Text className="!text-white text-xl font-semibold">
+                    <Text className="!text-text-01 dark:!text-text-01-dark text-xl font-semibold">
                       {currentConfig.name}
                     </Text>
                     {!isBuiltin && (
@@ -473,12 +473,12 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
                     )}
                   </div>
                   {isBuiltin && providerMeta && (
-                    <Paragraph className="!text-gray-300 !mb-0">
+                    <Paragraph className="!text-text-12 dark:text-text-12-dark !mb-0">
                       {providerMeta.description}
                     </Paragraph>
                   )}
                   {!isBuiltin && (
-                    <Paragraph className="!text-gray-400 !mb-0 text-sm">
+                    <Paragraph className="!text-text-12 dark:text-text-12-dark !mb-0 text-sm">
                       {currentConfig.baseUrl}
                     </Paragraph>
                   )}
@@ -531,31 +531,31 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
                   {/* Provider Name (Custom only) */}
                   {!isBuiltin && (
                     <div>
-                      <Text className="!text-white font-medium block mb-2">
+                      <Text className="!text-text-01 dark:!text-text-01-dark font-medium block mb-2">
                         {t('providers.provider_name')}
                       </Text>
                       <Input
                         placeholder={t('providers.provider_name_placeholder')}
                         value={currentConfig.name}
                         onChange={(e) => handleNameChange(e.target.value)}
-                        className="bg-white/5 border-white/10 text-white placeholder-gray-400"
+                        className="bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-text-01 dark:text-text-01-darkplaceholder-gray-400 dark:placeholder-gray-400"
                       />
                     </div>
                   )}
 
                   {/* Base URL */}
                   <div>
-                    <Text className="!text-white font-medium block mb-2">
+                    <Text className="!text-text-01 dark:!text-text-01-dark font-medium block mb-2">
                       {t('providers.base_url')} {isBuiltin && t('providers.base_url_optional')}
                     </Text>
                     <Input
                       placeholder={providerMeta?.defaultBaseUrl || t('providers.base_url_placeholder')}
                       value={currentConfig.baseUrl || ''}
                       onChange={(e) => handleBaseUrlChange(e.target.value)}
-                      className="bg-white/5 border-white/10 text-white placeholder-gray-400"
+                      className="bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-text-01 dark:text-text-01-darkplaceholder-gray-400 dark:placeholder-gray-400"
                     />
                     {isBuiltin && (
-                      <Text className="!text-gray-400 text-xs block mt-2">
+                      <Text className="!text-text-12 dark:text-text-12-dark text-xs block mt-2">
                         {t('providers.base_url_hint', { name: currentConfig.name })}
                       </Text>
                     )}
@@ -563,7 +563,7 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
 
                   {/* API Key */}
                   <div>
-                    <Text className="!text-white font-medium block mb-2">
+                    <Text className="!text-text-01 dark:!text-text-01-dark font-medium block mb-2">
                       {t('providers.api_key')}
                     </Text>
                     <div className="relative">
@@ -572,11 +572,11 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
                         placeholder={t('providers.api_key_placeholder')}
                         value={currentConfig.apiKey}
                         onChange={(e) => handleApiKeyChange(e.target.value)}
-                        className="bg-white/5 border-white/10 text-white placeholder-gray-400 pr-10"
+                        className="bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-text-01 dark:text-text-01-darkplaceholder-gray-400 dark:placeholder-gray-400 pr-10"
                       />
                       <button
                         onClick={() => setShowApiKey(!showApiKey)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-text-12 dark:text-text-12-dark hover:text-white"
                       >
                         {showApiKey ? <EyeInvisibleOutlined /> : <EyeOutlined />}
                       </button>
@@ -596,9 +596,9 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
 
                   {/* Models section */}
                   {hasApiKey && (
-                    <div className="pt-4 border-t border-white/10">
+                    <div className="pt-4 border-t border-gray-200 dark:border-white/10">
                       <div className="flex items-center justify-between mb-4">
-                        <Text className="!text-white font-medium text-lg">
+                        <Text className="!text-text-01 dark:!text-text-01-dark font-medium text-lg">
                           {t('providers.models_title')}
                         </Text>
                         <Button
@@ -606,7 +606,7 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
                           icon={<DownloadOutlined />}
                           onClick={handleFetchModels}
                           loading={isFetchingModels}
-                          className="bg-white/5 border-white/10 text-white hover:bg-white/10"
+                          className="bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-text-01 dark:text-text-01-darkhover:bg-gray-100 dark:bg-white/10"
                         >
                           {t('providers.fetch')}
                         </Button>
@@ -615,16 +615,16 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
                       {/* Model search */}
                       <Input
                         placeholder={t('providers.search_models')}
-                        prefix={<SearchOutlined className="text-gray-400" />}
+                        prefix={<SearchOutlined className="text-text-12 dark:text-text-12-dark" />}
                         value={modelSearchQuery}
                         onChange={(e) => setModelSearchQuery(e.target.value)}
-                        className="mb-4 bg-white/5 border-white/10 text-white placeholder-gray-400"
+                        className="mb-4 bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-text-01 dark:text-text-01-darkplaceholder-gray-400 dark:placeholder-gray-400"
                       />
 
                       {/* Model list */}
                       {sortedModels.length > 0 ? (
                         <>
-                          <Text className="!text-gray-400 text-xs block mb-3">
+                          <Text className="!text-text-12 dark:text-text-12-dark text-xs block mb-3">
                             {t('providers.models_showing', { enabled: enabledModelCount, total: totalModelCount })}
                           </Text>
                           <div className="max-h-60 overflow-y-auto">
@@ -638,7 +638,7 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
                           </div>
                         </>
                       ) : (
-                        <div className="text-center py-8 text-gray-400">
+                        <div className="text-center py-8 text-text-12 dark:text-text-12-dark">
                           <div className="text-3xl mb-2">📭</div>
                           <div className="font-medium mb-1">{t('providers.no_models_available')}</div>
                           <div className="text-sm">
@@ -648,8 +648,8 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
                       )}
 
                       {/* Add model manually */}
-                      <div className="mt-4 pt-4 border-t border-white/10">
-                        <Text className="!text-gray-400 text-xs block mb-2">
+                      <div className="mt-4 pt-4 border-t border-gray-200 dark:border-white/10">
+                        <Text className="!text-text-12 dark:text-text-12-dark text-xs block mb-2">
                           {t('providers.add_model_manually')}
                         </Text>
                         <AddModelInline onAdd={handleAddModel} />
@@ -661,7 +661,7 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
               </div>
             </div>
           ) : (
-            <div className="flex items-center justify-center flex-1 text-gray-400">
+            <div className="flex items-center justify-center flex-1 text-text-12 dark:text-text-12-dark">
               {t('providers.select_provider')}
             </div>
           )}

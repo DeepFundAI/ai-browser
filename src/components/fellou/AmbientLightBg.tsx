@@ -10,6 +10,7 @@ interface AnimatedBackgroundProps {
   noise?: number;
   opacity?: number;
   speed?: number;
+  theme?: 'light' | 'dark';
 }
 
 export function AnimatedBackground({
@@ -19,6 +20,7 @@ export function AnimatedBackground({
   noise = 0.08,
   opacity = 0.0,
   speed = 0.25,
+  theme = 'dark',
 }: AnimatedBackgroundProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -49,11 +51,14 @@ export function AnimatedBackground({
       if (isDestroyed || !containerRef.current || !window.AmbientLightBg) return;
 
       try {
+        // Define color schemes for different themes
+        const darkColors = ["#004880", "#CDCFCF", "#3390C0", "#2B71A1", "#005A92", "#004880"];
+        const lightColors = ["#E8F4F8", "#B8D4E0", "#A0C4D8", "#7FB3CC", "#5FA3C0", "#E8F4F8"];
+
         // 创建 AmbientLightBg 实例
         colorBgRef.current = new window.AmbientLightBg({
           dom: containerRef.current.id,
-          colors: ["#004880", "#CDCFCF", "#3390C0", "#2B71A1", "#005A92", "#004880"],
-          //["#007FFE","#3099FE","#60B2FE","#90CCFE","#a8d3f0","#b7e1df"],
+          colors: theme === 'light' ? lightColors : darkColors,
           loop: true,
           speed: speed,
         });
@@ -68,6 +73,13 @@ export function AnimatedBackground({
 
           // Noise 参数
           colorBgRef.current.update("noise", noise);
+
+          // Theme-specific brightness and darkness adjustments
+          if (theme === 'light') {
+            // Light theme: Increase brightness, minimize darkness
+            colorBgRef.current.update("brightness", 0.2);
+            colorBgRef.current.update("darkness", 0.8);
+          }
         }
       } catch (error) {
         // Handle initialization error (likely WebGL not supported)
@@ -102,7 +114,7 @@ export function AnimatedBackground({
         delete window.AmbientLightBg;
       }
     };
-  }, [scale, blur, noise, speed]);
+  }, [scale, blur, noise, speed, theme]);
 
   return (
     <div className={cn("absolute inset-0", className)}>

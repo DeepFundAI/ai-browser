@@ -3,9 +3,20 @@ import { createCache, extractStyle, StyleProvider } from '@ant-design/cssinjs';
 import Document, { Head, Html, Main, NextScript } from 'next/document';
 import type { DocumentContext } from 'next/document';
 
+// Inline script to prevent theme flash on page load
+const themeScript = `
+  (function() {
+    const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', systemTheme);
+    document.documentElement.classList.add(systemTheme);
+  })();
+`;
+
 const MyDocument = () => (
   <Html lang="en">
-    <Head />
+    <Head>
+      <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+    </Head>
     <body>
       <Main />
       <NextScript />

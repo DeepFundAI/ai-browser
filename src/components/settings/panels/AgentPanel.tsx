@@ -47,11 +47,11 @@ const TabItem: React.FC<TabItemProps> = ({
         'text-left border',
         isSelected
           ? 'bg-blue-500/20 border-blue-500/50'
-          : 'border-white/10 hover:bg-white/5 hover:border-white/20'
+          : 'border-gray-200 dark:border-white/10 hover:bg-white dark:bg-white/5 hover:border-gray-300 dark:border-white/20'
       )}
     >
-      <span className="text-lg text-gray-400">{icon}</span>
-      <span className="flex-1 text-sm font-medium text-gray-200">{label}</span>
+      <span className="text-lg text-text-12 dark:text-text-12-dark">{icon}</span>
+      <span className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-200">{label}</span>
     </button>
   );
 };
@@ -71,14 +71,14 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, onToggle }) => {
         'flex items-start justify-between p-4 rounded-lg border transition-all mb-3',
         tool.enabled
           ? 'bg-blue-500/10 border-blue-500/30'
-          : 'bg-white/5 border-white/10'
+          : 'bg-white dark:bg-white/5 border-gray-200 dark:border-white/10'
       )}
     >
       <div className="flex-1 pr-4">
         <div className="flex items-center gap-3 mb-2">
-          <Text className="!text-white font-medium">{tool.name}</Text>
+          <Text className="!text-text-01 dark:!text-text-01-dark font-medium">{tool.name}</Text>
         </div>
-        <Text className="!text-gray-400 text-sm block">{tool.description}</Text>
+        <Text className="!text-text-12 dark:text-text-12-dark text-sm block">{tool.description}</Text>
       </div>
       <Switch
         checked={tool.enabled}
@@ -237,8 +237,8 @@ export const AgentPanel: React.FC = () => {
             {/* Enable toggle */}
             <div className="flex items-center justify-between">
               <div>
-                <Text className="!text-white font-medium block">{t('agent.enable_agent')}</Text>
-                <Text className="!text-gray-400 text-sm">
+                <Text className="!text-text-01 dark:!text-text-01-dark font-medium block">{t('agent.enable_agent')}</Text>
+                <Text className="!text-text-12 dark:text-text-12-dark text-sm">
                   {t('agent.browser_agent_behavior')}
                 </Text>
               </div>
@@ -249,9 +249,9 @@ export const AgentPanel: React.FC = () => {
             </div>
 
             {/* Default behaviors */}
-            <div className="p-4 bg-white/5 rounded-lg border border-white/10">
-              <Text className="!text-gray-300 font-medium block mb-3">{t('agent.default_behavior')}</Text>
-              <div className="text-sm text-gray-400 space-y-1.5">
+            <div className="p-4 bg-white dark:bg-white/5 rounded-lg border border-gray-200 dark:border-white/10">
+              <Text className="!text-text-12 dark:!text-text-12-dark font-medium block mb-3">{t('agent.default_behavior')}</Text>
+              <div className="text-sm text-text-12 dark:text-text-12-dark space-y-1.5">
                 <div>• Analyze webpages by taking screenshots and page element structures</div>
                 <div>• Use structured commands to interact with the browser</div>
                 <div>• Handle popups/cookies by accepting or closing them</div>
@@ -262,8 +262,8 @@ export const AgentPanel: React.FC = () => {
 
             {/* Custom prompt */}
             <div>
-              <Text className="!text-white font-medium block mb-2">{t('agent.custom_prompt')}</Text>
-              <Text className="!text-gray-400 text-sm block mb-3">
+              <Text className="!text-text-01 dark:!text-text-01-dark font-medium block mb-2">{t('agent.custom_prompt')}</Text>
+              <Text className="!text-text-12 dark:text-text-12-dark text-sm block mb-3">
                 Add custom instructions to extend the Browser Agent's capabilities
               </Text>
               <TextArea
@@ -272,7 +272,7 @@ export const AgentPanel: React.FC = () => {
                 placeholder={t('agent.custom_prompt_placeholder')}
                 rows={6}
                 disabled={!config.browserAgent.enabled}
-                className="bg-white/5 border-white/10 text-white placeholder-gray-500"
+                className="bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-text-01 dark:text-text-01-darkplaceholder-gray-500"
               />
             </div>
           </div>
@@ -284,8 +284,8 @@ export const AgentPanel: React.FC = () => {
             {/* Enable toggle */}
             <div className="flex items-center justify-between">
               <div>
-                <Text className="!text-white font-medium block">{t('agent.enable_agent')}</Text>
-                <Text className="!text-gray-400 text-sm">
+                <Text className="!text-text-01 dark:!text-text-01-dark font-medium block">{t('agent.enable_agent')}</Text>
+                <Text className="!text-text-12 dark:text-text-12-dark text-sm">
                   {t('agent.file_agent_behavior')}
                 </Text>
               </div>
@@ -296,9 +296,9 @@ export const AgentPanel: React.FC = () => {
             </div>
 
             {/* Default behaviors */}
-            <div className="p-4 bg-white/5 rounded-lg border border-white/10">
-              <Text className="!text-gray-300 font-medium block mb-3">{t('agent.default_behavior')}</Text>
-              <div className="text-sm text-gray-400 space-y-1.5">
+            <div className="p-4 bg-white dark:bg-white/5 rounded-lg border border-gray-200 dark:border-white/10">
+              <Text className="!text-text-12 dark:!text-text-12-dark font-medium block mb-3">{t('agent.default_behavior')}</Text>
+              <div className="text-sm text-text-12 dark:text-text-12-dark space-y-1.5">
                 <div>• Handle file-related tasks: creating, finding, reading, modifying files</div>
                 <div>• Always include working directory when outputting file paths</div>
                 <div>• Output file names must be in English</div>
@@ -309,8 +309,8 @@ export const AgentPanel: React.FC = () => {
 
             {/* Custom prompt */}
             <div>
-              <Text className="!text-white font-medium block mb-2">{t('agent.custom_prompt')}</Text>
-              <Text className="!text-gray-400 text-sm block mb-3">
+              <Text className="!text-text-01 dark:!text-text-01-dark font-medium block mb-2">{t('agent.custom_prompt')}</Text>
+              <Text className="!text-text-12 dark:text-text-12-dark text-sm block mb-3">
                 Add custom instructions to extend the File Agent's capabilities
               </Text>
               <TextArea
@@ -319,7 +319,7 @@ export const AgentPanel: React.FC = () => {
                 placeholder={t('agent.custom_prompt_placeholder')}
                 rows={6}
                 disabled={!config.fileAgent.enabled}
-                className="bg-white/5 border-white/10 text-white placeholder-gray-500"
+                className="bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-text-01 dark:text-text-01-darkplaceholder-gray-500"
               />
             </div>
           </div>
@@ -329,13 +329,13 @@ export const AgentPanel: React.FC = () => {
         return (
           <div className="space-y-4">
             <div className="mb-6">
-              <Text className="!text-gray-400 text-sm">
+              <Text className="!text-text-12 dark:text-text-12-dark text-sm">
                 Enable or disable MCP tools available to the AI agent. Changes are saved automatically.
               </Text>
             </div>
 
             {mcpTools.length === 0 ? (
-              <div className="text-center py-12 text-gray-400">
+              <div className="text-center py-12 text-text-12 dark:text-text-12-dark">
                 <div className="text-4xl mb-3">🔧</div>
                 <div className="font-medium mb-1">No MCP Tools Available</div>
                 <div className="text-sm">MCP tools will appear here when configured</div>
@@ -366,7 +366,7 @@ export const AgentPanel: React.FC = () => {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <RobotOutlined className="text-3xl text-cyan-400" />
-            <Title level={2} className="!text-white !mb-0">
+            <Title level={2} className="!text-text-01 dark:!text-text-01-dark !mb-0">
               {t('agent.title')}
             </Title>
           </div>
@@ -374,7 +374,7 @@ export const AgentPanel: React.FC = () => {
             <Button
               icon={<ReloadOutlined />}
               onClick={handleReload}
-              className="bg-white/5 border-white/10 text-gray-300 hover:bg-white/10"
+              className="!bg-white dark:!bg-white/5 !border-gray-200 dark:!border-white/10 !text-gray-700 dark:!text-gray-300 hover:!bg-gray-100 dark:hover:!bg-white/10"
             >
               Reload
             </Button>
@@ -390,7 +390,7 @@ export const AgentPanel: React.FC = () => {
             )}
           </div>
         </div>
-        <Paragraph className="!text-gray-300 !mb-0">
+        <Paragraph className="!text-text-12 dark:!text-text-12-dark !mb-0">
           {t('agent.description')}
         </Paragraph>
       </div>
@@ -412,7 +412,7 @@ export const AgentPanel: React.FC = () => {
           </div>
 
           {/* Right: Content panel */}
-          <div className="flex-1 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 p-6 overflow-y-auto">
+          <div className="flex-1 bg-white dark:bg-white/5 backdrop-blur-sm rounded-lg border border-gray-200 dark:border-white/10 p-6 overflow-y-auto">
             {renderContent()}
           </div>
         </div>

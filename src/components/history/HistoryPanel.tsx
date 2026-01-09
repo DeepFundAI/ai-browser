@@ -126,6 +126,7 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
       open={visible}
       onClose={onClose}
       width={480}
+      mask={false}
       className="history-panel-drawer"
       styles={{
         wrapper: {
@@ -135,9 +136,6 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
         body: {
           padding: '16px',
           height: '100%',
-          // Fellou.ai inspired elegant gradient background
-          background: 'linear-gradient(180deg, #1e1c23 0%, #281c39 100%)',
-          backdropFilter: 'blur(16px)',
         }
       }}
       extra={

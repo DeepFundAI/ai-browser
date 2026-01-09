@@ -50,18 +50,18 @@ export const UserInterfacePanel: React.FC<UserInterfacePanelProps> = ({
       <div className="flex-shrink-0 p-8 pb-0">
         <div className="flex items-center gap-3 mb-4">
           <SkinOutlined className="text-3xl text-pink-400" />
-          <Title level={2} className="!text-white !mb-0">
+          <Title level={2} className="!text-text-01 dark:!text-text-01-dark !mb-0">
             {t('ui.title')}
           </Title>
         </div>
-        <Paragraph className="!text-gray-300 !mb-0">
+        <Paragraph className="!text-text-12 dark:!text-text-12-dark !mb-0">
           {t('ui.description')}
         </Paragraph>
       </div>
 
       {/* Card container */}
       <div className="flex-1 min-h-0 p-8 pt-6">
-        <div className="bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 h-full flex flex-col">
+        <div className="bg-white dark:bg-white/5 backdrop-blur-sm rounded-lg border border-gray-200 dark:border-white/10 h-full flex flex-col">
           {/* Scrollable content inside card */}
           <div className="flex-1 min-h-0 overflow-y-auto p-6 space-y-8">
             {/* Theme */}
@@ -71,14 +71,14 @@ export const UserInterfacePanel: React.FC<UserInterfacePanelProps> = ({
               onChange={(value) => handleChange({ theme: value })}
             />
 
-            <Divider className="!border-white/10" />
+            <Divider className="!border-gray-200 dark:border-white/10" />
 
             {/* Font Settings */}
             <div>
-              <Text className="!text-white text-lg font-semibold">{t('ui.font_size')}</Text>
+              <Text className="!text-text-01 dark:!text-text-01-dark text-lg font-semibold">{t('ui.font_size')}</Text>
               <div className="mt-4">
                 <div>
-                  <div className="text-white font-medium mb-2">{t('ui.font_size')}</div>
+                  <div className="text-text-01 dark:text-text-01-dark font-medium mb-2">{t('ui.font_size')}</div>
                   <div className="flex items-center gap-2">
                     <InputNumber
                       value={settings.fontSize}
@@ -94,11 +94,11 @@ export const UserInterfacePanel: React.FC<UserInterfacePanelProps> = ({
               </div>
             </div>
 
-            <Divider className="!border-white/10" />
+            <Divider className="!border-gray-200 dark:border-white/10" />
 
             {/* Layout Settings */}
             <div>
-              <Text className="!text-white text-lg font-semibold">{t('ui.density')}</Text>
+              <Text className="!text-text-01 dark:!text-text-01-dark text-lg font-semibold">{t('ui.density')}</Text>
               <div className="mt-4">
                 <DensitySelector
                   label={t('ui.density')}
@@ -108,11 +108,11 @@ export const UserInterfacePanel: React.FC<UserInterfacePanelProps> = ({
               </div>
             </div>
 
-            <Divider className="!border-white/10" />
+            <Divider className="!border-gray-200 dark:border-white/10" />
 
             {/* Editor Settings */}
             <div>
-              <Text className="!text-white text-lg font-semibold">{t('ui.editor_settings')}</Text>
+              <Text className="!text-text-01 dark:!text-text-01-dark text-lg font-semibold">{t('ui.editor_settings')}</Text>
               <div className="mt-4 space-y-2">
                 <ToggleSetting
                   label={t('ui.show_line_numbers')}

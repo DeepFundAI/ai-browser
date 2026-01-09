@@ -323,11 +323,11 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
       case 'memory':
         return (
           <div className="flex items-center justify-center h-full">
-            <div className="text-center text-gray-400">
+            <div className="text-center text-text-12 dark:text-text-12-dark">
               <div className="text-6xl mb-4">🧠</div>
               <div className="text-2xl font-semibold mb-2">Memory Settings</div>
               <div className="text-sm">Configure conversation memory and context management</div>
-              <div className="text-xs mt-2 text-gray-500">Coming Soon</div>
+              <div className="text-xs mt-2 text-gray-500 dark:text-gray-500">Coming Soon</div>
             </div>
           </div>
         );
@@ -375,7 +375,7 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
       </div>
 
       {/* Bottom action bar */}
-      <div className="flex-shrink-0 border-t border-white/10 px-8 py-4 bg-black/20 backdrop-blur-sm">
+      <div className="flex-shrink-0 border-t border-gray-200 dark:border-white/10 px-8 py-4 bg-gray-100/80 dark:bg-black/20 backdrop-blur-sm">
         <div className="flex items-center justify-between">
           {/* Status indicator */}
           <div className="text-sm flex items-center gap-2">
@@ -386,10 +386,10 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
                   animate={{ opacity: [1, 0.3, 1] }}
                   transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
                 />
-                <span className="text-yellow-400">{t('unsaved_changes')}</span>
+                <span className="text-yellow-600 dark:text-yellow-400">{t('unsaved_changes')}</span>
               </>
             ) : (
-              <span className="text-gray-400">{t('all_changes_saved')}</span>
+              <span className="text-text-12 dark:text-text-12-dark">{t('all_changes_saved')}</span>
             )}
           </div>
 
@@ -397,7 +397,7 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
           <div className="flex gap-3">
             <Button
               onClick={handleClose}
-              className="bg-transparent border-white/10 text-gray-300 hover:bg-white/5 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              className="!bg-transparent !border-gray-300 dark:!border-white/10 !text-gray-700 dark:!text-gray-300 hover:!bg-gray-100 dark:hover:!bg-white/5 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
             >
               {t('close')}
             </Button>

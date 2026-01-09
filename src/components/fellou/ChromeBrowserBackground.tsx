@@ -5,8 +5,10 @@ import { useState, useEffect } from "react";
 import { AnimatedBackground } from "./AmbientLightBg";
 import { GradientTechBackground } from "./GradientTechBackground";
 import { isWebGLSupported } from "@/utils/webglDetect";
+import { useTheme } from "@/hooks/useTheme";
 
 export function ChromeBrowserBackground() {
+  const { effectiveTheme } = useTheme();
   const [backgroundReady, setBackgroundReady] = useState(false);
   const [webglSupported, setWebglSupported] = useState<boolean | null>(null);
   const [useFallback, setUseFallback] = useState(false);
@@ -48,8 +50,8 @@ export function ChromeBrowserBackground() {
 
   return (
     <>
-      {/* Black background - always visible as fallback */}
-      <div className="fixed inset-0 bg-black z-0" />
+      {/* Theme-aware background - always visible as fallback */}
+      <div className={`fixed inset-0 z-0 ${effectiveTheme === 'dark' ? 'bg-black' : 'bg-white'}`} />
 
       {/* Render background based on WebGL support and fallback state */}
       {useFallback ? (
@@ -61,8 +63,8 @@ export function ChromeBrowserBackground() {
           transition={{ duration: 0.8, ease: "easeInOut" }}
         >
           <GradientTechBackground />
-          {/* Black overlay with 40% opacity */}
-          <div className="absolute inset-0 bg-black/40" />
+          {/* Theme-aware overlay */}
+          <div className={`absolute inset-0 ${effectiveTheme === 'dark' ? 'bg-black/40' : 'bg-white/5'}`} />
         </motion.div>
       ) : webglSupported !== false ? (
         /* WebGL supported: AnimatedBackground with loading-based opacity control */
@@ -88,10 +90,10 @@ export function ChromeBrowserBackground() {
               transform: "translate(-50%, -50%)"
             }}
           >
-            <AnimatedBackground speed={0.25} />
+            <AnimatedBackground speed={0.25} theme={effectiveTheme} />
           </div>
-          {/* Black overlay with 40% opacity */}
-          <div className="absolute inset-0 bg-black/40" />
+          {/* Theme-aware overlay */}
+          <div className={`absolute inset-0 ${effectiveTheme === 'dark' ? 'bg-black/40' : 'bg-white/5'}`} />
         </motion.div>
       ) : null}
     </>

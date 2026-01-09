@@ -32,7 +32,7 @@ export default function Header() {
   }
 
   return (
-    <div className=' flex justify-between items-center h-12 w-full px-7 bg-header text-text-01-dark' style={{
+    <div className=' flex justify-between items-center h-12 w-full px-7 bg-header dark:bg-header-dark text-text-01 dark:text-text-01-dark' style={{
             WebkitAppRegion: 'drag'
           } as React.CSSProperties}>
       {/* Don't show back button in scheduled task mode */}
@@ -66,7 +66,7 @@ export default function Header() {
             icon={<ToolOutlined />}
             size="small"
             onClick={() => router.push('/toolbox')}
-            className='!text-text-01-dark hover:!bg-blue-500/10'
+            className='!text-text-01 dark:!text-text-01-dark hover:!bg-blue-500/10'
             style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
           >
             {t('toolbox')}
@@ -77,7 +77,7 @@ export default function Header() {
           icon={<HistoryOutlined />}
           size="small"
           onClick={() => setShowHistoryPanel(true)}
-          className='!text-text-01-dark'
+          className='!text-text-01 dark:!text-text-01-dark'
           style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
         >
           {isTaskDetailMode ? t('execution_history') : t('history')}
@@ -93,7 +93,7 @@ export default function Header() {
               (window as any).api.openSettings();
             }
           }}
-          className='!text-text-01-dark hover:!bg-purple-500/10'
+          className='!text-text-01 dark:!text-text-01-dark hover:!bg-purple-500/10'
           style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
         >
           {t('settings')}

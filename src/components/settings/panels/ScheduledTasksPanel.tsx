@@ -59,27 +59,27 @@ const TaskCard: React.FC<TaskCardProps> = ({
         'p-4 rounded-lg border transition-all mb-3',
         task.enabled
           ? 'bg-green-500/10 border-green-500/30'
-          : 'bg-white/5 border-white/10'
+          : 'bg-white dark:bg-white/5 border-gray-200 dark:border-white/10'
       )}
     >
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-1">
-            <Text className="!text-white font-semibold text-base">{task.name}</Text>
+            <Text className="!text-text-01 dark:!text-text-01-dark font-semibold text-base">{task.name}</Text>
             <span
               className={clsx(
                 'px-2 py-0.5 rounded text-xs',
                 task.enabled
                   ? 'bg-green-500/20 text-green-400'
-                  : 'bg-gray-500/20 text-gray-400'
+                  : 'bg-gray-500/20 text-text-12 dark:text-text-12-dark'
               )}
             >
               {task.enabled ? 'Enabled' : 'Disabled'}
             </span>
           </div>
           {task.description && (
-            <Text className="!text-gray-400 text-sm block">{task.description}</Text>
+            <Text className="!text-text-12 dark:text-text-12-dark text-sm block">{task.description}</Text>
           )}
         </div>
         <Switch
@@ -90,7 +90,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
       </div>
 
       {/* Info */}
-      <div className="flex items-center gap-4 text-xs text-gray-400 mb-3">
+      <div className="flex items-center gap-4 text-xs text-text-12 dark:text-text-12-dark mb-3">
         <span className="flex items-center gap-1">
           <ClockCircleOutlined />
           {getIntervalText(task)}
@@ -106,7 +106,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
           icon={<PlayCircleOutlined />}
           onClick={onExecuteNow}
           disabled={!task.enabled}
-          className="bg-white/5 border-white/10 text-gray-300 hover:bg-white/10 disabled:opacity-50"
+          className="!bg-white dark:!bg-white/5 !border-gray-200 dark:!border-white/10 !text-gray-700 dark:!text-gray-300 hover:!bg-gray-100 dark:hover:!bg-white/10 disabled:opacity-50"
         >
           {t('scheduled_tasks.run_now')}
         </Button>
@@ -114,7 +114,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
           size="small"
           icon={<HistoryOutlined />}
           onClick={onViewHistory}
-          className="bg-white/5 border-white/10 text-gray-300 hover:bg-white/10"
+          className="!bg-white dark:!bg-white/5 !border-gray-200 dark:!border-white/10 !text-gray-700 dark:!text-gray-300 hover:!bg-gray-100 dark:hover:!bg-white/10"
         >
           {t('scheduled_tasks.history')}
         </Button>
@@ -122,7 +122,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
           size="small"
           icon={<EditOutlined />}
           onClick={onEdit}
-          className="bg-white/5 border-white/10 text-gray-300 hover:bg-white/10"
+          className="!bg-white dark:!bg-white/5 !border-gray-200 dark:!border-white/10 !text-gray-700 dark:!text-gray-300 hover:!bg-gray-100 dark:hover:!bg-white/10"
         >
           {t('scheduled_tasks.edit')}
         </Button>
@@ -264,7 +264,7 @@ export const ScheduledTasksPanel: React.FC = () => {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <ClockCircleOutlined className="text-3xl text-green-400" />
-            <Title level={2} className="!text-white !mb-0">
+            <Title level={2} className="!text-text-01 dark:!text-text-01-dark !mb-0">
               {t('scheduled_tasks.title')}
             </Title>
           </div>
@@ -272,7 +272,7 @@ export const ScheduledTasksPanel: React.FC = () => {
             <Button
               icon={<ReloadOutlined />}
               onClick={handleReload}
-              className="bg-white/5 border-white/10 text-gray-300 hover:bg-white/10"
+              className="!bg-white dark:!bg-white/5 !border-gray-200 dark:!border-white/10 !text-gray-700 dark:!text-gray-300 hover:!bg-gray-100 dark:hover:!bg-white/10"
             >
               Reload
             </Button>
@@ -286,21 +286,21 @@ export const ScheduledTasksPanel: React.FC = () => {
             </Button>
           </div>
         </div>
-        <Paragraph className="!text-gray-300 !mb-0">
+        <Paragraph className="!text-text-12 dark:!text-text-12-dark !mb-0">
           {t('scheduled_tasks.description')}
         </Paragraph>
       </div>
 
       {/* Main content */}
       <div className="flex-1 min-h-0 p-8 pt-6">
-        <div className="bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 h-full flex flex-col">
+        <div className="bg-white dark:bg-white/5 backdrop-blur-sm rounded-lg border border-gray-200 dark:border-white/10 h-full flex flex-col">
           <div className="flex-1 min-h-0 overflow-y-auto p-6">
             {isLoading ? (
               <div className="flex items-center justify-center h-full">
                 <Spin size="large" />
               </div>
             ) : scheduledTasks.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-gray-400">
+              <div className="flex flex-col items-center justify-center h-full text-text-12 dark:text-text-12-dark">
                 <div className="text-5xl mb-4">
                   <ClockCircleOutlined />
                 </div>
@@ -317,7 +317,7 @@ export const ScheduledTasksPanel: React.FC = () => {
               </div>
             ) : (
               <div>
-                <Text className="!text-gray-400 text-sm block mb-4">
+                <Text className="!text-text-12 dark:text-text-12-dark text-sm block mb-4">
                   {scheduledTasks.length} task{scheduledTasks.length !== 1 ? 's' : ''} configured
                 </Text>
                 {scheduledTasks.map((task) => (

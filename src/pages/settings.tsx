@@ -9,7 +9,7 @@ import { SettingsLayout } from '@/components/settings/SettingsLayout';
 export default function SettingsPage() {
   return (
     <App>
-      <div className="min-h-screen h-screen bg-gradient-to-br from-[#0f0f23] via-[#1a1a2e] to-[#16213e] flex flex-col">
+      <div className="min-h-screen h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 dark:from-[#0f0f23] dark:via-[#1a1a2e] dark:to-[#16213e] flex flex-col">
         {/* Draggable header area for window control */}
         <div
           className="h-12 w-full flex-shrink-0"

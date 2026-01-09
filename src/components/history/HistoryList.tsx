@@ -138,7 +138,7 @@ export const HistoryList: React.FC<HistoryListProps> = ({
                   {item.taskType === 'scheduled' && (
                     <ClockCircleOutlined className="text-blue-500" />
                   )}
-                  <span className="text-sm font-medium truncate">
+                  <span className="text-sm font-medium truncate text-text-01 dark:text-text-01-dark">
                     {item.name}
                   </span>
                 </div>
@@ -146,7 +146,7 @@ export const HistoryList: React.FC<HistoryListProps> = ({
               </div>
             }
             description={
-              <div className="text-xs opacity-70">
+              <div className="text-xs text-text-12 dark:text-text-12-dark opacity-70">
                 <div className="flex items-center justify-between">
                   <span>{t('id_short')}: {item.id.slice(0, 16)}...</span>
                   {item.taskType === 'scheduled' && item.executionCount && !isTaskDetailMode && (

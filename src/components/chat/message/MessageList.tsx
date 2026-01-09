@@ -44,7 +44,7 @@ export const MessageItem: React.FC<MessageDisplayProps> = ({
     <div className='message-item mb-4'>
       {/* Outer container for left/right alignment */}
       <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
-        <div className={`text-text-01-dark ${isUser ? 'max-w-[80%]' : 'w-full'}`}>
+        <div className={`text-text-01 dark:text-text-01-dark ${isUser ? 'max-w-[80%]' : 'w-full'}`}>
           {messageContent}
         </div>
       </div>

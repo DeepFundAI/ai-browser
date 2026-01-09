@@ -93,7 +93,7 @@ export const SettingsSidebar: React.FC<SettingsSidebarProps> = ({
 
   return (
     <div
-      className="w-60 bg-white/5 backdrop-blur-sm border-r border-white/10 flex flex-col"
+      className="w-60 bg-gray-50 dark:bg-white/5 backdrop-blur-sm border-r border-gray-200 dark:border-white/10 flex flex-col"
       style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
     >
       {/* macOS traffic light spacer */}
@@ -111,8 +111,8 @@ export const SettingsSidebar: React.FC<SettingsSidebarProps> = ({
               'transition-all duration-200 ease-in-out',
               'hover:scale-[1.02] active:scale-[0.98]',
               activeTab === item.id
-                ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30 shadow-lg shadow-blue-500/10'
-                : 'text-gray-300 hover:bg-white/5 hover:text-white border border-transparent',
+                ? 'bg-blue-500/20 text-blue-600 dark:text-blue-300 border border-blue-500/30 shadow-lg shadow-blue-500/10'
+                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white border border-transparent',
               item.comingSoon && 'opacity-60'
             )}
           >
@@ -134,18 +134,18 @@ export const SettingsSidebar: React.FC<SettingsSidebarProps> = ({
       </div>
 
       {/* Bottom actions */}
-      <div className="p-4 border-t border-white/10 space-y-2">
+      <div className="p-4 border-t border-gray-200 dark:border-white/10 space-y-2">
         <Button
           block
           onClick={onImport}
-          className="bg-white/5 border-white/10 text-gray-200 hover:bg-white/10 hover:border-white/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+          className="!bg-gray-100 dark:!bg-white/5 !border-gray-300 dark:!border-white/10 !text-gray-700 dark:!text-gray-200 hover:!bg-gray-200 dark:hover:!bg-white/10 hover:!border-gray-400 dark:hover:!border-white/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
         >
           {t('import')}
         </Button>
         <Button
           block
           onClick={onExport}
-          className="bg-white/5 border-white/10 text-gray-200 hover:bg-white/10 hover:border-white/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+          className="!bg-gray-100 dark:!bg-white/5 !border-gray-300 dark:!border-white/10 !text-gray-700 dark:!text-gray-200 hover:!bg-gray-200 dark:hover:!bg-white/10 hover:!border-gray-400 dark:hover:!border-white/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
         >
           {t('export')}
         </Button>

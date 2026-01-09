@@ -87,7 +87,7 @@ const MessageFragmentGroup: React.FC<{
   return (
     <div className="message-item mb-4">
       <div className={`flex ${isUserMessage ? 'justify-end' : 'justify-start'}`}>
-        <div className={`text-text-01-dark ${isUserMessage ? 'max-w-[80%]' : 'w-full'}`}>
+        <div className={`text-text-01 dark:text-text-01-dark ${isUserMessage ? 'max-w-[80%]' : 'w-full'}`}>
           {isUserMessage && (
             <UserFragmentDisplay
               fragment={firstFragment}
@@ -158,7 +158,7 @@ const UserFragmentDisplay: React.FC<{
   const displayContent = shouldUseTypewriter ? typedText : fragment.content;
 
   return (
-    <div className="px-4 py-3 rounded-lg bg-message border border-border-message break-words">
+    <div className="px-4 py-3 rounded-lg bg-message dark:bg-message-dark border border-border-message dark:border-border-message-dark break-words">
       <span className="text-base whitespace-pre-wrap">{displayContent}</span>
     </div>
   );
@@ -235,12 +235,12 @@ const ThinkingFragmentDisplay: React.FC<{
   const displayText = shouldUseTypewriter ? typedText : fragment.content;
 
   return (
-    <div className="bg-thinking rounded-lg p-4">
+    <div className="bg-thinking dark:bg-thinking-dark rounded-lg p-4">
       <div className="flex items-center space-x-2 mb-3">
         <DeepThinking />
         <span className="text-white font-medium text-sm">{t('thinking')}</span>
       </div>
-      <div className="text-sm text-text-12-dark leading-relaxed">
+      <div className="text-sm text-text-12 dark:text-text-12-dark leading-relaxed">
         {displayText}
       </div>
     </div>
@@ -272,8 +272,8 @@ const AgentFragmentDisplay: React.FC<{
 
   if (fragment.type === 'agent-task') {
     return (
-      <div className="px-2 border-l-2 border-text-05-dark">
-        <div className="flex items-center gap-1 text-text-05-dark font-semibold">
+      <div className="px-2 border-l-2 border-text-05 dark:border-text-05-dark">
+        <div className="flex items-center gap-1 text-text-05 dark:text-text-05-dark font-semibold">
           <DeepThinking />
           {fragment.data.agentName} {t('agent')}
         </div>
@@ -285,7 +285,7 @@ const AgentFragmentDisplay: React.FC<{
   if (fragment.type === 'agent-node') {
     return (
       <div className="step-item flex items-center justify-start gap-2 mt-3">
-        <span className="font-semibold w-5 h-5 bg-step rounded-full flex items-center justify-center">
+        <span className="font-semibold w-5 h-5 bg-step dark:bg-step-dark rounded-full flex items-center justify-center">
           {fragment.data.nodeIndex + 1}
         </span>
         <span className="line-clamp-1 flex-1">{displayText}</span>
@@ -385,14 +385,14 @@ const ToolFragmentDisplay: React.FC<{
   return (
     <div className="inline-flex items-center gap-2">
       <div
-        className="inline-flex items-center gap-2 px-3 py-2 bg-tool-call rounded-md border text-xs border-border-message text-text-12-dark cursor-pointer hover:bg-opacity-80 transition-colors"
+        className="inline-flex items-center gap-2 px-3 py-2 bg-tool-call dark:bg-tool-call-dark rounded-md border text-xs border-border-message dark:border-border-message-dark text-text-12 dark:text-text-12-dark cursor-pointer hover:bg-opacity-80 transition-colors"
         onClick={() => onToolClick?.(toolMessage)}
       >
         {getToolIcon(toolMessage.toolName)}
         <span>{t('executing_tool', { toolName: toolMessage.toolName || 'tool' })}</span>
         {/* Only show loading indicator when executing */}
         {isExecuting && (
-          <Spin indicator={<LoadingOutlined spin style={{ color: '#3b82f6', fontSize: 14 }} />} size="small" />
+          <Spin indicator={<LoadingOutlined spin style={{ color: 'currentColor', fontSize: 14 }} />} size="small" />
         )}
       </div>
 
@@ -454,7 +454,7 @@ const TextFragmentDisplay: React.FC<{
 
   // If typing is complete, render with Markdown; otherwise show plain text
   return (
-    <div className="mb-3 text-sm text-text-12-dark leading-relaxed markdown-container">
+    <div className="mb-3 text-sm text-text-12 dark:text-text-12-dark leading-relaxed markdown-container">
       {isTypingComplete ? (
         <ReactMarkdown>{fragment.content}</ReactMarkdown>
       ) : (

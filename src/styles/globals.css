@@ -2,79 +2,113 @@
 @import "./markdown.css";
 @import url('https://fonts.googleapis.com/css2?family=Berkshire+Swash&display=swap');
 
+/* Define custom dark mode variant for Tailwind CSS 4.0 */
+@custom-variant dark (&:is(.dark *));
+
+/* Light theme (default) */
 :root {
   --background: #ffffff;
   --foreground: #171717;
 }
 
+/* Dark theme */
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+}
+
 @theme {
-  /* Vibrant tech-inspired gradient background with rich colors */
-  --background-image-main-view:
+  /* ===== Dark theme variables (with -dark suffix) ===== */
+
+  /* Main view background - dark gradient */
+  --background-image-main-view-dark:
     radial-gradient(ellipse at 15% 15%, rgba(59, 130, 246, 0.15) 0%, transparent 40%),
     radial-gradient(ellipse at 85% 20%, rgba(147, 51, 234, 0.12) 0%, transparent 45%),
     radial-gradient(ellipse at 20% 85%, rgba(16, 185, 129, 0.10) 0%, transparent 40%),
     radial-gradient(ellipse at 80% 80%, rgba(96, 165, 250, 0.08) 0%, transparent 50%),
     linear-gradient(135deg, #0a0e17 0%, #0d1117 30%, #050810 60%, #0a0e17 100%);
-  --background-image-main-view-header: rgba(255, 255, 255, 0.05);
-  --background-image-main-view-footer: rgba(0, 0, 0, 0.3);
+  --background-image-main-view-header-dark: rgba(255, 255, 255, 0.05);
+  --background-image-main-view-footer-dark: rgba(0, 0, 0, 0.3);
 
-  --background-image-icon-bg-common: rgba(255, 255, 255, 0.08);
-  --background-image-icon-bg-voice-open: rgba(59, 130, 246, 0.3);
+  --background-image-icon-bg-common-dark: rgba(255, 255, 255, 0.08);
+  --background-image-icon-bg-voice-open-dark: rgba(59, 130, 246, 0.3);
 
+  --shadow-tool-hover-dark: 0 0 20px rgba(59, 130, 246, 0.3);
+  --color-bg-tool-hover-dark: rgba(59, 130, 246, 0.15);
+  --color-border-tool-hover-dark: rgba(255, 255, 255, 0.2);
 
-  --shadow-tool-hover: 0 0 20px rgba(59, 130, 246, 0.3);
-  --color-bg-tool-hover: rgba(59, 130, 246, 0.15);
-  --color-border-tool-hover: rgba(255, 255, 255, 0.2);
-
-
-  --color-border-view-window-edge: rgba(255, 255, 255, 0.1);
-  --color-icon-bg-hangup: #991B1B;
-  --color-view-window-edge: rgba(255, 255, 255, 0.9);
-  --color-main-view-hover: rgba(0, 0, 0, 0.7);
+  --color-border-view-window-edge-dark: rgba(255, 255, 255, 0.1);
+  --color-icon-bg-hangup-dark: #991B1B;
+  --color-view-window-edge-dark: rgba(255, 255, 255, 0.9);
+  --color-main-view-hover-dark: rgba(0, 0, 0, 0.7);
 
   --my-font: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
 
-  /* Background colors - Fellou.ai inspired glass morphism */
-  /* Header */
-  --background-image-header: rgba(255, 255, 255, 0.03);
-  /* Message */
-  --background-image-message: rgba(255, 255, 255, 0.05);
-  /* Atlas AI assistant */
-  --background-image-atlas: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%);
-  /* Task execution button background */
+  /* Background colors - dark theme glass morphism */
+  --background-image-header-dark: rgba(255, 255, 255, 0.03);
+  --background-image-message-dark: rgba(255, 255, 255, 0.05);
+  --background-image-atlas-dark: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%);
+  --background-image-ask-status-dark: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+  --background-color-thinking-dark: rgba(255, 255, 255, 0.04);
+  --background-color-step-dark: #3B82F6;
+  --background-color-tool-call-dark: rgba(255, 255, 255, 0.03);
+
+  /* Border colors - dark theme */
+  --color-border-message-dark: rgba(255, 255, 255, 0.1);
+
+  /* ===== Light theme variables (without suffix) ===== */
+
+  /* Main view background - light gradient */
+  --background-image-main-view:
+    linear-gradient(135deg, #f9fafb 0%, #f3f4f6 30%, #e5e7eb 60%, #f9fafb 100%);
+  --background-image-main-view-header: rgba(255, 255, 255, 0.98);
+  --background-image-main-view-footer: rgba(255, 255, 255, 0.95);
+
+  --background-image-icon-bg-common: rgba(0, 0, 0, 0.05);
+  --background-image-icon-bg-voice-open: rgba(59, 130, 246, 0.15);
+
+  --shadow-tool-hover: 0 0 12px rgba(59, 130, 246, 0.2);
+  --color-bg-tool-hover: rgba(59, 130, 246, 0.1);
+  --color-border-tool-hover: #d1d5db;
+
+  --color-border-view-window-edge: #e5e7eb;
+  --color-icon-bg-hangup: #dc2626;
+  --color-view-window-edge: rgba(0, 0, 0, 0.8);
+  --color-main-view-hover: rgba(0, 0, 0, 0.05);
+
+  /* Background colors - light theme */
+  --background-image-header: rgba(255, 255, 255, 0.98);
+  --background-image-message: rgba(249, 250, 251, 0.95);
+  --background-image-atlas: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(147, 51, 234, 0.08) 100%);
   --background-image-ask-status: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
-  /* Deep thinking */
-  --background-color-thinking: rgba(255, 255, 255, 0.04);
-  /* Steps */
-  --background-color-step: #3B82F6;
-  /* Tool call background */
-  --background-color-tool-call: rgba(255, 255, 255, 0.03);
+  --background-color-thinking: rgba(0, 0, 0, 0.03);
+  --background-color-step: #3b82f6;
+  --background-color-tool-call: rgba(249, 250, 251, 0.95);
+
+  /* Border colors - light theme */
+  --color-border-message: #e5e7eb;
 
 
-  /* Border colors - Glass morphism style */
-  --color-border-message: rgba(255, 255, 255, 0.1);
-
-
-  /* Text colors (Light theme) */
+  /* Text colors (Light theme) - Higher contrast for better readability */
   /* Primary text */
-  --color-text-01: #131C30;
+  --color-text-01: #1f2937;
   /* Secondary text */
-  --color-text-02-01: #2A354E;
+  --color-text-02-01: #374151;
   /* Tertiary text */
-  --color-text-03: #545E71;
+  --color-text-03: #6b7280;
   /* Quaternary text */
-  --color-text-04: #A9B2BE;
+  --color-text-04: #9ca3af;
   /* Theme color */
-  --color-text-05: #3B82F6;
+  --color-text-05: #2563eb;
   /* Special colors */
-  --color-text-06: #EF4444;
-  --color-text-07: #F97316;
-  --color-text-08: #F59E0B;
-  --color-text-09: #10B981;
-  --color-text-10: #DC2626;
-  --color-text-11: #2A354E;
-  --color-text-12: #EF4444;
-  --color-text-13: #10B981;
+  --color-text-06: #dc2626;
+  --color-text-07: #ea580c;
+  --color-text-08: #d97706;
+  --color-text-09: #059669;
+  --color-text-10: #dc2626;
+  --color-text-11: #374151;
+  --color-text-12: #6b7280;
+  --color-text-13: #059669;
 
   /* Text colors (Dark theme) - Fellou.ai inspired */
   /* Primary text */
@@ -179,13 +213,6 @@
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
@@ -199,14 +226,26 @@ body,
   padding: 0;
   width: 100%;
   height: 100%;
-  /* Subtle tech-inspired background with minimal distraction */
+  background: var(--background);
+  background-attachment: fixed;
+}
+
+/* Dark theme: tech-inspired gradient background */
+.dark html,
+.dark body,
+.dark #__next {
   background:
     radial-gradient(ellipse at 50% 0%, rgba(59, 130, 246, 0.03) 0%, transparent 50%),
     radial-gradient(ellipse at 0% 100%, rgba(59, 130, 246, 0.02) 0%, transparent 40%),
     radial-gradient(ellipse at 100% 100%, rgba(96, 165, 250, 0.02) 0%, transparent 40%),
-    #000000;
-  background-color: #000000;
-  background-attachment: fixed;
+    var(--background);
+}
+
+/* Light theme: clean white background */
+html:not(.dark),
+body:not(.dark),
+#__next:not(.dark) {
+  background: var(--background);
 }
 
 /* Scrollbar track */

@@ -29,11 +29,11 @@ export const ToggleSetting: React.FC<ToggleSettingProps> = ({
   disabled = false
 }) => {
   return (
-    <div className="flex items-start justify-between py-4 border-b border-white/10 last:border-b-0">
+    <div className="flex items-start justify-between py-4 border-b border-gray-200 dark:border-white/10 last:border-b-0">
       <div className="flex-1 pr-4">
-        <Text className="!text-white font-medium">{label}</Text>
+        <Text className="!text-text-01 dark:!text-text-01-dark font-medium">{label}</Text>
         {description && (
-          <div className="text-sm text-gray-400 mt-1">{description}</div>
+          <div className="text-sm text-text-12 dark:text-text-12-dark mt-1">{description}</div>
         )}
       </div>
       <Switch

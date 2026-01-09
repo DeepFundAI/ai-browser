@@ -42,12 +42,12 @@ export const SliderSetting: React.FC<SliderSettingProps> = ({
     <div className="mb-6">
       <div className="flex items-center justify-between mb-2">
         <div>
-          <Text className="!text-white font-medium">{label}</Text>
+          <Text className="!text-text-01 dark:!text-text-01-dark font-medium">{label}</Text>
           {description && (
-            <div className="text-sm text-gray-400 mt-1">{description}</div>
+            <div className="text-sm text-text-12 dark:text-text-12-dark mt-1">{description}</div>
           )}
         </div>
-        <div className="text-white font-mono bg-white/10 px-3 py-1 rounded">
+        <div className="text-text-01 dark:text-text-01-dark font-mono bg-gray-100 dark:bg-white/10 px-3 py-1 rounded">
           {value}{unit}
         </div>
       </div>

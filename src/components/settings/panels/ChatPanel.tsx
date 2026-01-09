@@ -41,23 +41,23 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
       <div className="flex-shrink-0 p-8 pb-0">
         <div className="flex items-center gap-3 mb-4">
           <MessageOutlined className="text-3xl text-green-400" />
-          <Title level={2} className="!text-white !mb-0">
+          <Title level={2} className="!text-text-01 dark:!text-text-01-dark !mb-0">
             {t('chat.title')}
           </Title>
         </div>
-        <Paragraph className="!text-gray-300 !mb-0">
+        <Paragraph className="!text-text-12 dark:!text-text-12-dark !mb-0">
           {t('chat.description')}
         </Paragraph>
       </div>
 
       {/* Card container */}
       <div className="flex-1 min-h-0 p-8 pt-6">
-        <div className="bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 h-full flex flex-col">
+        <div className="bg-white dark:bg-white/5 backdrop-blur-sm rounded-lg border border-gray-200 dark:border-white/10 h-full flex flex-col">
           {/* Scrollable content inside card */}
           <div className="flex-1 min-h-0 overflow-y-auto p-6 space-y-6">
         {/* Model Parameters */}
         <div>
-          <Text className="!text-white text-lg font-semibold">{t('chat.model_parameters')}</Text>
+          <Text className="!text-text-01 dark:!text-text-01-dark text-lg font-semibold">{t('chat.model_parameters')}</Text>
           <div className="mt-4 space-y-4">
             <SliderSetting
               label={t('chat.temperature')}
@@ -82,11 +82,11 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
           </div>
         </div>
 
-        <Divider className="!border-white/10" />
+        <Divider className="!border-gray-200 dark:border-white/10" />
 
         {/* Response Settings */}
         <div>
-          <Text className="!text-white text-lg font-semibold">{t('chat.response_settings')}</Text>
+          <Text className="!text-text-01 dark:!text-text-01-dark text-lg font-semibold">{t('chat.response_settings')}</Text>
           <div className="mt-4">
             <ToggleSetting
               label={t('chat.show_token_usage')}
@@ -97,11 +97,11 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
           </div>
         </div>
 
-        <Divider className="!border-white/10" />
+        <Divider className="!border-gray-200 dark:border-white/10" />
 
         {/* History Settings */}
         <div>
-          <Text className="!text-white text-lg font-semibold">{t('chat.history_settings')}</Text>
+          <Text className="!text-text-01 dark:!text-text-01-dark text-lg font-semibold">{t('chat.history_settings')}</Text>
           <div className="mt-4 space-y-4">
             <ToggleSetting
               label={t('chat.auto_save_history')}

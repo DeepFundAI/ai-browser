@@ -26,7 +26,7 @@ export const DensitySelector: React.FC<DensitySelectorProps> = ({
 
   return (
     <div>
-      <div className="text-white font-medium mb-3">{label}</div>
+      <div className="text-text-01 dark:text-text-01-dark font-medium mb-3">{label}</div>
       <div className="grid grid-cols-3 gap-3">
         {densities.map(density => (
           <button
@@ -37,14 +37,14 @@ export const DensitySelector: React.FC<DensitySelectorProps> = ({
               h-20 rounded-lg border-2 transition-all
               ${value === density.value
                 ? 'border-blue-500 bg-blue-500/10'
-                : 'border-white/10 bg-white/5 hover:bg-white/10'
+                : 'border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10'
               }
             `}
           >
-            <div className={`text-sm font-medium mb-1 ${value === density.value ? 'text-white' : 'text-gray-300'}`}>
+            <div className={`text-sm font-medium mb-1 ${value === density.value ? 'text-text-01 dark:text-text-01-dark' : 'text-gray-700 dark:text-gray-300'}`}>
               {density.label}
             </div>
-            <div className={`text-xs ${value === density.value ? 'text-gray-300' : 'text-gray-500'}`}>
+            <div className={`text-xs ${value === density.value ? 'text-text-12 dark:text-text-12-dark' : 'text-gray-500 dark:text-gray-500'}`}>
               {density.description}
             </div>
           </button>

@@ -76,23 +76,23 @@ export default function Home() {
         <>
             <ChromeBrowserBackground/>
             <Header />
-            <div className='bg-main-view bg-origin-padding bg-no-repeat bg-cover h-[calc(100%_-_48px)] overflow-y-auto text-text-01-dark flex flex-col'>
+            <div className='bg-main-view dark:bg-main-view-dark bg-origin-padding bg-no-repeat bg-cover h-[calc(100%_-_48px)] overflow-y-auto text-text-01 dark:text-text-01-dark flex flex-col'>
                 <div className='flex flex-col items-center pt-[130px] w-full h-full overflow-y-auto z-10'>
                     {/* Greeting */}
-                    <div className='text-left leading-10 text-text-01-dark text-[28px] font-bold'>
+                    <div className='text-left leading-10 text-text-01 dark:text-text-01-dark text-[28px] font-bold'>
                         <div>{t('greeting_name')}</div>
                         <p>{t('greeting_intro')}</p>
                     </div>
 
                     {/* Unified Input Area: Query Input with Model Selector */}
                     <div className='gradient-border w-[740px] mt-[30px]' style={{ height: 'auto' }}>
-                        <div className='bg-tool-call rounded-xl w-full h-full p-4'>
-                            <div className='relative h-[160px] border border-solid border-white/20 rounded'>
+                        <div className='bg-tool-call dark:bg-tool-call-dark rounded-xl w-full h-full p-4'>
+                            <div className='relative h-[160px] border border-solid border-gray-300 dark:border-white/20 rounded'>
                                 <Input.TextArea
                                     value={query}
                                     onChange={(e) => setQuery(e.target.value)}
                                     onKeyDown={handleKeyDown}
-                                    className='!h-full !bg-transparent !text-text-01-dark !placeholder-text-12-dark !py-3 !px-4 !pb-12 !pr-20 !border-none !outline-none focus:!shadow-none'
+                                    className='!h-full !bg-transparent !text-text-01 dark:!text-text-01-dark !placeholder-text-12 dark:!placeholder-text-12-dark !py-3 !px-4 !pb-12 !pr-20 !border-none !outline-none focus:!shadow-none'
                                     placeholder={t('input_placeholder')}
                                     autoSize={false}
                                 />
@@ -132,7 +132,7 @@ export default function Home() {
                 </div>
 
                 {/* Bottom background decoration */}
-                <div className='absolute bottom-0 w-full h-[212px] bg-main-view-footer bg-cover bg-no-repeat bg-center'></div>
+                <div className='absolute bottom-0 w-full h-[212px] bg-main-view-footer dark:bg-main-view-footer-dark bg-cover bg-no-repeat bg-center'></div>
             </div>
 
             {/* Scheduled task related components */}

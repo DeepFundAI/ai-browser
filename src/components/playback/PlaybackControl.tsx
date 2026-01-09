@@ -38,7 +38,7 @@ export const PlaybackControl: React.FC<PlaybackControlProps> = ({
   };
 
   return (
-    <div className="h-full flex items-center justify-center bg-tool-call rounded-xl">
+    <div className="h-full flex items-center justify-center bg-tool-call dark:bg-tool-call-dark rounded-xl">
       <Button
         type="primary"
         size="large"

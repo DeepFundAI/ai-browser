@@ -100,8 +100,8 @@ export const ScheduleConfigEditor: React.FC<ScheduleConfigEditorProps> = ({ valu
         </Form.Item>
       )}
 
-      <div className="mt-4 p-3 bg-tool-call rounded border border-border-message">
-        <div className="text-sm text-text-12-dark">
+      <div className="mt-4 p-3 bg-tool-call dark:bg-tool-call-dark rounded border border-border-message dark:border-border-message-dark">
+        <div className="text-sm text-text-12 dark:text-text-12-dark">
           <strong>{t('execution_rule')}</strong>
           {scheduleType === 'interval' ? getIntervalText() : t('execute_by_cron')}
         </div>

@@ -32,27 +32,27 @@ export const DetailPanel: React.FC<DetailPanelProps> = ({
   const { t } = useTranslation('main');
 
   return (
-    <div className='h-full transition-all pt-5 pb-4 pr-4 duration-300 text-text-01-dark' style={{ width: showDetail ? '800px' : '0px' }}>
+    <div className='h-full transition-all pt-5 pb-4 pr-4 duration-300 text-text-01 dark:text-text-01-dark' style={{ width: showDetail ? '800px' : '0px' }}>
       {showDetail && (
-        <div className='h-full border-border-message border flex flex-col rounded-xl'>
+        <div className='h-full border-border-message dark:border-border-message-dark border flex flex-col rounded-xl'>
           {/* Detail panel title */}
           <div className='p-4'>
             <h3 className='text-xl font-semibold'>{t('atlas_computer')}</h3>
-            <div className='flex flex-col items-start justify-centerce px-5 py-3 gap-3 border-border-message border rounded-md h-[80px] bg-tool-call mt-3'>
+            <div className='flex flex-col items-start justify-centerce px-5 py-3 gap-3 border-border-message dark:border-border-message-dark border rounded-md h-[80px] bg-tool-call dark:bg-tool-call-dark mt-3'>
               {currentTool && (
                 <>
-                  <div className='border-b w-full border-dashed border-border-message flex items-center'>
+                  <div className='border-b w-full border-dashed border-border-message dark:border-border-message-dark flex items-center'>
                     {t('atlas_using_tool')}
                     <div className={`w-2 h-2 ml-2 rounded-full ${
                       currentTool.status === 'running' ? 'bg-blue-500 animate-pulse' :
                       currentTool.status === 'completed' ? 'bg-green-500' : 'bg-red-500'
                     }`}></div>
-                    <span className='ml-1 text-xs text-text-12-dark'>
+                    <span className='ml-1 text-xs text-text-12 dark:text-text-12-dark'>
                       {currentTool.status === 'running' ? t('running') :
                        currentTool.status === 'completed' ? t('completed') : t('execution_error')}
                     </span>
                   </div>
-                  <h3 className='text-sm text-text-12-dark'>
+                  <h3 className='text-sm text-text-12 dark:text-text-12-dark'>
                     {currentTool.toolName} - {currentTool.operation}
                   </h3>
                 </>
@@ -62,21 +62,21 @@ export const DetailPanel: React.FC<DetailPanelProps> = ({
 
           {/* Detail panel content area - reserved space */}
           <div className='p-4 pt-0 flex-1 '>
-            <div className='border-border-message border rounded-md h-full flex flex-col'>
-              <div className='h-[42px] bg-tool-call rounded-md flex items-center justify-center p-2'>
+            <div className='border-border-message dark:border-border-message-dark border rounded-md h-full flex flex-col'>
+              <div className='h-[42px] bg-tool-call dark:bg-tool-call-dark rounded-md flex items-center justify-center p-2'>
                 {currentUrl && (
-                  <div className='text-xs text-text-12-dark line-clamp-1'>
+                  <div className='text-xs text-text-12 dark:text-text-12-dark line-clamp-1'>
                     {currentUrl}
                   </div>
                 )}
               </div>
               <div className='flex-1'></div>
-              <div className='h-[42px] bg-tool-call rounded-md flex items-center px-3'>
+              <div className='h-[42px] bg-tool-call dark:bg-tool-call-dark rounded-md flex items-center px-3'>
                 {/* Tool call progress bar */}
                 {toolHistory.length > 0 && (
                   <div className='flex-1 flex items-center gap-2'>
                     {/* Forward/Backward button group */}
-                    <div className='flex items-center border border-border-message rounded'>
+                    <div className='flex items-center border border-border-message dark:border-border-message-dark rounded'>
                       <Button
                         type="text"
                         size="small"
@@ -94,7 +94,7 @@ export const DetailPanel: React.FC<DetailPanelProps> = ({
                         size="small"
                         disabled={currentHistoryIndex === -1}
                         onClick={() => onHistoryIndexChange(currentHistoryIndex + 1)}
-                        className='!border-0 !rounded-l-none border-l border-border-message'
+                        className='!border-0 !rounded-l-none border-l border-border-message dark:border-border-message-dark'
                       >
                         <StepUpDown className='rotate-180 w-3 h-3' />
                       </Button>
@@ -119,7 +119,7 @@ export const DetailPanel: React.FC<DetailPanelProps> = ({
                       }}
                     />
 
-                    <span className='text-xs text-text-12-dark'>
+                    <span className='text-xs text-text-12 dark:text-text-12-dark'>
                       {t('realtime')}
                     </span>
                   </div>
