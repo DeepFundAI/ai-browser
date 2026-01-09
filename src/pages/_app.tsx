@@ -66,6 +66,15 @@ export default function MyApp({ Component, pageProps }: AppProps) {
     }
   }, [settings, setLanguage]);
 
+  // Apply font size to root element
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const fontSize = settings?.ui?.fontSize || 14;
+    document.documentElement.style.fontSize = `${fontSize}px`;
+    logger.debug(`Font size updated to: ${fontSize}px`, 'App');
+  }, [settings?.ui?.fontSize]);
+
   return (
     <ConfigProvider theme={themeConfig} locale={antdLocale}>
       <App className="h-full">
