@@ -1,5 +1,8 @@
+"use client";
+
+import { usePathname, useSearchParams } from 'next/navigation';
 import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 import Header from '@/components/Header'
 import { Button, App } from 'antd'
 import { CaretRightOutlined, PauseOutlined } from '@ant-design/icons'
@@ -27,7 +30,10 @@ export default function main() {
     const { t } = useTranslation('main');
     const { message: antdMessage } = App.useApp();
     const router = useRouter();
-    const { taskId: urlTaskId, executionId: urlExecutionId } = router.query;
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+    const urlTaskId = searchParams.get('taskId');
+    const urlExecutionId = searchParams.get('executionId');
 
     // Check if in task detail mode (opened from scheduled task window)
     const isTaskDetailMode = !!urlTaskId && !!urlExecutionId;

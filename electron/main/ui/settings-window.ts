@@ -2,7 +2,7 @@ import { app, BrowserWindow } from 'electron';
 import path from 'node:path';
 import { isDev } from '../utils/constants';
 import { store } from '../utils/store';
-import { setWindowUserAgent } from './window';
+import { applyClientConfigToWindow } from '../utils/client-config';
 
 let settingsWindow: BrowserWindow | null = null;
 
@@ -58,8 +58,8 @@ export function openSettingsWindow(panel?: string) {
     },
   });
 
-  // Set UserAgent with app settings
-  setWindowUserAgent(settingsWindow);
+  // Apply client configuration via cookies
+  applyClientConfigToWindow(settingsWindow);
 
   // Load settings page with optional panel hash
   const hash = panel ? `#${panel}` : '';

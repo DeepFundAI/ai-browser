@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from 'react';
 import { Card, Typography, Button, Tag, App } from 'antd';
 import {
@@ -8,7 +10,7 @@ import {
   ThunderboltOutlined,
   ArrowLeftOutlined
 } from '@ant-design/icons';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import AgentConfigModal from '@/components/AgentConfigModal';
 import { ScheduledTaskListModal } from '@/components/scheduled-task/ScheduledTaskListModal';
@@ -126,7 +128,7 @@ export default function ToolboxPage() {
         <Button
           type="text"
           icon={<ArrowLeftOutlined />}
-          onClick={() => router.push('/home')}
+          onClick={() => router.push('/')}
           style={{
             color: '#fff',
             fontSize: '14px',

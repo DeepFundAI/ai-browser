@@ -1,6 +1,6 @@
-import { NextApiRequest, NextApiResponse } from 'next';
+import { NextRequest, NextResponse } from 'next/server';
 import mcpToolManager from '@/services/mcp';
-import { sendSseMessage, getClientCount } from './sse';
+import { sendSseMessage, getClientCount } from '../sse/route';
 import { logger } from '@/utils/logger';
 
 interface McpListToolParam {
@@ -19,18 +19,15 @@ interface McpCallToolParam {
   extInfo?: Record<string, any>;
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
+export async function POST(req: NextRequest) {
   try {
-    const { jsonrpc, id, method, params } = req.body;
+    const body = await req.json();
+    const { jsonrpc, id, method, params } = body;
 
     logger.debug(`Received ${method} request`, 'McpMessageAPI', { id, params });
 
     let result: any;
-    
+
     switch (method) {
       case 'initialize':
         result = {
@@ -64,34 +61,35 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         throw new Error(`Unknown method: ${method}`);
     }
 
-    // Send response
-    res.status(200).send('Accepted');
-
     // Check if there are active SSE connections
     if (getClientCount() === 0) {
       logger.warn(`No SSE clients connected for message ${id}`, 'McpMessageAPI');
-      return;
+    } else {
+      // Send result via SSE, add brief delay to ensure SSE connection is ready
+      setTimeout(() => {
+        try {
+          sendSseMessage(id, { jsonrpc, id, result });
+        } catch (error) {
+          logger.error(`Failed to send SSE message for ${id}`, error, 'McpMessageAPI');
+        }
+      }, 50);
     }
 
-    // Send result via SSE, add brief delay to ensure SSE connection is ready
-    setTimeout(() => {
-      try {
-        sendSseMessage(id, { jsonrpc, id, result });
-      } catch (error) {
-        logger.error(`Failed to send SSE message for ${id}`, error, 'McpMessageAPI');
-      }
-    }, 50);
+    return NextResponse.json({ status: 'Accepted' });
 
   } catch (error) {
     logger.error('Error handling request', error, 'McpMessageAPI');
-    res.status(500).json({
-      jsonrpc: '2.0',
-      id: req.body.id,
-      error: {
-        code: -32603,
-        message: error instanceof Error ? error.message : 'Internal error'
-      }
-    });
+    return NextResponse.json(
+      {
+        jsonrpc: '2.0',
+        id: (await req.json()).id,
+        error: {
+          code: -32603,
+          message: error instanceof Error ? error.message : 'Internal error'
+        }
+      },
+      { status: 500 }
+    );
   }
 }
 
@@ -113,4 +111,4 @@ async function handleCallTool(params: McpCallToolParam): Promise<any> {
     logger.error(`Error executing tool ${name}`, error, 'McpMessageAPI');
     throw error;
   }
-} 
+}

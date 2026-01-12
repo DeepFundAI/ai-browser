@@ -8,7 +8,7 @@
 import { app, BrowserWindow } from 'electron';
 import type { AppSettings, GeneralSettings, NetworkSettings, UISettings } from '../models';
 import { SettingsManager } from './settings-manager';
-import { setWindowUserAgent } from '../ui/window';
+import { updateAllWindowsConfig } from './client-config';
 
 /**
  * Singleton settings watcher
@@ -207,7 +207,7 @@ export class SettingsWatcher {
 
     if (themeChanged || fontSizeChanged || densityChanged) {
       console.log('[SettingsWatcher] UI settings changed, updating all windows UserAgent');
-      this.updateAllWindowsUserAgent();
+      updateAllWindowsConfig();
     }
   }
 
@@ -220,25 +220,6 @@ export class SettingsWatcher {
     void ui;
   }
 
-  /**
-   * Update UserAgent for all open windows
-   * Called when UI settings (theme, fontSize, density) change
-   */
-  private updateAllWindowsUserAgent(): void {
-    const allWindows = BrowserWindow.getAllWindows();
-
-    if (allWindows.length === 0) {
-      return;
-    }
-
-    allWindows.forEach((window) => {
-      if (!window.isDestroyed()) {
-        setWindowUserAgent(window);
-      }
-    });
-
-    console.log(`[SettingsWatcher] Updated UserAgent for ${allWindows.length} window(s)`);
-  }
 
   /**
    * Get current settings (read-only access for other modules)

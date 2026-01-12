@@ -1,15 +1,11 @@
-import { NextApiRequest, NextApiResponse } from 'next';
+import { NextResponse } from 'next/server';
 import mcpToolManager from '@/services/mcp';
-import { getClientCount } from './sse';
+import { getClientCount } from '../sse/route';
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
+export async function GET() {
   const tools = mcpToolManager.getTools();
-  
-  res.json({
+
+  return NextResponse.json({
     status: 'ok',
     tools: tools.map(t => t.name),
     connectedClients: getClientCount(),
@@ -20,4 +16,4 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       totalTools: tools.length
     }
   });
-} 
+}

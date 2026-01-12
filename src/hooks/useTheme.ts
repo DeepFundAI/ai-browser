@@ -15,17 +15,17 @@ export interface UseThemeReturn {
   effectiveTheme: 'light' | 'dark';
 }
 
-/**
- * Dynamic theme hook with system preference support
- */
-// Parse theme from UserAgent (set by Electron)
-const getThemeFromUserAgent = (): 'light' | 'dark' | 'system' => {
+const getInitialTheme = (): 'light' | 'dark' | 'system' => {
   if (typeof window === 'undefined') return 'dark';
 
-  const ua = navigator.userAgent;
-  const themeMatch = ua.match(/theme\/([a-z]+)/);
-  if (themeMatch?.[1]) {
-    return themeMatch[1] as 'light' | 'dark' | 'system';
+  const initialConfig = (window as any).__INITIAL_CONFIG__;
+  if (initialConfig?.theme) {
+    return initialConfig.theme as 'light' | 'dark' | 'system';
+  }
+
+  const htmlTheme = document.documentElement.getAttribute('data-theme');
+  if (htmlTheme === 'light' || htmlTheme === 'dark') {
+    return htmlTheme;
   }
 
   return 'dark';
@@ -33,15 +33,13 @@ const getThemeFromUserAgent = (): 'light' | 'dark' | 'system' => {
 
 export const useTheme = (): UseThemeReturn => {
   const { settings } = useSettingsStore();
-  const themeMode = settings?.ui?.theme || getThemeFromUserAgent();
+  const themeMode = settings?.ui?.theme || getInitialTheme();
 
-  // Track system theme preference
   const [systemTheme, setSystemTheme] = useState<'light' | 'dark'>(() => {
     if (typeof window === 'undefined') return 'dark';
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   });
 
-  // Listen to system theme changes (only when mode is 'system')
   useEffect(() => {
     if (themeMode !== 'system' || typeof window === 'undefined') return;
 
@@ -54,16 +52,13 @@ export const useTheme = (): UseThemeReturn => {
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, [themeMode]);
 
-  // Compute effective theme mode
   const effectiveMode = themeMode === 'system' ? systemTheme : themeMode;
 
-  // Update HTML data-theme attribute and class for CSS switching
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     document.documentElement.setAttribute('data-theme', effectiveMode);
 
-    // Add/remove 'dark' class for Tailwind dark mode
     if (effectiveMode === 'dark') {
       document.documentElement.classList.add('dark');
       document.documentElement.classList.remove('light');
@@ -73,7 +68,6 @@ export const useTheme = (): UseThemeReturn => {
     }
   }, [effectiveMode]);
 
-  // Return theme configuration and effective theme
   return {
     themeConfig: effectiveMode === 'dark' ? darkTheme : lightTheme,
     effectiveTheme: effectiveMode,

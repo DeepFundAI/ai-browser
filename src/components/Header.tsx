@@ -1,14 +1,19 @@
+'use client';
+
 import React from 'react'
 import { Button } from 'antd'
 import { HistoryOutlined, ToolOutlined, SettingOutlined } from '@ant-design/icons'
-import { useRouter } from 'next/router'
+import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import { HistoryPanel } from '@/components/history'
 import { useHistoryStore } from '@/stores/historyStore'
 import { useTranslation } from 'react-i18next'
 
 export default function Header() {
   const router = useRouter()
-  const { taskId, executionId } = router.query
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const taskId = searchParams.get('taskId')
+  const executionId = searchParams.get('executionId')
   const { t } = useTranslation('header')
 
   // Check if in scheduled task detail mode
@@ -26,7 +31,7 @@ export default function Header() {
     selectHistoryTask(task);
 
     // If not on main page, navigate to it
-    if (router.pathname !== '/main') {
+    if (pathname !== '/main') {
       router.push('/main');
     }
   }
@@ -60,7 +65,7 @@ export default function Header() {
       )}
       <div className='flex justify-center items-center gap-4'>
         {/* Toolbox button - only show in home page */}
-        {!isTaskDetailMode && (router.pathname === '/home' || router.pathname === '/') && (
+        {!isTaskDetailMode && (pathname === '/home' || pathname === '/') && (
           <Button
             type="text"
             icon={<ToolOutlined />}

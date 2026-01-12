@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect } from 'react';
 import { Tabs, App, Spin } from 'antd';
 import type { AgentConfig, McpToolSchema } from '@/types';

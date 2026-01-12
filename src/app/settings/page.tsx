@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 import { App } from 'antd';
 import { SettingsLayout } from '@/components/settings/SettingsLayout';

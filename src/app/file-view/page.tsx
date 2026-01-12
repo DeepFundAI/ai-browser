@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect, useRef } from 'react';
 import { Layout, Typography, Button, Space, Spin, App } from 'antd';
 import { twMerge } from 'tailwind-merge';
@@ -254,7 +256,7 @@ export default function FileView() {
         ) : (
           <iframe src={fileState.url} className="flex-1 bg-white rounded-b-lg border border-[rgba(255,255,255,0.1)] border-t-0" />
         )}
-        
+
       </Content>
     </Layout>
   );
