@@ -7,7 +7,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { isEqual } from 'lodash';
-import { AppSettings, GeneralSettings, ChatSettings, UISettings, NetworkSettings, ProviderConfig } from '@/models/settings';
+import { AppSettings, GeneralSettings, ChatSettings, UISettings, NetworkSettings, AgentSettings, ProviderConfig } from '@/models/settings';
 import { getDefaultSettings } from '@/config/settings-defaults';
 
 export function useSettingsState() {
@@ -180,6 +180,21 @@ export function useSettingsState() {
     });
   }, []);
 
+  /**
+   * Update agent settings
+   */
+  const updateAgent = useCallback((
+    newAgent: AgentSettings | ((prev: AgentSettings) => AgentSettings)
+  ) => {
+    setCurrentConfigs(prev => {
+      if (!prev) return prev;
+      const agent = typeof newAgent === 'function'
+        ? newAgent(prev.agent)
+        : newAgent;
+      return { ...prev, agent };
+    });
+  }, []);
+
   const saveConfigs = useCallback(async () => {
     if (!currentConfigs) return;
 
@@ -214,6 +229,7 @@ export function useSettingsState() {
     providers: currentConfigs?.providers ?? null,
     general: currentConfigs?.general ?? null,
     chat: currentConfigs?.chat ?? null,
+    agent: currentConfigs?.agent ?? null,
     ui: currentConfigs?.ui ?? null,
     network: currentConfigs?.network ?? null,
     loading,
@@ -225,6 +241,7 @@ export function useSettingsState() {
     removeProvider,
     updateGeneral,
     updateChat,
+    updateAgent,
     updateUI,
     updateNetwork,
     saveConfigs,

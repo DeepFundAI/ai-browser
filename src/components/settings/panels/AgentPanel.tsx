@@ -5,15 +5,14 @@
  * POSITION: Fourth tab in settings window for agent behavior management
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   RobotOutlined,
   GlobalOutlined,
   FolderOutlined,
-  ToolOutlined,
-  ReloadOutlined
+  ToolOutlined
 } from '@ant-design/icons';
-import { Typography, Switch, Input, Button, Spin, App } from 'antd';
+import { Typography, Switch, Input, Spin, App } from 'antd';
 import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
 import type { AgentConfig, McpToolSchema } from '@/types';
@@ -89,129 +88,106 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, onToggle }) => {
   );
 };
 
+interface AgentPanelProps {
+  settings?: AgentConfig;
+  onSettingsChange?: (settings: AgentConfig) => void;
+}
+
 /**
  * Agent configuration panel (Toolbox integration)
  */
-export const AgentPanel: React.FC = () => {
+export const AgentPanel: React.FC<AgentPanelProps> = ({
+  settings,
+  onSettingsChange
+}) => {
   const { t } = useTranslation('settings');
   const { message } = App.useApp();
   const [activeTab, setActiveTab] = useState<AgentTab>('browser');
   const [loading, setLoading] = useState(false);
-  const [config, setConfig] = useState<AgentConfig>({
-    browserAgent: { enabled: true, customPrompt: '' },
-    fileAgent: { enabled: true, customPrompt: '' },
-    mcpTools: {}
-  });
   const [mcpTools, setMcpTools] = useState<McpToolSchema[]>([]);
-  const [hasChanges, setHasChanges] = useState(false);
 
-  // Load configuration
-  const loadConfiguration = useCallback(async () => {
+  // Load MCP tools on mount
+  useEffect(() => {
+    loadMcpTools();
+  }, []);
+
+  const loadMcpTools = async () => {
     setLoading(true);
     try {
-      const agentResult = await window.api.getAgentConfig();
-      if (agentResult?.success && agentResult.data?.agentConfig) {
-        setConfig(agentResult.data.agentConfig);
-      }
-
       const toolsResult = await window.api.getMcpTools();
       if (toolsResult?.success && toolsResult.data?.tools) {
         setMcpTools(toolsResult.data.tools);
       }
     } catch (error) {
-      console.error('Failed to load agent config:', error);
+      console.error('Failed to load MCP tools:', error);
       message.error(t('agent.load_failed'));
     } finally {
       setLoading(false);
     }
-  }, [message, t]);
-
-  useEffect(() => {
-    loadConfiguration();
-  }, [loadConfiguration]);
+  };
 
   // Handle browser agent toggle
   const handleBrowserAgentToggle = (enabled: boolean) => {
-    setConfig(prev => ({
-      ...prev,
-      browserAgent: { ...prev.browserAgent, enabled }
-    }));
-    setHasChanges(true);
+    if (!settings || !onSettingsChange) return;
+    onSettingsChange({
+      ...settings,
+      browserAgent: { ...settings.browserAgent, enabled }
+    });
   };
 
   // Handle browser agent prompt change
   const handleBrowserPromptChange = (value: string) => {
-    setConfig(prev => ({
-      ...prev,
-      browserAgent: { ...prev.browserAgent, customPrompt: value }
-    }));
-    setHasChanges(true);
+    if (!settings || !onSettingsChange) return;
+    onSettingsChange({
+      ...settings,
+      browserAgent: { ...settings.browserAgent, customPrompt: value }
+    });
   };
 
   // Handle file agent toggle
   const handleFileAgentToggle = (enabled: boolean) => {
-    setConfig(prev => ({
-      ...prev,
-      fileAgent: { ...prev.fileAgent, enabled }
-    }));
-    setHasChanges(true);
+    if (!settings || !onSettingsChange) return;
+    onSettingsChange({
+      ...settings,
+      fileAgent: { ...settings.fileAgent, enabled }
+    });
   };
 
   // Handle file agent prompt change
   const handleFilePromptChange = (value: string) => {
-    setConfig(prev => ({
-      ...prev,
-      fileAgent: { ...prev.fileAgent, customPrompt: value }
-    }));
-    setHasChanges(true);
+    if (!settings || !onSettingsChange) return;
+    onSettingsChange({
+      ...settings,
+      fileAgent: { ...settings.fileAgent, customPrompt: value }
+    });
   };
 
-  // Handle tool toggle
+  // Handle tool toggle - immediate save for MCP tools
   const handleToolToggle = async (toolName: string, enabled: boolean) => {
     try {
-      // Update local state
-      setConfig(prev => ({
-        ...prev,
-        mcpTools: {
-          ...prev.mcpTools,
-          [toolName]: { ...prev.mcpTools[toolName], enabled }
-        }
-      }));
-
-      // Update tools list
+      // Update tools list UI
       setMcpTools(prev =>
         prev.map(tool =>
           tool.name === toolName ? { ...tool, enabled } : tool
         )
       );
 
-      // Save to backend immediately
+      // Save to backend immediately (MCP tools need real-time effect)
       await window.api.setMcpToolEnabled(toolName, enabled);
+
+      // Also update the settings object for export/import consistency
+      if (settings && onSettingsChange) {
+        onSettingsChange({
+          ...settings,
+          mcpTools: {
+            ...settings.mcpTools,
+            [toolName]: { ...settings.mcpTools[toolName], enabled }
+          }
+        });
+      }
     } catch (error: any) {
       message.error('Failed to update tool: ' + error.message);
     }
-  };
-
-  // Save configuration
-  const handleSave = async () => {
-    try {
-      const result = await window.api.saveAgentConfig(config);
-      if (result?.success) {
-        message.success(t('agent.changes_saved'));
-        setHasChanges(false);
-      } else {
-        message.error(t('agent.load_failed'));
-      }
-    } catch (error) {
-      message.error(t('agent.load_failed'));
-    }
-  };
-
-  // Reload configuration
-  const handleReload = async () => {
-    await loadConfiguration();
-    setHasChanges(false);
-    message.success(t('agent.changes_saved'));
   };
 
   const tabs: { id: AgentTab; labelKey: string; icon: React.ReactNode }[] = [
@@ -222,7 +198,7 @@ export const AgentPanel: React.FC = () => {
 
   // Render content based on active tab
   const renderContent = () => {
-    if (loading) {
+    if (loading || !settings) {
       return (
         <div className="flex items-center justify-center h-full">
           <Spin size="large" />
@@ -243,7 +219,7 @@ export const AgentPanel: React.FC = () => {
                 </Text>
               </div>
               <Switch
-                checked={config.browserAgent.enabled}
+                checked={settings.browserAgent?.enabled ?? true}
                 onChange={handleBrowserAgentToggle}
               />
             </div>
@@ -267,11 +243,11 @@ export const AgentPanel: React.FC = () => {
                 Add custom instructions to extend the Browser Agent's capabilities
               </Text>
               <TextArea
-                value={config.browserAgent.customPrompt}
+                value={settings.browserAgent?.customPrompt ?? ''}
                 onChange={(e) => handleBrowserPromptChange(e.target.value)}
                 placeholder={t('agent.custom_prompt_placeholder')}
                 rows={6}
-                disabled={!config.browserAgent.enabled}
+                disabled={!(settings.browserAgent?.enabled ?? true)}
                 className="bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-text-01 dark:text-text-01-darkplaceholder-gray-500"
               />
             </div>
@@ -290,7 +266,7 @@ export const AgentPanel: React.FC = () => {
                 </Text>
               </div>
               <Switch
-                checked={config.fileAgent.enabled}
+                checked={settings.fileAgent?.enabled ?? true}
                 onChange={handleFileAgentToggle}
               />
             </div>
@@ -314,11 +290,11 @@ export const AgentPanel: React.FC = () => {
                 Add custom instructions to extend the File Agent's capabilities
               </Text>
               <TextArea
-                value={config.fileAgent.customPrompt}
+                value={settings.fileAgent?.customPrompt ?? ''}
                 onChange={(e) => handleFilePromptChange(e.target.value)}
                 placeholder={t('agent.custom_prompt_placeholder')}
                 rows={6}
-                disabled={!config.fileAgent.enabled}
+                disabled={!(settings.fileAgent?.enabled ?? true)}
                 className="bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-text-01 dark:text-text-01-darkplaceholder-gray-500"
               />
             </div>
@@ -363,32 +339,11 @@ export const AgentPanel: React.FC = () => {
     <div className="flex flex-col h-full">
       {/* Fixed header */}
       <div className="flex-shrink-0 p-8 pb-0">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <RobotOutlined className="text-3xl text-cyan-400" />
-            <Title level={2} className="!text-text-01 dark:!text-text-01-dark !mb-0">
-              {t('agent.title')}
-            </Title>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              icon={<ReloadOutlined />}
-              onClick={handleReload}
-              className="!bg-white dark:!bg-white/5 !border-gray-200 dark:!border-white/10 !text-gray-700 dark:!text-gray-300 hover:!bg-gray-100 dark:hover:!bg-white/10"
-            >
-              Reload
-            </Button>
-            {activeTab !== 'tools' && (
-              <Button
-                type="primary"
-                onClick={handleSave}
-                disabled={!hasChanges}
-                className="bg-blue-600 hover:bg-blue-700 border-none disabled:bg-gray-600"
-              >
-                {t('agent.save_changes')}
-              </Button>
-            )}
-          </div>
+        <div className="flex items-center gap-3 mb-4">
+          <RobotOutlined className="text-3xl text-cyan-400" />
+          <Title level={2} className="!text-text-01 dark:!text-text-01-dark !mb-0">
+            {t('agent.title')}
+          </Title>
         </div>
         <Paragraph className="!text-text-12 dark:!text-text-12-dark !mb-0">
           {t('agent.description')}

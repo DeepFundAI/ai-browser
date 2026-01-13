@@ -78,6 +78,7 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
     providers,
     general,
     chat,
+    agent,
     ui,
     network,
     loading,
@@ -88,6 +89,7 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
     removeProvider,
     updateGeneral,
     updateChat,
+    updateAgent,
     updateUI,
     updateNetwork,
     saveConfigs,
@@ -325,7 +327,12 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
           />
         ) : null;
       case 'agent':
-        return <AgentPanel />;
+        return agent ? (
+          <AgentPanel
+            settings={agent}
+            onSettingsChange={updateAgent}
+          />
+        ) : null;
       case 'scheduled-tasks':
         return <ScheduledTasksPanel />;
       case 'user-interface':
