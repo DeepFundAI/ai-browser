@@ -126,12 +126,6 @@ export const UserInterfacePanel: React.FC<UserInterfacePanelProps> = ({
                   checked={settings.editor.wordWrap}
                   onChange={(checked) => handleEditorChange({ wordWrap: checked })}
                 />
-                <ToggleSetting
-                  label={t('ui.show_minimap')}
-                  description={t('ui.show_minimap_desc')}
-                  checked={settings.editor.showMinimap}
-                  onChange={(checked) => handleEditorChange({ showMinimap: checked })}
-                />
               </div>
             </div>
           </div>

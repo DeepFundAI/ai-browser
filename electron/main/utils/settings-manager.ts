@@ -58,9 +58,8 @@ const getDefaultAppSettings = (): AppSettings => {
       fontSize: 14,
       density: 'comfortable',
       editor: {
-        showLineNumbers: false,
-        wordWrap: true,
-        showMinimap: false
+        showLineNumbers: true,
+        wordWrap: true
       }
     },
     network: {

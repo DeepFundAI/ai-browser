@@ -210,13 +210,11 @@
     "density_comfortable_desc": "Balanced layout",
     "density_spacious": "Spacious",
     "density_spacious_desc": "More space",
-    "editor_settings": "Editor Settings",
+    "editor_settings": "Code Preview Settings",
     "show_line_numbers": "Show line numbers",
-    "show_line_numbers_desc": "Display line numbers in code editor",
+    "show_line_numbers_desc": "Display line numbers in code preview",
     "word_wrap": "Word wrap",
-    "word_wrap_desc": "Wrap long lines automatically",
-    "show_minimap": "Show minimap",
-    "show_minimap_desc": "Display code overview panel"
+    "word_wrap_desc": "Wrap long lines automatically"
   },
 
   "network": {

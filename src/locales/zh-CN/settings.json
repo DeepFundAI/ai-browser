@@ -210,13 +210,11 @@
     "density_comfortable_desc": "平衡布局",
     "density_spacious": "宽松",
     "density_spacious_desc": "更多空间",
-    "editor_settings": "编辑器设置",
+    "editor_settings": "代码预览设置",
     "show_line_numbers": "显示行号",
-    "show_line_numbers_desc": "在代码编辑器中显示行号",
+    "show_line_numbers_desc": "在代码预览中显示行号",
     "word_wrap": "自动换行",
-    "word_wrap_desc": "自动换行显示长行",
-    "show_minimap": "显示缩略图",
-    "show_minimap_desc": "显示代码概览面板"
+    "word_wrap_desc": "自动换行显示长行"
   },
 
   "network": {

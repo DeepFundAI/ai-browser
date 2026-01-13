@@ -141,7 +141,6 @@ export interface UISettings {
   editor: {
     showLineNumbers: boolean;
     wordWrap: boolean;
-    showMinimap: boolean;
   };
 }
 
