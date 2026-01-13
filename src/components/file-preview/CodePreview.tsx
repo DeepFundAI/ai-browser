@@ -19,6 +19,8 @@ const customTheme = {
 interface CodePreviewProps {
   content: string;
   fileName?: string;
+  showLineNumbers?: boolean;
+  wordWrap?: boolean;
 }
 
 // File extension to language mapping
@@ -95,7 +97,12 @@ function looksLikeHtml(content: string): boolean {
  * CodePreview Component
  * Renders code with syntax highlighting or markdown with rich formatting
  */
-export const CodePreview: React.FC<CodePreviewProps> = ({ content, fileName }) => {
+export const CodePreview: React.FC<CodePreviewProps> = ({
+  content,
+  fileName,
+  showLineNumbers = true,
+  wordWrap = true
+}) => {
   const { isMarkdown, language } = useMemo(() => {
     const md = isMarkdownFile(fileName);
     let lang = detectLanguage(fileName);
@@ -160,7 +167,7 @@ export const CodePreview: React.FC<CodePreviewProps> = ({ content, fileName }) =
       <SyntaxHighlighter
         style={customTheme}
         language={language || 'text'}
-        showLineNumbers
+        showLineNumbers={showLineNumbers}
         lineNumberStyle={{
           minWidth: '3em',
           paddingRight: '1em',
@@ -177,7 +184,7 @@ export const CodePreview: React.FC<CodePreviewProps> = ({ content, fileName }) =
           background: 'transparent',
           minHeight: '100%',
         }}
-        wrapLongLines
+        wrapLongLines={wordWrap}
       >
         {content}
       </SyntaxHighlighter>

@@ -12,6 +12,7 @@ import {
 } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { CodePreview } from '@/components/file-preview';
+import { useSettingsStore } from '@/stores/settingsStore';
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
@@ -61,6 +62,7 @@ interface FileViewState {
 export default function FileView() {
   const { t } = useTranslation('fileView');
   const { message } = App.useApp();
+  const { settings } = useSettingsStore();
   const [fileState, setFileState] = useState<FileViewState>({
     content: '',
     isLoading: true,
@@ -240,6 +242,8 @@ export default function FileView() {
               <CodePreview
                 content={fileState.content}
                 fileName={fileState.fileName}
+                showLineNumbers={settings?.ui?.editor?.showLineNumbers ?? true}
+                wordWrap={settings?.ui?.editor?.wordWrap ?? true}
               />
             ) : (
               <div className="flex justify-center items-center h-full flex-col gap-4">

@@ -15,6 +15,20 @@ const api = {
 
   onFileUpdated: (callback: (status: string, content: string, fileName?: string) => void) => ipcRenderer.on('file-updated', (_, status, content, fileName) => callback(status, content, fileName)),
 
+  // Settings APIs
+  getAppSettings: () => ipcRenderer.invoke('settings:get'),
+  saveAppSettings: (settings: any) => ipcRenderer.invoke('settings:save', settings),
+  onSettingsUpdated: (callback: (event: { timestamp: number }) => void) => {
+    const handler = (_: any, event: any) => callback(event);
+    ipcRenderer.on('settings-updated', handler);
+    return () => ipcRenderer.removeListener('settings-updated', handler);
+  },
+  onUIConfigUpdated: (callback: (event: { timestamp: number }) => void) => {
+    const handler = (_: any, event: any) => callback(event);
+    ipcRenderer.on('ui-config-updated', handler);
+    return () => ipcRenderer.removeListener('ui-config-updated', handler);
+  },
+
   // Generic invoke method (for config and other features)
   invoke: (channel: string, ...args: any[]) => ipcRenderer.invoke(channel, ...args),
 };
