@@ -75,11 +75,11 @@ export default function Home() {
     }
 
     return (
-        <>
+        <div className="h-full flex flex-col">
             <ChromeBrowserBackground/>
             <Header />
-            <div className='bg-main-view dark:bg-main-view-dark bg-origin-padding bg-no-repeat bg-cover h-[calc(100%_-_48px)] overflow-y-auto text-text-01 dark:text-text-01-dark flex flex-col'>
-                <div className='flex flex-col items-center pt-[130px] w-full h-full overflow-y-auto z-10'>
+            <div className='bg-main-view dark:bg-main-view-dark bg-origin-padding bg-no-repeat bg-cover flex-1 text-text-01 dark:text-text-01-dark flex flex-col overflow-hidden'>
+                <div className='flex flex-col items-center pt-[130px] w-full flex-1 overflow-y-auto z-10'>
                     {/* Greeting */}
                     <div className='text-left leading-10 text-text-01 dark:text-text-01-dark text-[28px] font-bold'>
                         <div>{t('greeting_name')}</div>
@@ -140,6 +140,6 @@ export default function Home() {
             {/* Scheduled task related components */}
             <ScheduledTaskModal />
             <ScheduledTaskListPanel />
-        </>
+        </div>
     )
 }

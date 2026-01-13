@@ -349,11 +349,11 @@ export default function main() {
     };
 
     return (
-        <>
+        <div className="h-full flex flex-col">
             <Header />
-            <div className='bg-main-view dark:bg-main-view-dark bg-origin-padding bg-no-repeat bg-cover h-[calc(100%_-_48px)] overflow-y-auto text-text-01 dark:text-text-01-dark flex'>
-                <div className='flex-1 h-full transition-all duration-300'>
-                    <div className='w-[636px] mx-auto flex flex-col gap-2 pt-7 pb-4 h-full relative'>
+            <div className='bg-main-view dark:bg-main-view-dark bg-origin-padding bg-no-repeat bg-cover flex-1 text-text-01 dark:text-text-01-dark flex overflow-hidden'>
+                <div className='flex-1 h-full transition-all duration-300 flex flex-col'>
+                    <div className='w-[636px] mx-auto flex flex-col gap-2 pt-7 pb-4 flex-1 relative min-h-0'>
                         {/* Task title and history button */}
                         {isHistoryMode ? (
                             <HistoryModeHeader
@@ -370,7 +370,7 @@ export default function main() {
                         {/* Message list */}
                         <div
                             ref={scrollContainerRef}
-                            className='flex-1 h-full overflow-x-hidden overflow-y-auto px-4 pt-5'
+                            className='flex-1 min-h-0 overflow-x-hidden overflow-y-auto px-4 pt-5'
                             onScroll={handleScroll}
                         >
                             {/* Always use MessageList, displayMessages grows dynamically during playback */}
@@ -460,7 +460,6 @@ export default function main() {
                     onHistoryIndexChange={switchToHistoryIndex}
                 />
             </div>
-
-        </>
+        </div>
     )
 }

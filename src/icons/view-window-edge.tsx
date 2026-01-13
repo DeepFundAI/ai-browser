@@ -6,7 +6,7 @@ type CustomIconComponentProps = GetProps<typeof Icon>;
 
 const ViewWindowEdgeSvg = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="10px" height="10px" viewBox="0 0 10 10" version="1.1">
-    <g id="version-8-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <g id="version-8-1" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
         <g id="group-14" transform="translate(-1364.000000, -914.000000)" fill="currentColor">
             <g id="group-2-backup-5" transform="translate(1069.000000, 914.000000)">
                 <g id="group-79" transform="translate(272.500000, 5.000000) scale(-1, 1) rotate(-90.000000) translate(-272.500000, -5.000000) translate(267.500000, -27.500000)">

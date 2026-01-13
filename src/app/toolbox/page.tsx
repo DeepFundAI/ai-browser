@@ -113,8 +113,11 @@ export default function ToolboxPage() {
 
   return (
     <div style={{
-      minHeight: '100vh',
+      height: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
       background: 'linear-gradient(180deg, #0a1929 0%, #1a2332 100%)',
+      overflow: 'hidden',
     }}>
       {/* Draggable Top Navigation Bar */}
       <div style={{
@@ -123,6 +126,7 @@ export default function ToolboxPage() {
         alignItems: 'center',
         padding: '0 24px',
         borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+        flexShrink: 0,
         WebkitAppRegion: 'drag',
       } as React.CSSProperties}>
         <Button
@@ -142,7 +146,7 @@ export default function ToolboxPage() {
       </div>
 
       {/* Main Content */}
-      <div style={{ padding: '32px 48px' }}>
+      <div style={{ padding: '32px 48px', flex: 1, overflowY: 'auto' }}>
         {/* Header */}
         <div style={{ marginBottom: '40px' }}>
           <Title level={1} style={{

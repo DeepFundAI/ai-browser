@@ -56,13 +56,13 @@ export default async function RootLayout({
       lang={language}
       data-theme={dataTheme}
       className={themeClass}
-      style={{ fontSize: `${fontSize}px` }}
+      style={{ fontSize: `${fontSize}px`, height: '100vh' }}
       suppressHydrationWarning
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: initScript }} />
       </head>
-      <body suppressHydrationWarning>
+      <body suppressHydrationWarning className="h-full">
         <AntdRegistry>
           <TranslationsProvider locale={language} resources={resources}>
             <Providers initialLanguage={language} initialTheme={theme} initialFontSize={parseInt(fontSize)}>
