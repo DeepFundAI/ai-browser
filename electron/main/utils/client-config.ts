@@ -57,6 +57,7 @@ export function applyClientConfigToWindow(win: BrowserWindow): void {
 
 /**
  * Update configuration for all open windows
+ * Applies cookies and sends notification, renderer decides how to handle
  */
 export function updateAllWindowsConfig(): void {
   const allWindows = BrowserWindow.getAllWindows();
@@ -65,8 +66,8 @@ export function updateAllWindowsConfig(): void {
   allWindows.forEach(win => {
     if (!win.isDestroyed()) {
       applyClientConfigToWindow(win);
-      // Reload page to apply new config
-      win.webContents.reload();
+      // Send ui-config-updated event, let renderer handle it
+      win.webContents.send('ui-config-updated', { timestamp: Date.now() });
     }
   });
 }

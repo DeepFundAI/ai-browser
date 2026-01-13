@@ -36,13 +36,18 @@ export function Providers({
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   });
 
+  // Use settings store values if available, fallback to initial props
+  const currentTheme = settings?.ui?.theme || initialTheme;
+  const currentFontSize = settings?.ui?.fontSize || initialFontSize;
+  const currentLanguage = settings?.general?.language || initialLanguage;
+
   const themeConfig = useMemo(() => {
-    const effectiveTheme = initialTheme === 'system' ? systemTheme : initialTheme;
+    const effectiveTheme = currentTheme === 'system' ? systemTheme : currentTheme;
     return effectiveTheme === 'dark' ? darkTheme : lightTheme;
-  }, [initialTheme, systemTheme]);
+  }, [currentTheme, systemTheme]);
 
   useEffect(() => {
-    if (initialTheme !== 'system' || typeof window === 'undefined') return;
+    if (currentTheme !== 'system' || typeof window === 'undefined') return;
 
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleChange = (e: MediaQueryListEvent) => {
@@ -51,12 +56,12 @@ export function Providers({
 
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
-  }, [initialTheme]);
+  }, [currentTheme]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const effectiveTheme = initialTheme === 'system' ? systemTheme : initialTheme;
+    const effectiveTheme = currentTheme === 'system' ? systemTheme : currentTheme;
     document.documentElement.setAttribute('data-theme', effectiveTheme);
 
     if (effectiveTheme === 'dark') {
@@ -66,19 +71,19 @@ export function Providers({
       document.documentElement.classList.add('light');
       document.documentElement.classList.remove('dark');
     }
-  }, [initialTheme, systemTheme]);
+  }, [currentTheme, systemTheme]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       (window as any).__INITIAL_CONFIG__ = {
-        theme: initialTheme,
-        fontSize: initialFontSize,
-        language: initialLanguage,
+        theme: currentTheme,
+        fontSize: currentFontSize,
+        language: currentLanguage,
       };
     }
 
-    setLanguage(initialLanguage);
-  }, [initialLanguage, initialTheme, initialFontSize, setLanguage]);
+    setLanguage(currentLanguage);
+  }, [currentLanguage, currentTheme, currentFontSize, setLanguage]);
 
   const { antdLocale } = useLanguage();
 
@@ -107,11 +112,35 @@ export function Providers({
       await loadSettings();
     };
 
-    if (typeof window !== 'undefined' && (window as any).api?.onSettingsUpdated) {
-      const cleanup = (window as any).api.onSettingsUpdated(handleSettingsUpdated);
-      return cleanup;
+    const handleUIConfigUpdated = async () => {
+      logger.debug('UI config updated, applying changes...', 'App');
+      await loadSettings();
+
+      // Update document properties
+      if (typeof window !== 'undefined') {
+        const newSettings = useSettingsStore.getState().settings;
+        if (newSettings?.ui?.fontSize) {
+          document.documentElement.style.fontSize = `${newSettings.ui.fontSize}px`;
+        }
+        if (newSettings?.general?.language) {
+          setLanguage(newSettings.general.language);
+        }
+      }
+    };
+
+    let cleanupSettings: (() => void) | undefined;
+    let cleanupUIConfig: (() => void) | undefined;
+
+    if (typeof window !== 'undefined' && (window as any).api) {
+      cleanupSettings = (window as any).api.onSettingsUpdated?.(handleSettingsUpdated);
+      cleanupUIConfig = (window as any).api.onUIConfigUpdated?.(handleUIConfigUpdated);
     }
-  }, [loadSettings]);
+
+    return () => {
+      cleanupSettings?.();
+      cleanupUIConfig?.();
+    };
+  }, [loadSettings, setLanguage]);
 
   useEffect(() => {
     if (settings?.general?.language) {

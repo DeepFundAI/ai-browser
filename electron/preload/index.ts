@@ -42,6 +42,12 @@ const api = {
     // Return cleanup function
     return () => ipcRenderer.removeListener('settings-updated', handler);
   },
+  onUIConfigUpdated: (callback: (event: { timestamp: number }) => void) => {
+    const handler = (_: any, event: any) => callback(event);
+    ipcRenderer.on('ui-config-updated', handler);
+    // Return cleanup function
+    return () => ipcRenderer.removeListener('ui-config-updated', handler);
+  },
 
   // Agent configuration APIs
   getAgentConfig: () => safeInvoke('agent:get-config'),

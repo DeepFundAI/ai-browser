@@ -36,6 +36,7 @@ declare global {
       getAppSettings: () => Promise<IpcResponse<AppSettings>>
       saveAppSettings: (settings: AppSettings) => Promise<IpcResponse<void>>
       onSettingsUpdated: (callback: (event: { timestamp: number }) => void) => () => void
+      onUIConfigUpdated: (callback: (event: { timestamp: number }) => void) => () => void
 
       // Agent configuration APIs
       getAgentConfig: () => Promise<IpcResponse<{ agentConfig: AgentConfig }>>

@@ -122,7 +122,6 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
     <Drawer
       title={isTaskDetailMode ? t('execution_history') : t('history')}
       placement="left"
-      size="large"
       open={visible}
       onClose={onClose}
       width={480}
@@ -164,13 +163,17 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
     >
       <div className="space-y-4 flex flex-col h-full">
         {/* Search box */}
-        <Search
-          placeholder={t('search_placeholder')}
-          allowClear
-          enterButton={<SearchOutlined />}
-          onSearch={handleSearch}
-          onChange={(e) => !e.target.value && handleSearch('')}
-        />
+        <div className="flex items-center">
+          <Search
+            placeholder={t('search_placeholder')}
+            allowClear
+            enterButton={<SearchOutlined />}
+            onSearch={handleSearch}
+            onChange={(e) => !e.target.value && handleSearch('')}
+            size="large"
+            className="w-full"
+          />
+        </div>
 
         {/* History item list */}
         <HistoryList
