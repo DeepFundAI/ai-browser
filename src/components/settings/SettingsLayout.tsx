@@ -48,7 +48,32 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
 }) => {
   const { t } = useTranslation('settings');
   const { modal, message } = App.useApp();
-  const [activeTab, setActiveTab] = useState<SettingsTab>(initialTab);
+
+  // Initialize from URL hash or initialTab
+  const getInitialTab = (): SettingsTab => {
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash.replace('#', '');
+      const validTabs: SettingsTab[] = [
+        'general', 'providers', 'chat', 'agent', 'scheduled-tasks',
+        'user-interface', 'network', 'memory', 'about'
+      ];
+      if (hash && validTabs.includes(hash as SettingsTab)) {
+        return hash as SettingsTab;
+      }
+    }
+    return initialTab;
+  };
+
+  const [activeTab, setActiveTabState] = useState<SettingsTab>(getInitialTab());
+
+  // Wrapper to update both state and URL hash
+  const setActiveTab = (tab: SettingsTab) => {
+    setActiveTabState(tab);
+    if (typeof window !== 'undefined') {
+      window.location.hash = tab;
+    }
+  };
+
   const {
     providers,
     general,
@@ -87,13 +112,10 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
         ];
         if (validTabs.includes(hash as SettingsTab)) {
           logger.debug(`Navigating to panel: ${hash}`, 'SettingsLayout');
-          setActiveTab(hash as SettingsTab);
+          setActiveTabState(hash as SettingsTab);
         }
       }
     };
-
-    // Check initial hash
-    handleHashChange();
 
     // Listen for hash changes
     window.addEventListener('hashchange', handleHashChange);
