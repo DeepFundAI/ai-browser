@@ -147,10 +147,12 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
             cancelText={t('cancel')}
             okType="danger"
             onConfirm={handleClearAll}
-            overlayInnerStyle={{
-              backgroundColor: 'rgba(30, 28, 35, 0.98)',
-              backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(94, 49, 216, 0.3)'
+            styles={{
+              body: {
+                backgroundColor: 'rgba(30, 28, 35, 0.98)',
+                backdropFilter: 'blur(20px)',
+                border: '1px solid rgba(94, 49, 216, 0.3)'
+              }
             }}
           >
             <Button danger icon={<ClearOutlined />}>

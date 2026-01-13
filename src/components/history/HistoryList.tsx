@@ -113,10 +113,12 @@ export const HistoryList: React.FC<HistoryListProps> = ({
                 e?.stopPropagation();
                 onDeleteTask(item);
               }}
-              overlayInnerStyle={{
-                backgroundColor: 'rgba(30, 28, 35, 0.98)',
-                backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(94, 49, 216, 0.3)'
+              styles={{
+                body: {
+                  backgroundColor: 'rgba(30, 28, 35, 0.98)',
+                  backdropFilter: 'blur(20px)',
+                  border: '1px solid rgba(94, 49, 216, 0.3)'
+                }
               }}
             >
               <Tooltip title={item.taskType === 'scheduled' && !isTaskDetailMode ? t('delete_all_executions') : t('delete_task')}>
