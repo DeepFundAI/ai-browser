@@ -228,11 +228,11 @@ export const AgentPanel: React.FC<AgentPanelProps> = ({
             <div className="p-4 bg-white dark:bg-white/5 rounded-lg border border-gray-200 dark:border-white/10">
               <Text className="!text-text-12 dark:!text-text-12-dark font-medium block mb-3">{t('agent.default_behavior')}</Text>
               <div className="text-sm text-text-12 dark:text-text-12-dark space-y-1.5">
-                <div>• Analyze webpages by taking screenshots and page element structures</div>
-                <div>• Use structured commands to interact with the browser</div>
-                <div>• Handle popups/cookies by accepting or closing them</div>
-                <div>• Request user help for login, verification codes, payments</div>
-                <div>• Use scroll to find elements, extract content with extract_page_content</div>
+                <div>• {t('agent.browser_behaviors.analyze')}</div>
+                <div>• {t('agent.browser_behaviors.commands')}</div>
+                <div>• {t('agent.browser_behaviors.popups')}</div>
+                <div>• {t('agent.browser_behaviors.user_help')}</div>
+                <div>• {t('agent.browser_behaviors.scroll')}</div>
               </div>
             </div>
 
@@ -240,7 +240,7 @@ export const AgentPanel: React.FC<AgentPanelProps> = ({
             <div>
               <Text className="!text-text-01 dark:!text-text-01-dark font-medium block mb-2">{t('agent.custom_prompt')}</Text>
               <Text className="!text-text-12 dark:text-text-12-dark text-sm block mb-3">
-                Add custom instructions to extend the Browser Agent's capabilities
+                {t('agent.custom_prompt_desc_browser')}
               </Text>
               <TextArea
                 value={settings.browserAgent?.customPrompt ?? ''}
@@ -275,11 +275,11 @@ export const AgentPanel: React.FC<AgentPanelProps> = ({
             <div className="p-4 bg-white dark:bg-white/5 rounded-lg border border-gray-200 dark:border-white/10">
               <Text className="!text-text-12 dark:!text-text-12-dark font-medium block mb-3">{t('agent.default_behavior')}</Text>
               <div className="text-sm text-text-12 dark:text-text-12-dark space-y-1.5">
-                <div>• Handle file-related tasks: creating, finding, reading, modifying files</div>
-                <div>• Always include working directory when outputting file paths</div>
-                <div>• Output file names must be in English</div>
-                <div>• For data content, combine with visualization tools for display</div>
-                <div>• Generate charts first before page generation to minimize work</div>
+                <div>• {t('agent.file_behaviors.tasks')}</div>
+                <div>• {t('agent.file_behaviors.paths')}</div>
+                <div>• {t('agent.file_behaviors.naming')}</div>
+                <div>• {t('agent.file_behaviors.visualization')}</div>
+                <div>• {t('agent.file_behaviors.charts')}</div>
               </div>
             </div>
 
@@ -287,7 +287,7 @@ export const AgentPanel: React.FC<AgentPanelProps> = ({
             <div>
               <Text className="!text-text-01 dark:!text-text-01-dark font-medium block mb-2">{t('agent.custom_prompt')}</Text>
               <Text className="!text-text-12 dark:text-text-12-dark text-sm block mb-3">
-                Add custom instructions to extend the File Agent's capabilities
+                {t('agent.custom_prompt_desc_file')}
               </Text>
               <TextArea
                 value={settings.fileAgent?.customPrompt ?? ''}
@@ -306,15 +306,15 @@ export const AgentPanel: React.FC<AgentPanelProps> = ({
           <div className="space-y-4">
             <div className="mb-6">
               <Text className="!text-text-12 dark:text-text-12-dark text-sm">
-                Enable or disable MCP tools available to the AI agent. Changes are saved automatically.
+                {t('agent.mcp_tools_desc')}
               </Text>
             </div>
 
             {mcpTools.length === 0 ? (
               <div className="text-center py-12 text-text-12 dark:text-text-12-dark">
                 <div className="text-4xl mb-3">🔧</div>
-                <div className="font-medium mb-1">No MCP Tools Available</div>
-                <div className="text-sm">MCP tools will appear here when configured</div>
+                <div className="font-medium mb-1">{t('agent.mcp_tools_empty.title')}</div>
+                <div className="text-sm">{t('agent.mcp_tools_empty.desc')}</div>
               </div>
             ) : (
               <div className="max-h-[400px] overflow-y-auto pr-2">

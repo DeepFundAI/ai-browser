@@ -40,9 +40,6 @@ const getDefaultAppSettings = (): AppSettings => {
       historyRetentionDays: 30
     },
     agent: {
-      systemPrompt: '',
-      enabledTools: [],
-      customTools: [],
       mcpTools: {},
       browserAgent: {
         enabled: true,

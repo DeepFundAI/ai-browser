@@ -157,8 +157,29 @@
     "default_behavior": "Default Behavior",
     "browser_agent_behavior": "The Browser Agent can interact with web pages, click elements, fill forms, and extract information from websites.",
     "file_agent_behavior": "The File Agent can read, write, create, and manage files on your system.",
+    "browser_behaviors": {
+      "analyze": "Analyze webpages by taking screenshots and page element structures",
+      "commands": "Use structured commands to interact with the browser",
+      "popups": "Handle popups/cookies by accepting or closing them",
+      "user_help": "Request user help for login, verification codes, payments",
+      "scroll": "Use scroll to find elements, extract content with extract_page_content"
+    },
+    "file_behaviors": {
+      "tasks": "Handle file-related tasks: creating, finding, reading, modifying files",
+      "paths": "Always include working directory when outputting file paths",
+      "naming": "Output file names must be in English",
+      "visualization": "For data content, combine with visualization tools for display",
+      "charts": "Generate charts first before page generation to minimize work"
+    },
     "custom_prompt": "Custom System Prompt",
     "custom_prompt_placeholder": "Enter custom instructions for this agent (optional)",
+    "custom_prompt_desc_browser": "Add custom instructions to extend the Browser Agent's capabilities",
+    "custom_prompt_desc_file": "Add custom instructions to extend the File Agent's capabilities",
+    "mcp_tools_desc": "Enable or disable MCP tools available to the AI agent. Changes are saved automatically.",
+    "mcp_tools_empty": {
+      "title": "No MCP Tools Available",
+      "desc": "MCP tools will appear here when configured"
+    },
     "tool_name": "Tool Name",
     "tool_enabled": "Enabled",
     "save_changes": "Save Changes",

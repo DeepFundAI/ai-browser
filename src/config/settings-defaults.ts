@@ -94,9 +94,6 @@ export function getDefaultSettings(): AppSettings {
     general: getDefaultGeneralSettings(),
     chat: getDefaultChatSettings(),
     agent: {
-      systemPrompt: '',
-      enabledTools: [],
-      customTools: [],
       mcpTools: {},
       browserAgent: {
         enabled: true,

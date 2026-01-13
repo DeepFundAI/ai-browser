@@ -157,8 +157,29 @@
     "default_behavior": "默认行为",
     "browser_agent_behavior": "浏览器代理可以与网页交互、点击元素、填写表单以及从网站提取信息。",
     "file_agent_behavior": "文件代理可以读取、写入、创建和管理您系统上的文件。",
+    "browser_behaviors": {
+      "analyze": "通过截图和页面元素结构分析网页",
+      "commands": "使用结构化命令与浏览器交互",
+      "popups": "通过接受或关闭弹窗/Cookie 来处理它们",
+      "user_help": "请求用户帮助处理登录、验证码、支付等操作",
+      "scroll": "使用滚动查找元素，使用 extract_page_content 提取内容"
+    },
+    "file_behaviors": {
+      "tasks": "处理文件相关任务：创建、查找、读取、修改文件",
+      "paths": "输出文件路径时始终包含工作目录",
+      "naming": "输出的文件名必须使用英文",
+      "visualization": "对于数据内容，结合可视化工具进行展示",
+      "charts": "在生成页面之前先生成图表，以最小化工作量"
+    },
     "custom_prompt": "自定义系统提示词",
     "custom_prompt_placeholder": "为此代理输入自定义指令（可选）",
+    "custom_prompt_desc_browser": "添加自定义指令以扩展浏览器代理的能力",
+    "custom_prompt_desc_file": "添加自定义指令以扩展文件代理的能力",
+    "mcp_tools_desc": "启用或禁用 AI 代理可用的 MCP 工具。更改会自动保存。",
+    "mcp_tools_empty": {
+      "title": "暂无可用的 MCP 工具",
+      "desc": "配置后 MCP 工具将显示在这里"
+    },
     "tool_name": "工具名称",
     "tool_enabled": "已启用",
     "save_changes": "保存更改",

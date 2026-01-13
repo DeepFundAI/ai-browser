@@ -108,9 +108,6 @@ export interface ChatSettings {
 }
 
 export interface AgentSettings {
-  systemPrompt: string;
-  enabledTools: string[];
-  customTools: CustomToolConfig[];
   mcpTools: {
     [toolName: string]: {
       enabled: boolean;
@@ -125,13 +122,6 @@ export interface AgentSettings {
     enabled: boolean;
     customPrompt?: string;
   };
-}
-
-export interface CustomToolConfig {
-  id: string;
-  name: string;
-  enabled: boolean;
-  config: Record<string, any>;
 }
 
 export interface UISettings {

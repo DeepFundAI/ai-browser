@@ -138,17 +138,7 @@ export interface ChatSettings {
   historyRetentionDays: number; // 1 - 365
 }
 
-export interface CustomToolConfig {
-  id: string;
-  name: string;
-  enabled: boolean;
-  config: Record<string, any>;
-}
-
 export interface AgentConfig {
-  systemPrompt: string;
-  enabledTools: string[];
-  customTools: CustomToolConfig[];
   mcpTools: {
     [toolName: string]: {
       enabled: boolean;
