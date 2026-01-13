@@ -19,6 +19,7 @@ export default async function RootLayout({
   const cookieStore = await cookies();
   const theme = cookieStore.get('app-theme')?.value || 'dark';
   const fontSize = cookieStore.get('app-fontsize')?.value || '14';
+  const density = cookieStore.get('app-density')?.value || 'comfortable';
   const language = cookieStore.get('app-language')?.value || 'en';
 
   const themeClass = theme === 'dark' || theme === 'system' ? 'dark' : 'light';
@@ -55,6 +56,7 @@ export default async function RootLayout({
     <html
       lang={language}
       data-theme={dataTheme}
+      data-density={density}
       className={themeClass}
       style={{ fontSize: `${fontSize}px`, height: '100vh' }}
       suppressHydrationWarning

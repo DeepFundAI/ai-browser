@@ -88,6 +88,35 @@
   /* Border colors - light theme */
   --color-border-message: #e5e7eb;
 
+  /* Density spacing variables */
+  /* Compact mode */
+  --spacing-compact-xs: 4px;
+  --spacing-compact-sm: 8px;
+  --spacing-compact-md: 12px;
+  --spacing-compact-lg: 16px;
+  --spacing-compact-xl: 20px;
+
+  /* Comfortable mode (default) */
+  --spacing-comfortable-xs: 6px;
+  --spacing-comfortable-sm: 12px;
+  --spacing-comfortable-md: 16px;
+  --spacing-comfortable-lg: 24px;
+  --spacing-comfortable-xl: 32px;
+
+  /* Spacious mode */
+  --spacing-spacious-xs: 8px;
+  --spacing-spacious-sm: 16px;
+  --spacing-spacious-md: 24px;
+  --spacing-spacious-lg: 32px;
+  --spacing-spacious-xl: 48px;
+
+  /* Active density spacing (default to comfortable) */
+  --spacing-xs: var(--spacing-comfortable-xs);
+  --spacing-sm: var(--spacing-comfortable-sm);
+  --spacing-md: var(--spacing-comfortable-md);
+  --spacing-lg: var(--spacing-comfortable-lg);
+  --spacing-xl: var(--spacing-comfortable-xl);
+
 
   /* Text colors (Light theme) - Higher contrast for better readability */
   /* Primary text */
@@ -217,6 +246,31 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+/* Density mode switching */
+:root[data-density="compact"] {
+  --spacing-xs: var(--spacing-compact-xs);
+  --spacing-sm: var(--spacing-compact-sm);
+  --spacing-md: var(--spacing-compact-md);
+  --spacing-lg: var(--spacing-compact-lg);
+  --spacing-xl: var(--spacing-compact-xl);
+}
+
+:root[data-density="comfortable"] {
+  --spacing-xs: var(--spacing-comfortable-xs);
+  --spacing-sm: var(--spacing-comfortable-sm);
+  --spacing-md: var(--spacing-comfortable-md);
+  --spacing-lg: var(--spacing-comfortable-lg);
+  --spacing-xl: var(--spacing-comfortable-xl);
+}
+
+:root[data-density="spacious"] {
+  --spacing-xs: var(--spacing-spacious-xs);
+  --spacing-sm: var(--spacing-spacious-sm);
+  --spacing-md: var(--spacing-spacious-md);
+  --spacing-lg: var(--spacing-spacious-lg);
+  --spacing-xl: var(--spacing-spacious-xl);
 }
 
 html,

@@ -39,12 +39,20 @@ export function Providers({
   // Use settings store values if available, fallback to initial props
   const currentTheme = settings?.ui?.theme || initialTheme;
   const currentFontSize = settings?.ui?.fontSize || initialFontSize;
+  const currentDensity = settings?.ui?.density || 'comfortable';
   const currentLanguage = settings?.general?.language || initialLanguage;
 
   const themeConfig = useMemo(() => {
     const effectiveTheme = currentTheme === 'system' ? systemTheme : currentTheme;
     return effectiveTheme === 'dark' ? darkTheme : lightTheme;
   }, [currentTheme, systemTheme]);
+
+  // Map density to Ant Design componentSize
+  const componentSize = useMemo(() => {
+    return currentDensity === 'compact' ? 'small' :
+           currentDensity === 'spacious' ? 'large' :
+           'middle';
+  }, [currentDensity]);
 
   useEffect(() => {
     if (currentTheme !== 'system' || typeof window === 'undefined') return;
@@ -72,6 +80,12 @@ export function Providers({
       document.documentElement.classList.remove('dark');
     }
   }, [currentTheme, systemTheme]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    document.documentElement.setAttribute('data-density', currentDensity);
+  }, [currentDensity]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -122,6 +136,9 @@ export function Providers({
         if (newSettings?.ui?.fontSize) {
           document.documentElement.style.fontSize = `${newSettings.ui.fontSize}px`;
         }
+        if (newSettings?.ui?.density) {
+          document.documentElement.setAttribute('data-density', newSettings.ui.density);
+        }
         if (newSettings?.general?.language) {
           setLanguage(newSettings.general.language);
         }
@@ -150,7 +167,7 @@ export function Providers({
   }, [settings?.general?.language, setLanguage]);
 
   return (
-    <ConfigProvider theme={themeConfig} locale={antdLocale}>
+    <ConfigProvider theme={themeConfig} locale={antdLocale} componentSize={componentSize}>
       <App className="h-full">
         {children}
       </App>
