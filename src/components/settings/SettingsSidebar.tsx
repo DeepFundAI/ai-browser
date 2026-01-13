@@ -96,9 +96,6 @@ export const SettingsSidebar: React.FC<SettingsSidebarProps> = ({
       className="w-60 bg-gray-50 dark:bg-white/5 backdrop-blur-sm border-r border-gray-200 dark:border-white/10 flex flex-col"
       style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
     >
-      {/* macOS traffic light spacer */}
-      <div className="h-12" />
-
       {/* Menu items */}
       <div className="flex-1 py-4 px-3 overflow-y-auto">
         {MENU_ITEMS.map((item) => (
