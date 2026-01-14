@@ -7,7 +7,7 @@
 
 import React from 'react';
 import { SkinOutlined } from '@ant-design/icons';
-import { Typography, Divider, InputNumber } from 'antd';
+import { Typography, Divider, InputNumber, Space } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { ToggleSetting, ThemeSelector, DensitySelector } from '../components';
 import { UISettings } from '@/models/settings';
@@ -80,14 +80,18 @@ export const UserInterfacePanel: React.FC<UserInterfacePanelProps> = ({
                 <div>
                   <div className="text-text-01 dark:text-text-01-dark font-medium mb-2">{t('ui.font_size')}</div>
                   <div className="flex items-center gap-2">
-                    <InputNumber
-                      value={settings.fontSize}
-                      min={10}
-                      max={32}
-                      onChange={(value) => handleChange({ fontSize: value || 14 })}
-                      className="w-24"
-                      addonAfter="px"
-                    />
+                    <Space.Compact>
+                      <InputNumber
+                        value={settings.fontSize}
+                        min={10}
+                        max={32}
+                        onChange={(value) => handleChange({ fontSize: value || 14 })}
+                        className="w-24"
+                      />
+                      <div className="flex items-center px-3 bg-gray-100 dark:bg-white/10 border border-l-0 border-gray-300 dark:border-white/20 rounded-r text-sm text-gray-600 dark:text-gray-400">
+                        px
+                      </div>
+                    </Space.Compact>
                   </div>
                   <div className="text-gray-400 text-xs mt-1">{t('ui.font_size_desc')}</div>
                 </div>
