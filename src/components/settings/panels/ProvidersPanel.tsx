@@ -93,9 +93,9 @@ interface ModelListItemProps {
 
 const ModelListItem: React.FC<ModelListItemProps> = ({ model, onToggle }) => {
   return (
-    <div className="flex items-center justify-between px-4 py-3 rounded-lg bg-white dark:bg-white/5 hover:bg-gray-100 dark:bg-white/10 transition-all mb-2">
+    <div className="flex items-center justify-between px-4 py-3 rounded-lg bg-white dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 transition-all mb-2">
       <div className="flex-1">
-        <div className="text-text-01 dark:text-text-01-darkfont-medium text-sm">{model.name}</div>
+        <div className="text-text-01 dark:text-text-01-dark font-medium text-sm">{model.name}</div>
         <div className="text-text-12 dark:text-text-12-dark text-xs mt-0.5">{model.id}</div>
       </div>
       <Switch
@@ -178,7 +178,6 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
   const { t } = useTranslation('settings');
   const { message } = App.useApp();
   const [selectedProviderId, setSelectedProviderId] = useState<string>('deepseek');
-  const [searchQuery, setSearchQuery] = useState('');
   const [modelSearchQuery, setModelSearchQuery] = useState('');
   const [showApiKey, setShowApiKey] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -210,14 +209,6 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
 
     return [...builtinProviders, ...customProviders];
   }, [configs]);
-
-  // Filter providers by search query
-  const filteredProviders = useMemo(() => {
-    if (!searchQuery) return providerList;
-    return providerList.filter(p =>
-      p.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [providerList, searchQuery]);
 
   const currentConfig = configs[selectedProviderId];
   const isBuiltin = currentConfig?.type === 'builtin';
@@ -421,20 +412,11 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
         </Button>
       </div>
 
-      {/* Search */}
-      <Input
-        placeholder={t('providers.search_providers')}
-        prefix={<SearchOutlined className="text-text-12 dark:text-text-12-dark" />}
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        className="mb-6 bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-text-01 dark:text-text-01-darkplaceholder-gray-400 dark:placeholder-gray-400 flex-shrink-0"
-      />
-
       {/* Main content: Provider list + Details */}
       <div className="flex gap-6 flex-1 min-h-0">
         {/* Left: Provider list */}
         <div className="w-64 overflow-y-auto pr-2 flex-shrink-0">
-          {filteredProviders.map((provider) => (
+          {providerList.map((provider) => (
             <ProviderListItem
               key={provider.id}
               provider={provider}
@@ -618,7 +600,7 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
                         prefix={<SearchOutlined className="text-text-12 dark:text-text-12-dark" />}
                         value={modelSearchQuery}
                         onChange={(e) => setModelSearchQuery(e.target.value)}
-                        className="mb-4 bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-text-01 dark:text-text-01-darkplaceholder-gray-400 dark:placeholder-gray-400"
+                        className="mb-4 bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-text-01 dark:text-text-01-darkplaceholder-gray-400 dark:placeholder-gray-400 !w-36"
                       />
 
                       {/* Model list */}

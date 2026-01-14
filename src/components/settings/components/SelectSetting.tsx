@@ -65,8 +65,8 @@ export const SelectSetting: React.FC<SelectSettingProps> = ({
         options={selectOptions as any}
         disabled={disabled}
         placeholder={placeholder}
-        className="w-full"
-        popupMatchSelectWidth
+        className="w-64"
+        popupMatchSelectWidth={false}
         showSearch={showSearch}
         filterOption={showSearch ? (input, option) =>
           (option?.label?.toString() || '').toLowerCase().includes(input.toLowerCase()) ||
