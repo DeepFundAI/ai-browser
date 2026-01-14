@@ -16,7 +16,7 @@ interface TaskStepEditorProps {
  */
 export const TaskStepEditor: React.FC<TaskStepEditorProps> = ({ value = [], onChange }) => {
   const { t } = useTranslation('scheduledTask');
-  const [steps, setSteps] = useState<TaskStep[]>(value);
+  const steps = value;
   const [showTemplateModal, setShowTemplateModal] = useState(false);
 
   const { templates, loadTemplates } = useScheduledTaskStore();
@@ -25,10 +25,6 @@ export const TaskStepEditor: React.FC<TaskStepEditorProps> = ({ value = [], onCh
     loadTemplates();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    setSteps(value);
-  }, [value]);
 
   // Add new step
   const handleAddStep = () => {
@@ -40,7 +36,6 @@ export const TaskStepEditor: React.FC<TaskStepEditorProps> = ({ value = [], onCh
     };
 
     const newSteps = [...steps, newStep];
-    setSteps(newSteps);
     onChange?.(newSteps);
   };
 
@@ -49,7 +44,6 @@ export const TaskStepEditor: React.FC<TaskStepEditorProps> = ({ value = [], onCh
     const newSteps = steps.map((step) =>
       step.id === id ? { ...step, ...updates } : step
     );
-    setSteps(newSteps);
     onChange?.(newSteps);
   };
 
@@ -61,7 +55,6 @@ export const TaskStepEditor: React.FC<TaskStepEditorProps> = ({ value = [], onCh
       ...step,
       order: index + 1,
     }));
-    setSteps(reorderedSteps);
     onChange?.(reorderedSteps);
   };
 
@@ -72,7 +65,6 @@ export const TaskStepEditor: React.FC<TaskStepEditorProps> = ({ value = [], onCh
       id: `step_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
     }));
 
-    setSteps(importedSteps);
     onChange?.(importedSteps);
     setShowTemplateModal(false);
   };
@@ -90,7 +82,6 @@ export const TaskStepEditor: React.FC<TaskStepEditorProps> = ({ value = [], onCh
       order: idx + 1,
     }));
 
-    setSteps(reorderedSteps);
     onChange?.(reorderedSteps);
   };
 
@@ -107,7 +98,6 @@ export const TaskStepEditor: React.FC<TaskStepEditorProps> = ({ value = [], onCh
       order: idx + 1,
     }));
 
-    setSteps(reorderedSteps);
     onChange?.(reorderedSteps);
   };
 
