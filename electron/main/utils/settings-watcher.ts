@@ -5,7 +5,7 @@
  * POSITION: Bridge between settings storage and system operations
  */
 
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, session } from 'electron';
 import type { AppSettings, GeneralSettings, NetworkSettings, UISettings } from '../models';
 import { SettingsManager } from './settings-manager';
 import { updateAllWindowsConfig } from './client-config';
@@ -18,6 +18,7 @@ export class SettingsWatcher {
   private static instance: SettingsWatcher;
   private currentSettings: AppSettings | null = null;
   private mainWindow: BrowserWindow | null = null;
+  private proxyAuthHandler: ((authInfo: Electron.AuthInfo, callback: (username?: string, password?: string) => void) => void) | null = null;
 
   private constructor() {}
 
@@ -190,10 +191,61 @@ export class SettingsWatcher {
   /**
    * Apply proxy settings
    */
-  private applyProxySettings(proxy: NetworkSettings['proxy']): void {
-    // TODO: Implement proxy configuration
-    // Will be implemented when Network settings are integrated
-    console.log('[SettingsWatcher] Proxy settings:', proxy.enabled ? 'enabled' : 'disabled');
+  private async applyProxySettings(proxy: NetworkSettings['proxy']): Promise<void> {
+    try {
+      // Remove existing proxy auth handler
+      if (this.proxyAuthHandler) {
+        (app as any).removeListener('login', this.proxyAuthHandler);
+        this.proxyAuthHandler = null;
+      }
+
+      if (!proxy.enabled) {
+        // Disable proxy - use direct connection
+        await session.defaultSession.setProxy({ mode: 'direct' });
+        console.log('[SettingsWatcher] Proxy disabled (direct connection)');
+        return;
+      }
+
+      // Validate proxy configuration
+      if (!proxy.server || !proxy.port) {
+        console.warn('[SettingsWatcher] Invalid proxy config: missing server or port');
+        await session.defaultSession.setProxy({ mode: 'direct' });
+        return;
+      }
+
+      // Build proxy URL
+      const proxyUrl = `${proxy.type}://${proxy.server}:${proxy.port}`;
+
+      // Set proxy configuration
+      const proxyConfig: Electron.ProxyConfig = {
+        mode: 'fixed_servers',
+        proxyRules: proxyUrl
+      };
+
+      await session.defaultSession.setProxy(proxyConfig);
+      console.log(`[SettingsWatcher] Proxy enabled: ${proxyUrl}`);
+
+      // Setup proxy authentication if credentials provided
+      if (proxy.username && proxy.password) {
+        this.proxyAuthHandler = (
+          authInfo: Electron.AuthInfo,
+          callback: (username?: string, password?: string) => void
+        ) => {
+          // Only handle proxy authentication, not HTTP auth
+          if (authInfo.isProxy) {
+            console.log('[SettingsWatcher] Providing proxy credentials');
+            callback(proxy.username, proxy.password);
+          } else {
+            callback(); // Let other auth handlers handle it
+          }
+        };
+
+        (app as any).on('login', this.proxyAuthHandler);
+        console.log('[SettingsWatcher] Proxy authentication configured');
+      }
+    } catch (error) {
+      console.error('[SettingsWatcher] Failed to set proxy:', error);
+    }
   }
 
   /**

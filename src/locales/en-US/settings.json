@@ -260,7 +260,11 @@
     "custom_user_agent_placeholder": "Leave empty to use default",
     "test_proxy_warning": "Please configure proxy server and port first",
     "test_proxy_success": "Proxy connection successful",
-    "test_proxy_failed": "Proxy connection failed"
+    "test_proxy_failed": "Proxy connection failed",
+    "proxy_status_untested": "Untested",
+    "proxy_status_testing": "Testing",
+    "proxy_status_success": "Connected",
+    "proxy_status_failed": "Failed"
   },
 
   "about": {

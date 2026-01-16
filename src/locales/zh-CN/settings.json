@@ -260,7 +260,11 @@
     "custom_user_agent_placeholder": "留空使用默认值",
     "test_proxy_warning": "请先配置代理服务器和端口",
     "test_proxy_success": "代理连接成功",
-    "test_proxy_failed": "代理连接失败"
+    "test_proxy_failed": "代理连接失败",
+    "proxy_status_untested": "未测试",
+    "proxy_status_testing": "测试中",
+    "proxy_status_success": "连接成功",
+    "proxy_status_failed": "连接失败"
   },
 
   "about": {

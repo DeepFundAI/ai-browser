@@ -44,6 +44,9 @@ declare global {
       getMcpTools: () => Promise<IpcResponse<{ tools: McpToolSchema[] }>>
       setMcpToolEnabled: (toolName: string, enabled: boolean) => Promise<IpcResponse<void>>
       reloadAgentConfig: () => Promise<IpcResponse<{ agentConfig: AgentConfig }>>
+
+      // Generic IPC invoke method
+      invoke: <T = any>(channel: string, ...args: any[]) => Promise<T>
     }
 
     // PDF.js type declarations

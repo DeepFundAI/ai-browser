@@ -23,6 +23,8 @@ interface NetworkPanelProps {
 /**
  * Network configuration panel
  */
+type ProxyTestStatus = 'untested' | 'testing' | 'success' | 'failed';
+
 export const NetworkPanel: React.FC<NetworkPanelProps> = ({
   settings = getDefaultNetworkSettings(),
   onSettingsChange
@@ -30,6 +32,7 @@ export const NetworkPanel: React.FC<NetworkPanelProps> = ({
   const { t } = useTranslation('settings');
   const { message } = App.useApp();
   const [testingProxy, setTestingProxy] = useState(false);
+  const [proxyTestStatus, setProxyTestStatus] = useState<ProxyTestStatus>('untested');
 
   const handleChange = (updates: Partial<NetworkSettings>) => {
     if (onSettingsChange) {
@@ -44,20 +47,37 @@ export const NetworkPanel: React.FC<NetworkPanelProps> = ({
         proxy: { ...settings.proxy, ...updates }
       });
     }
+    // Reset test status when proxy config changes
+    setProxyTestStatus('untested');
   };
 
   const handleTestProxy = async () => {
-    if (!settings.proxy.enabled || !settings.proxy.server || !settings.proxy.port) {
+    if (!settings.proxy.server || !settings.proxy.port) {
       message.warning(t('network.test_proxy_warning'));
       return;
     }
 
     setTestingProxy(true);
+    setProxyTestStatus('testing');
     try {
-      // TODO: Implement actual proxy test via IPC
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      message.success(t('network.test_proxy_success'));
+      // Pass current proxy settings from UI inputs to backend for testing
+      const result = await window.api.invoke('settings:testProxy', {
+        type: settings.proxy.type,
+        server: settings.proxy.server,
+        port: settings.proxy.port,
+        username: settings.proxy.username,
+        password: settings.proxy.password
+      });
+
+      if (result.success) {
+        setProxyTestStatus('success');
+        message.success(result.message || t('network.test_proxy_success'));
+      } else {
+        setProxyTestStatus('failed');
+        message.error(result.error || t('network.test_proxy_failed'));
+      }
     } catch (error: any) {
+      setProxyTestStatus('failed');
       message.error(error.message || t('network.test_proxy_failed'));
     } finally {
       setTestingProxy(false);
@@ -69,6 +89,28 @@ export const NetworkPanel: React.FC<NetworkPanelProps> = ({
     { label: 'HTTPS', value: 'https' },
     { label: 'SOCKS5', value: 'socks5' }
   ];
+
+  // Render proxy test status indicator
+  const renderProxyStatus = () => {
+    const statusConfig = {
+      untested: { color: '#f59e0b', text: t('network.proxy_status_untested') },
+      testing: { color: '#3b82f6', text: t('network.proxy_status_testing') },
+      success: { color: '#10b981', text: t('network.proxy_status_success') },
+      failed: { color: '#ef4444', text: t('network.proxy_status_failed') }
+    };
+
+    const { color, text } = statusConfig[proxyTestStatus];
+
+    return (
+      <div className="flex items-center gap-2">
+        <div
+          className="w-2 h-2 rounded-full"
+          style={{ backgroundColor: color }}
+        />
+        <Text className="!text-text-12 dark:!text-text-12-dark text-sm">{text}</Text>
+      </div>
+    );
+  };
 
   return (
     <div className="flex flex-col h-full">
@@ -160,8 +202,8 @@ export const NetworkPanel: React.FC<NetworkPanelProps> = ({
                       </div>
                     </div>
 
-                    {/* Test Proxy Button */}
-                    <div>
+                    {/* Test Proxy Button and Status */}
+                    <div className="flex items-center gap-4">
                       <Button
                         onClick={handleTestProxy}
                         loading={testingProxy}
@@ -169,6 +211,7 @@ export const NetworkPanel: React.FC<NetworkPanelProps> = ({
                       >
                         {t('network.test_proxy')}
                       </Button>
+                      {renderProxyStatus()}
                     </div>
                   </div>
                 )}
