@@ -94,7 +94,7 @@ interface AgentPanelProps {
 }
 
 /**
- * Agent configuration panel (Toolbox integration)
+ * Agent configuration panel
  */
 export const AgentPanel: React.FC<AgentPanelProps> = ({
   settings,

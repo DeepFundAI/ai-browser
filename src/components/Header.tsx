@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { Button } from 'antd'
-import { HistoryOutlined, ToolOutlined, SettingOutlined } from '@ant-design/icons'
+import { HistoryOutlined, SettingOutlined } from '@ant-design/icons'
 import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import { HistoryPanel } from '@/components/history'
 import { useHistoryStore } from '@/stores/historyStore'
@@ -64,19 +64,6 @@ export default function Header() {
         </div>
       )}
       <div className='flex justify-center items-center gap-4'>
-        {/* Toolbox button - only show in home page */}
-        {!isTaskDetailMode && (pathname === '/home' || pathname === '/') && (
-          <Button
-            type="text"
-            icon={<ToolOutlined />}
-            size="small"
-            onClick={() => router.push('/toolbox')}
-            className='!text-text-01 dark:!text-text-01-dark hover:!bg-blue-500/10'
-            style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
-          >
-            {t('toolbox')}
-          </Button>
-        )}
         <Button
           type="text"
           icon={<HistoryOutlined />}

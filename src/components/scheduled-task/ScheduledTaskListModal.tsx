@@ -15,7 +15,7 @@ interface ScheduledTaskListModalProps {
 }
 
 /**
- * Scheduled task list modal (for Toolbox page)
+ * Scheduled task list modal
  */
 export const ScheduledTaskListModal: React.FC<ScheduledTaskListModalProps> = ({ visible, onClose }) => {
   const { t } = useTranslation('scheduledTask');
