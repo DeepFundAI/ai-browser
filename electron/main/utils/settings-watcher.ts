@@ -9,6 +9,7 @@ import { app, BrowserWindow, session } from 'electron';
 import type { AppSettings, GeneralSettings, NetworkSettings, UISettings } from '../models';
 import { SettingsManager } from './settings-manager';
 import { updateAllWindowsConfig } from './client-config';
+import globalAgent from 'global-agent';
 
 /**
  * Singleton settings watcher
@@ -20,7 +21,10 @@ export class SettingsWatcher {
   private mainWindow: BrowserWindow | null = null;
   private proxyAuthHandler: ((authInfo: Electron.AuthInfo, callback: (username?: string, password?: string) => void) => void) | null = null;
 
-  private constructor() {}
+  private constructor() {
+    // Bootstrap global-agent to intercept Node.js HTTP/HTTPS requests
+    globalAgent.bootstrap();
+  }
 
   public static getInstance(): SettingsWatcher {
     if (!SettingsWatcher.instance) {
@@ -202,6 +206,10 @@ export class SettingsWatcher {
       if (!proxy.enabled) {
         // Disable proxy - use direct connection
         await session.defaultSession.setProxy({ mode: 'direct' });
+        // Clear global-agent proxy settings
+        delete process.env.GLOBAL_AGENT_HTTP_PROXY;
+        delete process.env.GLOBAL_AGENT_HTTPS_PROXY;
+        delete process.env.GLOBAL_AGENT_NO_PROXY;
         console.log('[SettingsWatcher] Proxy disabled (direct connection)');
         return;
       }
@@ -210,20 +218,32 @@ export class SettingsWatcher {
       if (!proxy.server || !proxy.port) {
         console.warn('[SettingsWatcher] Invalid proxy config: missing server or port');
         await session.defaultSession.setProxy({ mode: 'direct' });
+        // Clear global-agent proxy settings
+        delete process.env.GLOBAL_AGENT_HTTP_PROXY;
+        delete process.env.GLOBAL_AGENT_HTTPS_PROXY;
         return;
       }
 
-      // Build proxy URL
-      const proxyUrl = `${proxy.type}://${proxy.server}:${proxy.port}`;
+      // Build proxy URL with optional authentication
+      let proxyUrl = `${proxy.type}://${proxy.server}:${proxy.port}`;
+      let proxyUrlWithAuth = proxyUrl;
+      if (proxy.username && proxy.password) {
+        proxyUrlWithAuth = `${proxy.type}://${encodeURIComponent(proxy.username)}:${encodeURIComponent(proxy.password)}@${proxy.server}:${proxy.port}`;
+      }
 
-      // Set proxy configuration
+      // Set Electron session proxy (for Electron net module and BrowserWindow)
       const proxyConfig: Electron.ProxyConfig = {
         mode: 'fixed_servers',
         proxyRules: proxyUrl
       };
 
       await session.defaultSession.setProxy(proxyConfig);
-      console.log(`[SettingsWatcher] Proxy enabled: ${proxyUrl}`);
+      console.log(`[SettingsWatcher] Electron session proxy enabled: ${proxyUrl}`);
+
+      // Set global-agent proxy (for Node.js http/https/fetch requests)
+      process.env.GLOBAL_AGENT_HTTP_PROXY = proxyUrlWithAuth;
+      process.env.GLOBAL_AGENT_HTTPS_PROXY = proxyUrlWithAuth;
+      console.log(`[SettingsWatcher] Global-agent proxy enabled: ${proxy.type}://${proxy.server}:${proxy.port}`);
 
       // Setup proxy authentication if credentials provided
       if (proxy.username && proxy.password) {
