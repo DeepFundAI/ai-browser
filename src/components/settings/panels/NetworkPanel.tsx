@@ -226,8 +226,11 @@ export const NetworkPanel: React.FC<NetworkPanelProps> = ({
               <div className="mt-4 space-y-6">
                 {/* Request Timeout */}
                 <div>
-                  <div className="text-text-01 dark:!text-text-01-dark font-medium mb-3">
+                  <div className="text-text-01 dark:!text-text-01-dark font-medium mb-1">
                     {t('network.request_timeout')}: {settings.requestTimeout} {t('network.request_timeout_unit')}
+                  </div>
+                  <div className="text-gray-400 text-xs mb-2">
+                    {t('network.request_timeout_desc')}
                   </div>
                   <div className="px-1">
                     <SliderSetting
@@ -247,6 +250,32 @@ export const NetworkPanel: React.FC<NetworkPanelProps> = ({
                   </div>
                 </div>
 
+                {/* Stream Timeout */}
+                <div>
+                  <div className="text-text-01 dark:!text-text-01-dark font-medium mb-1">
+                    {t('network.stream_timeout')}: {settings.streamTimeout} {t('network.request_timeout_unit')}
+                  </div>
+                  <div className="text-gray-400 text-xs mb-2">
+                    {t('network.stream_timeout_desc')}
+                  </div>
+                  <div className="px-1">
+                    <SliderSetting
+                      label=""
+                      description=""
+                      value={settings.streamTimeout}
+                      min={60}
+                      max={300}
+                      step={10}
+                      onChange={(value) => handleChange({ streamTimeout: value })}
+                      marks={{
+                        60: '60s',
+                        180: '180s',
+                        300: '300s'
+                      }}
+                    />
+                  </div>
+                </div>
+
                 {/* Retry Attempts */}
                 <div>
                   <div className="text-text-01 dark:!text-text-01-dark font-medium mb-2">{t('network.retry_attempts')}</div>
@@ -259,20 +288,6 @@ export const NetworkPanel: React.FC<NetworkPanelProps> = ({
                   />
                   <div className="text-gray-400 text-xs mt-1">
                     {t('network.retry_attempts_desc')}
-                  </div>
-                </div>
-
-                {/* Custom User-Agent */}
-                <div>
-                  <div className="text-text-01 dark:!text-text-01-dark font-medium mb-2">{t('network.custom_user_agent')}</div>
-                  <Input
-                    value={settings.customUserAgent}
-                    onChange={(e) => handleChange({ customUserAgent: e.target.value })}
-                    placeholder={t('network.custom_user_agent_placeholder')}
-                    className="!bg-white dark:!bg-white/5 !border-gray-200 dark:!border-white/10 !text-text-01 dark:!text-text-01-dark"
-                  />
-                  <div className="text-gray-400 text-xs mt-1">
-                    {t('network.custom_user_agent_desc')}
                   </div>
                 </div>
               </div>

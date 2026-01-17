@@ -74,9 +74,9 @@ export function getDefaultNetworkSettings(): NetworkSettings {
       username: '',
       password: ''
     },
-    requestTimeout: 30,
-    retryAttempts: 3,
-    customUserAgent: ''
+    requestTimeout: 30,      // Initial response timeout (seconds)
+    streamTimeout: 180,      // Streaming token interval timeout (seconds)
+    retryAttempts: 3
   };
 }
 

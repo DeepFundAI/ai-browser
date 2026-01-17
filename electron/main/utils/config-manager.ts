@@ -114,6 +114,7 @@ export class ConfigManager {
     // Read from unified settings
     const appSettings = SettingsManager.getInstance().getAppSettings();
     const chatSettings = appSettings.chat;
+    const networkSettings = appSettings.network;
 
     // Find the first enabled provider with selectedModel and apiKey
     const enabledProvider = Object.values(appSettings.providers).find(

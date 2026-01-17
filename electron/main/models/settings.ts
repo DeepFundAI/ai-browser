@@ -174,9 +174,9 @@ export interface NetworkSettings {
     username?: string;
     password?: string;
   };
-  requestTimeout: number;
+  requestTimeout: number; // Initial response timeout (seconds)
+  streamTimeout: number;  // Streaming token interval timeout (seconds)
   retryAttempts: number;
-  customUserAgent?: string;
 }
 
 export interface AppSettings {

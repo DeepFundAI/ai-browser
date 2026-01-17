@@ -143,9 +143,9 @@ export interface NetworkSettings {
     username?: string;
     password?: string;
   };
-  requestTimeout: number; // 5 - 120 seconds
+  requestTimeout: number; // 5 - 120 seconds (initial response timeout)
+  streamTimeout: number; // 60 - 300 seconds (streaming token interval timeout)
   retryAttempts: number; // 0 - 10
-  customUserAgent?: string;
 }
 
 export interface AppSettings {
