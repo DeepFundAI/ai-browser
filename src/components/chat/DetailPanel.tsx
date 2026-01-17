@@ -34,7 +34,7 @@ export const DetailPanel: React.FC<DetailPanelProps> = ({
   return (
     <div className='h-full transition-all pt-5 pb-4 pr-4 duration-300 text-text-01 dark:text-text-01-dark' style={{ width: showDetail ? '800px' : '0px' }}>
       {showDetail && (
-        <div className='h-full border-border-message dark:border-border-message-dark border flex flex-col rounded-xl'>
+        <div className='h-full border-border-message dark:border-border-message-dark border flex flex-col rounded-xl bg-white/60 dark:bg-transparent backdrop-blur-sm'>
           {/* Detail panel title */}
           <div className='p-4'>
             <h3 className='text-xl font-semibold'>{t('atlas_computer')}</h3>

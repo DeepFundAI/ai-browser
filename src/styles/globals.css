@@ -46,21 +46,23 @@
 
   /* Background colors - dark theme glass morphism */
   --background-image-header-dark: rgba(255, 255, 255, 0.03);
-  --background-image-message-dark: rgba(255, 255, 255, 0.05);
+  --background-image-message-dark: linear-gradient(135deg, rgba(139, 92, 246, 0.12) 0%, rgba(59, 130, 246, 0.08) 100%);
   --background-image-atlas-dark: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%);
   --background-image-ask-status-dark: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
   --background-color-thinking-dark: rgba(255, 255, 255, 0.04);
   --background-color-step-dark: #3B82F6;
-  --background-color-tool-call-dark: rgba(255, 255, 255, 0.03);
+  --background-color-tool-call-dark: rgba(255, 255, 255, 0.05);
 
   /* Border colors - dark theme */
   --color-border-message-dark: rgba(255, 255, 255, 0.1);
 
   /* ===== Light theme variables (without suffix) ===== */
 
-  /* Main view background - light gradient */
+  /* Main view background - light gradient (modern subtle blue-white) */
   --background-image-main-view:
-    linear-gradient(135deg, #f9fafb 0%, #f3f4f6 30%, #e5e7eb 60%, #f9fafb 100%);
+    radial-gradient(ellipse at 20% 20%, rgba(59, 130, 246, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(139, 92, 246, 0.03) 0%, transparent 50%),
+    linear-gradient(180deg, #F8FAFC 0%, #FFFFFF 100%);
   --background-image-main-view-header: rgba(255, 255, 255, 0.98);
   --background-image-main-view-footer: rgba(255, 255, 255, 0.95);
 
@@ -78,15 +80,15 @@
 
   /* Background colors - light theme */
   --background-image-header: rgba(255, 255, 255, 0.98);
-  --background-image-message: rgba(249, 250, 251, 0.95);
+  --background-image-message: #ffffff;
   --background-image-atlas: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(147, 51, 234, 0.08) 100%);
   --background-image-ask-status: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
   --background-color-thinking: rgba(0, 0, 0, 0.03);
   --background-color-step: #3b82f6;
-  --background-color-tool-call: rgba(249, 250, 251, 0.95);
+  --background-color-tool-call: rgba(255, 255, 255, 0.85);
 
   /* Border colors - light theme */
-  --color-border-message: #e5e7eb;
+  --color-border-message: #d1d5db;
 
   /* Density spacing variables */
   /* Compact mode */
@@ -164,14 +166,24 @@
 
 }
 
-.gradient-border {
+/* Dark theme - purple gradient border */
+.dark .gradient-border {
   position: relative;
   display: inline-block;
   padding: 2px; /* Border width */
   border-radius: 12px;
-  /* Fellou.ai purple gradient border - subtle */
   background: linear-gradient(135deg, rgba(94, 49, 216, 0.3), rgba(145, 75, 241, 0.2), rgba(94, 49, 216, 0.3));
   backdrop-filter: blur(12px);
+  transition: all 0.3s ease;
+}
+
+/* Light theme - white background with border */
+.light .gradient-border {
+  position: relative;
+  display: inline-block;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
   transition: all 0.3s ease;
 }
 
