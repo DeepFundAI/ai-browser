@@ -75,7 +75,10 @@ export async function POST(req: NextRequest) {
       }, 50);
     }
 
-    return NextResponse.json({ status: 'Accepted' });
+    return new NextResponse('Accepted', {
+      status: 200,
+      headers: { 'Content-Type': 'text/plain' }
+    });
 
   } catch (error) {
     logger.error('Error handling request', error, 'McpMessageAPI');
