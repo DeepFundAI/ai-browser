@@ -31,19 +31,19 @@ export const AboutPanel: React.FC = () => {
           <div className="grid grid-cols-2 gap-4 pt-6 border-t border-gray-200 dark:border-white/10">
             <div>
               <div className="text-text-12 dark:text-text-12-dark text-sm mb-1">{t('about.version')}</div>
-              <div className="text-text-01 dark:text-text-01-darkfont-semibold">0.0.15</div>
+              <div className="text-text-01 dark:text-text-01-dark font-semibold">0.1.0</div>
             </div>
             <div>
               <div className="text-text-12 dark:text-text-12-dark text-sm mb-1">{t('about.license')}</div>
-              <div className="text-text-01 dark:text-text-01-darkfont-semibold">MIT</div>
+              <div className="text-text-01 dark:text-text-01-dark font-semibold">MIT</div>
             </div>
             <div>
               <div className="text-text-12 dark:text-text-12-dark text-sm mb-1">Electron</div>
-              <div className="text-text-01 dark:text-text-01-darkfont-semibold">33.2.0</div>
+              <div className="text-text-01 dark:text-text-01-dark font-semibold">33.2.0</div>
             </div>
             <div>
               <div className="text-text-12 dark:text-text-12-dark text-sm mb-1">Next.js</div>
-              <div className="text-text-01 dark:text-text-01-darkfont-semibold">15.4.8</div>
+              <div className="text-text-01 dark:text-text-01-dark font-semibold">15.4.8</div>
             </div>
           </div>
 
