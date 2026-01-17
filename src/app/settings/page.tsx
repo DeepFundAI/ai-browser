@@ -20,7 +20,7 @@ export default function SettingsPage() {
 
         {/* Main settings content */}
         <div className="flex-1 overflow-hidden">
-          <SettingsLayout initialTab="providers" />
+          <SettingsLayout initialTab="general" />
         </div>
       </div>
     </App>
