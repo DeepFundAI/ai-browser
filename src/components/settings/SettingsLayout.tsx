@@ -44,27 +44,13 @@ interface SettingsLayoutProps {
  * Manages unified state and save/close functionality for all settings
  */
 export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
-  initialTab = 'providers'
+  initialTab = 'general'
 }) => {
   const { t } = useTranslation('settings');
   const { modal, message } = App.useApp();
 
-  // Initialize from URL hash or initialTab
-  const getInitialTab = (): SettingsTab => {
-    if (typeof window !== 'undefined') {
-      const hash = window.location.hash.replace('#', '');
-      const validTabs: SettingsTab[] = [
-        'general', 'providers', 'chat', 'agent', 'scheduled-tasks',
-        'user-interface', 'network', 'memory', 'about'
-      ];
-      if (hash && validTabs.includes(hash as SettingsTab)) {
-        return hash as SettingsTab;
-      }
-    }
-    return initialTab;
-  };
-
-  const [activeTab, setActiveTabState] = useState<SettingsTab>(getInitialTab());
+  // Initialize with prop value (consistent for SSR and client)
+  const [activeTab, setActiveTabState] = useState<SettingsTab>(initialTab);
 
   // Wrapper to update both state and URL hash
   const setActiveTab = (tab: SettingsTab) => {
@@ -95,6 +81,21 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
     saveConfigs,
     resetConfigs
   } = useSettingsState();
+
+  // Read URL hash on client mount (after hydration)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash.replace('#', '');
+      const validTabs: SettingsTab[] = [
+        'general', 'providers', 'chat', 'agent', 'scheduled-tasks',
+        'user-interface', 'network', 'memory', 'about'
+      ];
+      if (hash && validTabs.includes(hash as SettingsTab)) {
+        logger.debug(`Initial navigation to panel: ${hash}`, 'SettingsLayout');
+        setActiveTabState(hash as SettingsTab);
+      }
+    }
+  }, []); // Only run once on mount
 
   // Listen for URL hash changes to navigate to specific panel
   useEffect(() => {
