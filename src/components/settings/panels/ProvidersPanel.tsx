@@ -57,7 +57,7 @@ const ProviderListItem: React.FC<ProviderListItemProps> = ({
         'text-left border',
         isSelected
           ? 'bg-blue-500/20 border-blue-500/50'
-          : 'border-gray-200 dark:border-white/10 hover:bg-white dark:bg-white/5 hover:border-gray-300 dark:border-white/20'
+          : 'border-gray-200 hover:bg-white dark:bg-white/5 hover:border-gray-300 dark:border-white/20'
       )}
     >
       {isCustom ? (
@@ -150,7 +150,7 @@ const AddModelInline: React.FC<AddModelInlineProps> = ({ onAdd }) => {
         icon={<PlusOutlined />}
         onClick={handleAdd}
         size="small"
-        className="bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-text-01 dark:text-text-01-darkhover:bg-gray-100 dark:bg-white/10"
+        className="bg-white border-gray-200 dark:border-white/10 text-text-01 dark:text-text-01-darkhover:bg-gray-100 dark:bg-white/10"
       >
         {t('providers.add_model')}
       </Button>
@@ -588,7 +588,7 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
                           icon={<DownloadOutlined />}
                           onClick={handleFetchModels}
                           loading={isFetchingModels}
-                          className="bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-text-01 dark:text-text-01-darkhover:bg-gray-100 dark:bg-white/10"
+                          className="bg-white border-gray-200 dark:border-white/10 text-text-01 dark:text-text-01-darkhover:bg-gray-100 dark:bg-white/10"
                         >
                           {t('providers.fetch')}
                         </Button>

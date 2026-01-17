@@ -24,10 +24,12 @@ import { ChatInputArea } from '@/components/chat/ChatInputArea';
 import { HistoryModeHeader } from '@/components/chat/HistoryModeHeader';
 import { DetailPanel } from '@/components/chat/DetailPanel';
 import { PlaybackSpeedControl } from '@/components/chat/PlaybackSpeedControl';
+import { useHasValidProvider } from '@/hooks/useHasValidProvider';
 
 
 export default function main() {
     const { t } = useTranslation('main');
+    const hasValidProvider = useHasValidProvider();
     const { message: antdMessage } = App.useApp();
     const router = useRouter();
     const pathname = usePathname();
@@ -431,6 +433,7 @@ export default function main() {
                             <ChatInputArea
                                 query={query}
                                 isCurrentTaskRunning={isCurrentTaskRunning}
+                                hasValidProvider={hasValidProvider}
                                 onQueryChange={setQuery}
                                 onSend={async () => {
                                     const messageToSend = query.trim();

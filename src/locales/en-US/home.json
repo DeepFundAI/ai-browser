@@ -4,5 +4,7 @@
   "input_placeholder": "Please enter your task",
   "voice_input_start": "Start voice input",
   "voice_input_stop": "Stop recording",
-  "voice_input_error": "Voice recognition failed"
+  "voice_input_error": "Voice recognition failed",
+  "no_provider_warning": "Please configure AI provider in Settings first",
+  "no_provider_tooltip": "Configure AI provider first"
 }

@@ -137,18 +137,18 @@ export const ModelSelector: React.FC = () => {
     }
   }, []);
 
-  // Empty state - show configure button
+  // Empty state - show configure button with red warning
   if (modelOptions.length === 0) {
     return (
-      <div className="group flex items-center gap-2 px-3.5 py-2 rounded-xl border border-white/20 bg-white/5 backdrop-blur-sm hover:bg-white/10 hover:border-blue-400/40 hover:shadow-[0_0_20px_rgba(59,130,246,0.2)] transition-all duration-300">
-        <SettingOutlined className="text-gray-400 group-hover:text-blue-400 text-base transition-colors duration-300" />
-        <span className="text-xs text-gray-400 group-hover:text-gray-300 transition-colors duration-300">No models</span>
+      <div className="group flex items-center gap-2 px-3.5 py-2 rounded-xl border-2 border-red-500/60 bg-red-500/10 backdrop-blur-sm hover:bg-red-500/20 hover:border-red-500/80 hover:shadow-[0_0_20px_rgba(239,68,68,0.4)] transition-all duration-300 animate-pulse">
+        <SettingOutlined className="text-red-400 text-base" />
+        <span className="text-xs font-semibold text-red-400">No models</span>
         <Button
           type="link"
           size="small"
-          icon={<SettingOutlined />}
+          icon={<SettingOutlined className="!text-blue-400" />}
           onClick={handleOpenSettings}
-          className="!text-blue-400 hover:!text-blue-300 !p-0 !h-auto !text-xs transition-colors duration-300"
+          className="!text-blue-400 hover:!text-blue-300 !p-0 !h-auto !text-xs !font-semibold transition-colors duration-300 hover:underline cursor-pointer"
         >
           Configure
         </Button>

@@ -1,6 +1,6 @@
 import { app, BrowserWindow } from 'electron';
 import path from 'node:path';
-import { isDev } from '../utils/constants';
+import { isDev, DEFAULT_PORT } from '../utils/constants';
 import { store } from '../utils/store';
 import { applyClientConfigToWindow } from '../utils/client-config';
 
@@ -62,10 +62,9 @@ export function openSettingsWindow(panel?: string) {
   applyClientConfigToWindow(settingsWindow);
 
   // Load settings page with optional panel hash
+  // Both dev and production use Next.js server
   const hash = panel ? `#${panel}` : '';
-  const settingsURL = isDev
-    ? `http://localhost:5173/settings${hash}`
-    : `client://./settings.html${hash}`;
+  const settingsURL = `http://localhost:${DEFAULT_PORT}/settings${hash}`;
 
   settingsWindow.loadURL(settingsURL).catch(err => {
     console.error('[Settings Window] Failed to load URL:', err);

@@ -49,5 +49,7 @@
   "voice_input_error": "语音识别失败",
   "download": "下载",
   "preview": "预览",
-  "no_message_to_retry": "没有可重试的消息"
+  "no_message_to_retry": "没有可重试的消息",
+  "no_provider_warning": "请先在设置中配置 AI 提供商",
+  "no_provider_tooltip": "请先配置 AI 提供商"
 }

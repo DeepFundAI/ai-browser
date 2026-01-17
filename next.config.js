@@ -6,11 +6,6 @@ const nextConfig = {
   reactStrictMode: true,
   devIndicators: false,
 
-  // Disable SSR for all pages (Electron app doesn't need SSR)
-  experimental: {
-    appDir: true,
-  },
-
   // Disable ESLint checks during build
   eslint: {
     ignoreDuringBuilds: true,

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Header from '@/components/Header'
 import { Input, Button, App } from 'antd'
@@ -12,12 +12,14 @@ import { ModelSelector } from '@/components/ModelSelector'
 import { ChromeBrowserBackground } from '@/components/fellou/ChromeBrowserBackground'
 import { useTranslation } from 'react-i18next'
 import { useVoiceInput } from '@/hooks/useVoiceInput'
+import { useHasValidProvider } from '@/hooks/useHasValidProvider'
 
 export default function Home() {
     const [query, setQuery] = useState('')
     const router = useRouter()
     const { t } = useTranslation('home')
     const { message: antdMessage } = App.useApp()
+    const hasValidProvider = useHasValidProvider()
 
     // Voice input hook
     const { isRecording, toggleRecording } = useVoiceInput({
@@ -55,7 +57,12 @@ export default function Home() {
     }, [])
 
     // Handle sending message
-    const handleSendMessage = () => {
+    const handleSendMessage = useCallback(() => {
+        if (!hasValidProvider) {
+            antdMessage.warning(t('no_provider_warning') || 'Please configure AI provider in Settings first');
+            return;
+        }
+
         if (query.trim()) {
             // Use sessionStorage to implicitly pass message
             if (typeof window !== 'undefined') {
@@ -64,7 +71,7 @@ export default function Home() {
             // Directly navigate to main page without URL parameters
             router.push('/main')
         }
-    }
+    }, [hasValidProvider, query, router, antdMessage, t])
 
     // Handle Enter key
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -121,8 +128,9 @@ export default function Home() {
                                     <Button
                                         type='text'
                                         onClick={handleSendMessage}
-                                        disabled={!query.trim()}
+                                        disabled={!query.trim() || !hasValidProvider}
                                         className='!p-0 !w-8 !h-8 !min-w-0 flex items-center justify-center text-lg'
+                                        title={!hasValidProvider ? (t('no_provider_tooltip') || 'Configure AI provider first') : ''}
                                     >
                                         <SendMessage/>
                                     </Button>
