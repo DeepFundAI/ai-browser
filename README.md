@@ -21,21 +21,7 @@ Node version: 20.19.3
 
 ## Getting Started
 
-### 1. Configure API Keys
-
-Before running the application, you need to configure API keys:
-
-```bash
-# Copy configuration template
-cp .env.template .env.local
-
-# Edit .env.local and fill in your API keys
-# Supported: DEEPSEEK_API_KEY, QWEN_API_KEY, GOOGLE_API_KEY, ANTHROPIC_API_KEY, OPENROUTER_API_KEY
-```
-
-For detailed configuration instructions, see [CONFIGURATION.md](./docs/CONFIGURATION.md).
-
-### 2. Development Setup
+### 1. Development Setup
 
 First, run the development server:
 
@@ -56,14 +42,23 @@ pnpm run next
 pnpm run electron
 ```
 
+### 2. Configure API Keys (After Launch)
+
+After launching the application:
+
+1. Click the **Settings** icon (⚙️) in the top-right corner
+2. Navigate to **Providers** panel
+3. Select your AI provider (DeepSeek, Qwen, Google Gemini, Claude, or OpenRouter)
+4. Click **Edit API Key** and enter your API key
+5. Click the checkmark to save
+
+For detailed configuration instructions, see [CONFIGURATION.md](./docs/CONFIGURATION.md).
+
 ### 3. Building Desktop Application
 
 To build the desktop application for distribution:
 
 ```bash
-# Configure production API keys
-# Edit .env.production file with your actual API keys
-
 # Build the application for mac
 pnpm run build
 
@@ -71,19 +66,24 @@ pnpm run build
 pnpm run build:win
 ```
 
-The built application will include your API configuration, so end users don't need to configure anything.
+**Note**: End users will configure their API keys through the Settings UI after installation. No environment files needed.
 
 ## Features
 
 - **Multiple AI Providers**: Support for DeepSeek, Qwen, Google Gemini, Anthropic Claude, and OpenRouter
-- **UI Configuration**: Configure AI models and API keys directly in the app, no file editing required
-- **Agent Configuration**: Customize AI agent behavior with custom prompts and manage MCP tools
-- **Toolbox**: Centralized hub for system features including agent configuration, scheduled tasks, and more
+- **Complete Settings System**: Configure everything through the UI - no file editing required
+  - **Providers**: API keys, models, and provider-specific settings
+  - **General**: Language, startup behavior, window preferences
+  - **Chat**: Temperature, max tokens, streaming, and chat behavior
+  - **Agent**: Browser/File agent settings, custom prompts, MCP tools
+  - **UI**: Theme (Dark/Light/System), font size, density, editor preferences
+  - **Network**: Proxy, request timeout, stream timeout, retry attempts
+- **Scheduled Tasks**: Create and manage automated recurring tasks with custom intervals
 - **AI-Powered Browser**: Intelligent browser with automated task execution
 - **Multi-Modal AI**: Vision and text processing capabilities
-- **Scheduled Tasks**: Create and manage automated recurring tasks
 - **Speech & TTS**: Voice recognition and text-to-speech integration
 - **File Management**: Advanced file operations and management
+- **Internationalization**: Full English and Chinese language support
 
 ## RoadMap
 
@@ -113,6 +113,16 @@ The built application will include your API configuration, so end users don't ne
 - Context restoration and session management
 - Optimized auto-scroll behavior for messages
 - Enhanced message display and rendering
+
+**v0.0.11+: Unified Settings System**
+- Complete Settings redesign with 6 panels (Providers, General, Chat, Agent, UI, Network)
+- Unified configuration management with electron-store
+- All settings configurable through UI - no manual file editing required
+- Real-time settings sync across all windows
+- Import/Export/Reset functionality for all settings
+- Dark/Light/System theme support with smooth transitions
+- Network configuration (Proxy, Timeout, Retry)
+- Scheduled Tasks system with IndexedDB storage
 
 ### 🚀 Future Plans
 
@@ -209,7 +219,9 @@ Special thanks to [Eko](https://github.com/FellouAI/eko) - A production-ready ag
 
 ## Contributing
 
-Please ensure all API keys are properly configured in development environment files only. Never commit actual API keys to the repository.
+Contributions are welcome! Please read our contributing guidelines before submitting pull requests.
+
+**Important**: Never commit actual API keys to the repository. Use the Settings UI to configure your development environment.
 
 ## License
 

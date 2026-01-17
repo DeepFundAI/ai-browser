@@ -21,21 +21,7 @@ Node 版本: 20.19.3
 
 ## 快速开始
 
-### 1. 配置 API 密钥
-
-运行应用前，需要配置 API 密钥：
-
-```bash
-# 复制配置模板
-cp .env.template .env.local
-
-# 编辑 .env.local 并填入你的 API 密钥
-# 支持: DEEPSEEK_API_KEY, QWEN_API_KEY, GOOGLE_API_KEY, ANTHROPIC_API_KEY, OPENROUTER_API_KEY
-```
-
-详细配置说明请参见 [CONFIGURATION.zh-CN.md](./docs/CONFIGURATION.zh-CN.md)。
-
-### 2. 开发环境设置
+### 1. 开发环境设置
 
 首先，运行开发服务器：
 
@@ -53,31 +39,45 @@ pnpm run next
 pnpm run electron
 ```
 
+### 2. 配置 API 密钥（启动后）
+
+启动应用后：
+
+1. 点击右上角的**设置**图标（⚙️）
+2. 进入 **Providers**（提供商）面板
+3. 选择你的 AI 提供商（DeepSeek、Qwen、Google Gemini、Claude 或 OpenRouter）
+4. 点击**编辑 API 密钥**并输入你的 API 密钥
+5. 点击勾选标记保存
+
+详细配置说明请参见 [CONFIGURATION.zh-CN.md](./docs/CONFIGURATION.zh-CN.md)。
+
 ### 3. 构建桌面应用
 
 构建用于分发的桌面应用：
 
 ```bash
-# 配置生产环境 API 密钥
-# 编辑 .env.production 文件并填入实际的 API 密钥
-
 # 构建应用
 pnpm run build
 ```
 
-构建的应用将包含你的 API 配置，终端用户无需额外配置。
+**注意**：终端用户安装后将通过设置界面配置 API 密钥，无需环境文件。
 
 ## 功能特性
 
 - **多 AI 提供商支持**: 支持 DeepSeek、Qwen、Google Gemini、Anthropic Claude 和 OpenRouter
-- **UI 配置**: 直接在应用中配置 AI 模型和 API 密钥，无需编辑文件
-- **Agent 配置**: 使用自定义提示词定制 AI Agent 行为，管理 MCP 工具
-- **工具箱**: 系统功能的集中访问中心，包括 Agent 配置、定时任务等
+- **完整的设置系统**: 通过 UI 配置一切 - 无需编辑文件
+  - **Providers（提供商）**: API 密钥、模型和提供商特定设置
+  - **General（通用）**: 语言、启动行为、窗口偏好
+  - **Chat（对话）**: 温度、最大令牌、流式传输和对话行为
+  - **Agent（智能体）**: 浏览器/文件代理设置、自定义提示词、MCP 工具
+  - **UI（界面）**: 主题（深色/浅色/跟随系统）、字体大小、密度、编辑器偏好
+  - **Network（网络）**: 代理、请求超时、流超时、重试次数
+- **定时任务**: 创建和管理具有自定义间隔的自动化定期任务
 - **AI 智能浏览器**: 具有自动化任务执行的智能浏览器
 - **多模态 AI**: 视觉和文本处理能力
-- **定时任务**: 创建和管理自动化定期任务
 - **语音识别与 TTS**: 语音识别和文字转语音集成
 - **文件管理**: 高级文件操作和管理
+- **国际化**: 完整的中英文语言支持
 
 ## 产品路线图
 
@@ -107,6 +107,16 @@ pnpm run build
 - 上下文恢复与会话管理
 - 消息自动滚动优化
 - 增强的消息展示和渲染
+
+**v0.0.11+: 统一设置系统**
+- 全新设置界面，包含 6 个面板（Providers、General、Chat、Agent、UI、Network）
+- 使用 electron-store 统一配置管理
+- 所有设置通过 UI 配置 - 无需手动编辑文件
+- 所有窗口实时同步设置
+- 支持导入/导出/重置所有设置
+- 深色/浅色/跟随系统主题支持，平滑过渡
+- 网络配置（代理、超时、重试）
+- 定时任务系统（使用 IndexedDB 存储）
 
 ### 🚀 未来规划
 
@@ -203,7 +213,9 @@ pnpm run build
 
 ## 贡献
 
-请确保所有 API 密钥仅在开发环境文件中配置。永远不要将实际的 API 密钥提交到仓库中。
+欢迎贡献！提交 Pull Request 前请先阅读我们的贡献指南。
+
+**重要提示**：永远不要将实际的 API 密钥提交到仓库。使用设置界面配置你的开发环境。
 
 ## 开源协议
 
