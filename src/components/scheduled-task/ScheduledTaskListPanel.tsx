@@ -129,7 +129,7 @@ export const ScheduledTaskListPanel: React.FC = () => {
         }
         open={showListPanel}
         onClose={() => setShowListPanel(false)}
-        width={400}
+        size="default"
         className="scheduled-task-list-panel"
         styles={{
         wrapper: {

@@ -17,7 +17,7 @@ import { useSettingsStore } from '@/stores/settingsStore';
 const { Content } = Layout;
 const { Title, Text } = Typography;
 
-// Dark theme action button with unified styling
+// Theme-responsive action button with unified styling
 const ActionButton: React.FC<{
   icon: React.ReactNode;
   onClick: () => void;
@@ -27,12 +27,12 @@ const ActionButton: React.FC<{
 }> = ({ icon, onClick, disabled, active, children }) => {
   const baseStyles = [
     '!bg-transparent',
-    '!border-[rgba(255,255,255,0.2)]',
-    '!text-gray-300',
-    'hover:!text-white',
+    '!border-gray-300 dark:!border-[rgba(255,255,255,0.2)]',
+    '!text-gray-600 dark:!text-gray-300',
+    'hover:!text-gray-900 dark:hover:!text-white',
     'hover:!border-blue-500',
-    'disabled:!text-gray-600',
-    'disabled:!border-gray-700'
+    'disabled:!text-gray-400 dark:disabled:!text-gray-600',
+    'disabled:!border-gray-300 dark:disabled:!border-gray-700'
   ];
 
   return (
@@ -62,7 +62,7 @@ interface FileViewState {
 export default function FileView() {
   const { t } = useTranslation('fileView');
   const { message } = App.useApp();
-  const { settings } = useSettingsStore();
+  const { settings, loadSettings } = useSettingsStore();
   const [fileState, setFileState] = useState<FileViewState>({
     content: '',
     isLoading: true,
@@ -78,6 +78,69 @@ export default function FileView() {
   type ShowTypeOption = 'code' | 'preview';
 
   const [showType, setShowType] = useState<ShowTypeOption>('code');
+
+  // Handle theme changes
+  useEffect(() => {
+    const applyTheme = (theme: 'light' | 'dark' | 'system') => {
+      if (typeof window === 'undefined') return;
+
+      let effectiveTheme: 'light' | 'dark' = 'dark';
+
+      if (theme === 'system') {
+        effectiveTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      } else {
+        effectiveTheme = theme;
+      }
+
+      document.documentElement.setAttribute('data-theme', effectiveTheme);
+
+      if (effectiveTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+      } else {
+        document.documentElement.classList.add('light');
+        document.documentElement.classList.remove('dark');
+      }
+    };
+
+    // Load initial settings and apply theme
+    loadSettings().then(() => {
+      const currentSettings = useSettingsStore.getState().settings;
+      if (currentSettings?.ui?.theme) {
+        applyTheme(currentSettings.ui.theme);
+      }
+    });
+
+    // Listen for theme changes from main process
+    const handleUIConfigUpdated = async () => {
+      await loadSettings();
+      const newSettings = useSettingsStore.getState().settings;
+      if (newSettings?.ui?.theme) {
+        applyTheme(newSettings.ui.theme);
+      }
+    };
+
+    let cleanup: (() => void) | undefined;
+    if (typeof window !== 'undefined' && (window as any).api?.onUIConfigUpdated) {
+      cleanup = (window as any).api.onUIConfigUpdated(handleUIConfigUpdated);
+    }
+
+    // Listen for system theme changes if using system theme
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleSystemThemeChange = () => {
+      const currentSettings = useSettingsStore.getState().settings;
+      if (currentSettings?.ui?.theme === 'system') {
+        applyTheme('system');
+      }
+    };
+
+    mediaQuery.addEventListener('change', handleSystemThemeChange);
+
+    return () => {
+      cleanup?.();
+      mediaQuery.removeEventListener('change', handleSystemThemeChange);
+    };
+  }, [loadSettings]);
 
   // Calculate file statistics
   const calculateStats = (content: string) => {
@@ -178,24 +241,24 @@ export default function FileView() {
   };
 
   return (
-    <Layout className="h-screen bg-[#1D273F]">
+    <Layout className="h-screen bg-gray-50 dark:bg-[#1D273F]">
       <Content className="p-4 flex flex-col gap-0">
         {/* Header information bar */}
-        <div className="flex justify-between items-center px-4 py-3 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.1)] border-b-0 rounded-t-lg">
+        <div className="flex justify-between items-center px-4 py-3 bg-white dark:bg-[rgba(255,255,255,0.03)] border border-gray-200 dark:border-[rgba(255,255,255,0.1)] border-b-0 rounded-t-lg">
           <div className="flex items-center gap-3">
-            <FileTextOutlined className="text-xl text-blue-400" />
+            <FileTextOutlined className="text-xl text-blue-500 dark:text-blue-400" />
             <div>
-              <Title level={5} className="!m-0 !text-white !font-medium">
+              <Title level={5} className="!m-0 !text-gray-900 dark:!text-white !font-medium">
                 {t('title')}
               </Title>
-              <Text className="text-xs !text-gray-400">
+              <Text className="text-xs !text-gray-500 dark:!text-gray-400">
                 {fileState.lastUpdated ? t('last_updated', { time: formatTime(fileState.lastUpdated) }) : t('waiting_content')}
               </Text>
             </div>
           </div>
 
           <Space>
-            <Text className="text-xs !text-gray-400">
+            <Text className="text-xs !text-gray-500 dark:!text-gray-400">
               {t('stats', { lines: fileState.lineCount, words: fileState.wordCount })}
             </Text>
             <ActionButton
@@ -232,7 +295,7 @@ export default function FileView() {
 
         {/* File content area */}
         {showType === 'code' ? (
-          <div className="flex-1 overflow-auto bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.1)] border-t-0 rounded-b-lg p-4" ref={contentRef}>
+          <div className="flex-1 overflow-auto bg-gray-50 dark:bg-[rgba(255,255,255,0.02)] border border-gray-200 dark:border-[rgba(255,255,255,0.1)] border-t-0 rounded-b-lg p-4" ref={contentRef}>
             {fileState.isLoading ? (
               <div className="flex justify-center items-center h-full flex-col gap-4">
                 <Spin size="large" />
@@ -247,7 +310,7 @@ export default function FileView() {
               />
             ) : (
               <div className="flex justify-center items-center h-full flex-col gap-4">
-                <FileTextOutlined className="text-6xl text-gray-500" />
+                <FileTextOutlined className="text-6xl text-gray-400 dark:text-gray-500" />
                 <div className="text-center">
                   <Title level={4} type="secondary">{t('no_content')}</Title>
                   <Text type="secondary">
@@ -258,7 +321,7 @@ export default function FileView() {
             )}
           </div>
         ) : (
-          <iframe src={fileState.url} className="flex-1 bg-white rounded-b-lg border border-[rgba(255,255,255,0.1)] border-t-0" />
+          <iframe src={fileState.url} className="flex-1 bg-white rounded-b-lg border border-gray-200 dark:border-[rgba(255,255,255,0.1)] border-t-0" />
         )}
 
       </Content>
