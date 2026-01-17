@@ -150,38 +150,37 @@ pnpm run build
 ## 截图
 
 ### 启动动画
+应用启动时的动画加载界面。
 
 ![启动动画](./docs/shotscreen/start-loading.png)
 
 ### 首页
-输入任务，让 AI 自动执行。
+简洁清爽的界面 - 输入任务，让 AI 自动执行。
 
 ![首页](./docs/shotscreen/home.png)
 
-### 主界面
-左侧：AI 思考和执行步骤。右侧：实时浏览器操作预览。
+### 任务执行
+左侧：AI 思考过程和执行步骤。右侧：实时浏览器操作预览。
 
 ![主界面](./docs/shotscreen/main.png)
-
-### 定时任务
-创建具有自定义间隔和执行步骤的定时任务。
-
-![定时任务](./docs/shotscreen/schedule.png)
 
 ### 历史记录
 查看过去的任务，支持搜索和回放功能。
 
 ![历史记录](./docs/shotscreen/history.png)
 
-### 工具箱
-集中访问所有系统功能和配置的中心枢纽。
+### 设置界面
+完整的设置界面包含 8 个面板：
+- **General（通用）**: 语言、启动行为、窗口偏好
+- **Providers（提供商）**: AI 提供商选择和 API 密钥管理
+- **Chat（对话）**: 温度、最大令牌和对话行为
+- **Agent（智能体）**: 浏览器/文件代理设置和 MCP 工具
+- **Scheduled Tasks（定时任务）**: 创建和管理自动化任务
+- **User Interface（用户界面）**: 主题、字体大小、密度偏好
+- **Network（网络）**: 代理、超时和重试配置
+- **Memory（记忆）**: 上下文管理设置（即将推出）
 
-![工具箱](./docs/shotscreen/toolbox.png)
-
-### Agent 配置
-使用自定义提示词定制 AI Agent 行为，管理 MCP 工具以增强能力。
-
-![Agent 配置](./docs/shotscreen/agent-configuration.png)
+![设置](./docs/shotscreen/settings.png)
 
 ## 支持的 AI 提供商
 

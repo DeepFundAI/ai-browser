@@ -57,26 +57,34 @@
 
 ## 完整设置指南
 
-### 1. Providers（提供商）面板
+设置界面提供 8 个配置面板。以下是**已实现的功能**（基于实际代码库）：
+
+### 1. General（通用）面板 ✅
+
+配置语言、启动行为和窗口偏好。
+
+**语言设置：**
+- 在英文和中文之间切换
+- 更改立即应用到所有窗口
+
+**启动设置：**
+- **开机自动启动**: 登录系统时自动启动
+- **最小化启动**: 启动到系统托盘（仅在自动启动时生效）
+
+**窗口行为：**
+- **最小化到托盘**: 最小化时隐藏到系统托盘
+- **关闭到托盘**: 关闭时保持在系统托盘运行
+
+### 2. Providers（提供商）面板
 
 配置 AI 提供商、API 密钥和选择模型。
 
-**配置步骤：**
-
-1. 打开设置（⚙️）→ **Providers** 标签
-2. 浏览可用提供商列表：
-   - DeepSeek（deepseek-chat、deepseek-reasoner）
-   - Qwen（qwen-max、qwen-plus、qwen-vl-max）
-   - Google Gemini（gemini-1.5-flash、gemini-2.0-flash 等）
-   - Anthropic Claude（claude-3.7-sonnet、claude-3.5-sonnet 等）
-   - OpenRouter（聚合多个提供商）
-3. 点击所选提供商的**编辑 API 密钥**
-4. 粘贴你的 API 密钥并点击勾选标记保存
-5. 从下拉菜单选择你偏好的模型
-
-**API 密钥状态指示器：**
-- 🟢 **已配置** - API 密钥已设置并可使用
-- 🟡 **未配置** - 未找到 API 密钥
+**可用提供商：**
+- DeepSeek（deepseek-chat、deepseek-reasoner）
+- Qwen（qwen-max、qwen-plus、qwen-vl-max）
+- Google Gemini（gemini-1.5-flash、gemini-2.0-flash 等）
+- Anthropic Claude（claude-3.7-sonnet、claude-3.5-sonnet 等）
+- OpenRouter（多个提供商）
 
 **API 密钥获取地址：**
 - DeepSeek: [platform.deepseek.com](https://platform.deepseek.com/api_keys)
@@ -85,61 +93,75 @@
 - Anthropic: [console.anthropic.com](https://console.anthropic.com/settings/keys)
 - OpenRouter: [openrouter.ai](https://openrouter.ai/keys)
 
-### 2. General（通用）设置面板
+### 3. Chat（对话）面板 ✅
 
-配置语言、启动行为和窗口偏好。
+配置 AI 模型行为和对话参数。
 
-**可用选项：**
-- **语言**: 英文 / 中文
-- **开机启动**: 系统启动时自动启动
-- **关闭到托盘**: 最小化到系统托盘而不是退出
-- **窗口大小**: 记住上次的窗口大小和位置
+**可用设置：**
+- **Temperature（温度）** (0.0 - 2.0): 控制响应的创造性/随机性
+- **Max Tokens（最大令牌）**: 最大响应长度（自动限制在模型上限内）
+- **Show Token Usage（显示令牌使用）**: 显示每条响应的令牌消耗
+- **Auto Save History（自动保存历史）**: 自动保存对话历史
+- **History Retention Days（历史保留天数）**: 保存对话的天数（7-90 天）
 
-### 3. Chat（对话）设置面板
-
-配置 AI 模型行为和对话偏好。
-
-**可用选项：**
-- **Temperature（温度）** (0.0 - 2.0): 控制响应的随机性
-- **Max Tokens（最大令牌）**: 最大响应长度（因模型而异）
-- **Streaming（流式传输）**: 启用实时响应流
-- **Context Window（上下文窗口）**: 包含在上下文中的消息数量
-
-### 4. Agent（智能体）设置面板
+### 4. Agent（智能体）面板 ✅
 
 配置浏览器代理、文件代理和 MCP 工具。
 
 **浏览器代理：**
 - 启用/禁用自动浏览器控制
-- 自定义浏览器代理提示词
+- 自定义浏览器代理系统提示词
 
 **文件代理：**
 - 启用/禁用文件系统操作
-- 自定义文件代理提示词
+- 自定义文件代理系统提示词
 
 **MCP 工具：**
 - 查看和管理模型上下文协议工具
-- 添加自定义 MCP 服务器配置
+- 配置 MCP 服务器连接
 
-### 5. UI（界面）设置面板
+### 5. Scheduled Tasks（定时任务）面板 ✅
+
+创建和管理自动化定期任务。
+
+**功能特性：**
+- 创建包含多个执行步骤的任务
+- 设置间隔调度（分钟/小时/天）
+- 启用/禁用任务
+- 查看执行历史
+- 立即运行任务（按需执行）
+
+**注意**: 定时任务使用独立的 IndexedDB 存储，不在统一设置中。
+
+### 6. User Interface（用户界面）面板 ✅
 
 配置主题、外观和编辑器偏好。
 
-**可用选项：**
-- **主题**: 深色 / 浅色 / 跟随系统
-- **字体大小**: 小 / 中 / 大
-- **密度**: 紧凑 / 舒适 / 宽松
-- **编辑器主题**: Monaco 编辑器配色方案
+**可用设置：**
+- **Theme（主题）**: 深色 / 浅色 / 跟随系统（跟随操作系统偏好）
+- **Font Size（字体大小）**: 小 / 中 / 大
+- **Density（密度）**: 紧凑 / 舒适 / 宽松
+- **Show Line Numbers（显示行号）**: 在代码编辑器中显示行号
+- **Word Wrap（自动换行）**: 在编辑器中启用自动换行
 
-### 6. Network（网络）设置面板
+### 7. Network（网络）面板 ✅
 
 配置代理、超时和重试行为。
 
-**可用选项：**
-- **代理**: HTTP/HTTPS/SOCKS5 代理配置
-- **请求超时** (60-300秒): 首次响应超时
-- **流超时** (60-300秒): 流式令牌超时
-- **重试次数** (0-5): 失败时的重试次数
+**可用设置：**
+- **Proxy（代理）**: HTTP/HTTPS/SOCKS5 代理配置
+- **Request Timeout（请求超时）** (60-300秒): 首次响应超时
+- **Stream Timeout（流超时）** (60-300秒): 流式令牌超时
+- **Retry Attempts（重试次数）** (0-5): 失败时的重试次数
+
+### 8. Memory（记忆）面板
+
+上下文管理设置（即将推出）
+
+**计划功能：**
+- 对话记忆设置
+- 上下文窗口管理
+- 长期记忆配置
 
 ## 导入/导出设置
 

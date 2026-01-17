@@ -57,26 +57,34 @@ The application supports the following AI providers:
 
 ## Complete Settings Guide
 
-### 1. Providers Panel
+The Settings interface provides 8 configuration panels. Below are the **implemented features** (based on actual codebase):
+
+### 1. General Panel ✅
+
+Configure language, startup behavior, and window preferences.
+
+**Language:**
+- Switch between English and 中文 (Chinese)
+- Changes apply immediately to all windows
+
+**Startup Settings:**
+- **Launch on system startup**: Auto-start when you log in
+- **Start minimized**: Launch to system tray (only applies when auto-starting)
+
+**Window Behavior:**
+- **Minimize to tray**: Hide to system tray when minimized
+- **Close to tray**: Keep running in system tray when closed
+
+### 2. Providers Panel
 
 Configure AI providers, API keys, and select models.
 
-**How to configure:**
-
-1. Open Settings (⚙️) → **Providers** tab
-2. Browse the list of available providers:
-   - DeepSeek (deepseek-chat, deepseek-reasoner)
-   - Qwen (qwen-max, qwen-plus, qwen-vl-max)
-   - Google Gemini (gemini-1.5-flash, gemini-2.0-flash, etc.)
-   - Anthropic Claude (claude-3.7-sonnet, claude-3.5-sonnet, etc.)
-   - OpenRouter (multiple providers aggregated)
-3. Click **Edit API Key** for your chosen provider
-4. Paste your API key and click the checkmark to save
-5. Select your preferred model from the dropdown
-
-**API Key Status Indicators:**
-- 🟢 **Configured** - API key is set and ready to use
-- 🟡 **Not Configured** - No API key found
+**Available providers:**
+- DeepSeek (deepseek-chat, deepseek-reasoner)
+- Qwen (qwen-max, qwen-plus, qwen-vl-max)
+- Google Gemini (gemini-1.5-flash, gemini-2.0-flash, etc.)
+- Anthropic Claude (claude-3.7-sonnet, claude-3.5-sonnet, etc.)
+- OpenRouter (multiple providers)
 
 **Where to get API keys:**
 - DeepSeek: [platform.deepseek.com](https://platform.deepseek.com/api_keys)
@@ -85,61 +93,75 @@ Configure AI providers, API keys, and select models.
 - Anthropic: [console.anthropic.com](https://console.anthropic.com/settings/keys)
 - OpenRouter: [openrouter.ai](https://openrouter.ai/keys)
 
-### 2. General Settings Panel
+### 3. Chat Panel ✅
 
-Configure language, startup behavior, and window preferences.
+Configure AI model behavior and chat parameters.
 
-**Available options:**
-- **Language**: English / 中文
-- **Launch on Startup**: Auto-start on system boot
-- **Close to Tray**: Minimize to system tray instead of quitting
-- **Window Size**: Remember last window size and position
+**Available settings:**
+- **Temperature** (0.0 - 2.0): Control response creativity/randomness
+- **Max Tokens**: Maximum response length (auto-capped to model limit)
+- **Show Token Usage**: Display token consumption for each response
+- **Auto Save History**: Automatically save conversation history
+- **History Retention Days**: How long to keep saved conversations (7-90 days)
 
-### 3. Chat Settings Panel
-
-Configure AI model behavior and chat preferences.
-
-**Available options:**
-- **Temperature** (0.0 - 2.0): Control response randomness
-- **Max Tokens**: Maximum response length (varies by model)
-- **Streaming**: Enable real-time response streaming
-- **Context Window**: Number of messages to include in context
-
-### 4. Agent Settings Panel
+### 4. Agent Panel ✅
 
 Configure Browser Agent, File Agent, and MCP tools.
 
 **Browser Agent:**
 - Enable/disable automated browser control
-- Customize browser agent prompt
+- Customize browser agent system prompt
 
 **File Agent:**
 - Enable/disable file system operations
-- Customize file agent prompt
+- Customize file agent system prompt
 
 **MCP Tools:**
 - View and manage Model Context Protocol tools
-- Add custom MCP server configurations
+- Configure MCP server connections
 
-### 5. UI Settings Panel
+### 5. Scheduled Tasks Panel ✅
+
+Create and manage automated recurring tasks.
+
+**Features:**
+- Create tasks with multiple execution steps
+- Set interval schedule (minutes/hours/days)
+- Enable/disable tasks
+- View execution history
+- Run tasks immediately (on-demand)
+
+**Note**: Scheduled tasks use separate IndexedDB storage, not in unified settings.
+
+### 6. User Interface Panel ✅
 
 Configure theme, appearance, and editor preferences.
 
-**Available options:**
-- **Theme**: Dark / Light / System (follows OS)
+**Available settings:**
+- **Theme**: Dark / Light / System (follows OS preference)
 - **Font Size**: Small / Medium / Large
 - **Density**: Compact / Comfortable / Spacious
-- **Editor Theme**: Monaco editor color scheme
+- **Show Line Numbers**: Display line numbers in code editor
+- **Word Wrap**: Enable word wrapping in editor
 
-### 6. Network Settings Panel
+### 7. Network Panel ✅
 
 Configure proxy, timeouts, and retry behavior.
 
-**Available options:**
+**Available settings:**
 - **Proxy**: HTTP/HTTPS/SOCKS5 proxy configuration
 - **Request Timeout** (60-300s): First response timeout
 - **Stream Timeout** (60-300s): Streaming token timeout
 - **Retry Attempts** (0-5): Number of retry attempts on failure
+
+### 8. Memory Panel
+
+Context management settings (Coming Soon)
+
+**Planned features:**
+- Conversation memory settings
+- Context window management
+- Long-term memory configuration
 
 ## Import/Export Settings
 

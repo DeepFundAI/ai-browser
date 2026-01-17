@@ -155,39 +155,38 @@ pnpm run build:win
 
 ## Screenshots
 
-### Start
+### Start Loading
+Animated splash screen on application launch.
 
 ![Start](./docs/shotscreen/start-loading.png)
 
 ### Home
-Input tasks and let AI execute automatically.
+Simple and clean interface - input your task and let AI execute automatically.
 
 ![Home](./docs/shotscreen/home.png)
 
-### Main
-Left: AI thinking and execution steps. Right: Real-time browser operation preview.
+### Task Execution
+Left: AI thinking process and execution steps. Right: Real-time browser operation preview.
 
 ![Main](./docs/shotscreen/main.png)
 
-### Scheduled Tasks
-Create scheduled tasks with custom intervals and execution steps.
-
-![Scheduled Tasks](./docs/shotscreen/schedule.png)
-
 ### History
-View past tasks with search and playback capabilities.
+View past tasks with search functionality and playback capabilities.
 
 ![History](./docs/shotscreen/history.png)
 
-### Toolbox
-Centralized hub for accessing all system features and configurations.
+### Settings
+Comprehensive settings interface with 8 panels:
+- **General**: Language, startup behavior, window preferences
+- **Providers**: AI provider selection and API key management
+- **Chat**: Temperature, max tokens, and chat behavior
+- **Agent**: Browser/File agent settings and MCP tools
+- **Scheduled Tasks**: Create and manage automated tasks
+- **User Interface**: Theme, font size, density preferences
+- **Network**: Proxy, timeout, and retry configuration
+- **Memory**: Context management settings (coming soon)
 
-![Toolbox](./docs/shotscreen/toolbox.png)
-
-### Agent Configuration
-Customize AI agent behavior with custom prompts and manage MCP tools for enhanced capabilities.
-
-![Agent Configuration](./docs/shotscreen/agent-configuration.png)
+![Settings](./docs/shotscreen/settings.png)
 
 ## Supported AI Providers
 
