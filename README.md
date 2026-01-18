@@ -6,6 +6,12 @@ An AI-powered intelligent browser built with Next.js and Electron. Features mult
 
 Built with [Next.js](https://nextjs.org) and [Electron](https://electronjs.org).
 
+> **⚠️ Important Notes**
+>
+> - This project is for **learning purposes**. There may be bugs and issues - your understanding is appreciated.
+> - **Windows users**: Building on Windows may require multiple attempts to succeed. If the build fails, try running the build command again.
+> - **macOS recommended**: The macOS version provides a better user experience. Limited resources have been allocated to Windows optimization.
+
 ## Tech Stack
 
 - **Frontend**: Next.js 15 + React 19
@@ -211,10 +217,6 @@ Special thanks to [Eko](https://github.com/FellouAI/eko) - A production-ready ag
 - Report issues on [GitHub Issues](https://github.com/DeepFundAI/ai-browser/issues)
 - Join discussions and share feedback
 - Contribute to make AI Browser better
-
-### Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=DeepFundAI/ai-browser&type=Date)](https://star-history.com/#DeepFundAI/ai-browser&Date)
 
 ## Contributing
 
