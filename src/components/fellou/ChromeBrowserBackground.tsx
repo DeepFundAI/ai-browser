@@ -63,8 +63,8 @@ export function ChromeBrowserBackground() {
           transition={{ duration: 0.8, ease: "easeInOut" }}
         >
           <GradientTechBackground />
-          {/* Theme-aware overlay */}
-          <div className="absolute inset-0 bg-white/5 dark:bg-black/40" />
+          {/* Theme-aware overlay - lighter in light mode for better visibility */}
+          <div className="absolute inset-0 bg-white/30 dark:bg-black/40" />
         </motion.div>
       ) : webglSupported !== false ? (
         /* WebGL supported: AnimatedBackground with loading-based opacity control */

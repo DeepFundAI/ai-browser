@@ -15,15 +15,15 @@ interface GradientTechBackgroundProps {
 export function GradientTechBackground({ className }: GradientTechBackgroundProps) {
   return (
     <div className={cn("absolute inset-0 overflow-hidden", className)}>
-      {/* Main gradient background with animation */}
-      <div className="absolute inset-0 bg-gradient-tech animate-gradient-shift" />
+      {/* Main gradient background with animation - theme-aware */}
+      <div className="absolute inset-0 bg-gradient-tech-light dark:bg-gradient-tech-dark animate-gradient-shift" />
 
-      {/* Overlay gradients for depth effect */}
-      <div className="absolute inset-0 bg-gradient-radial opacity-60" />
+      {/* Overlay gradients for depth effect - theme-aware */}
+      <div className="absolute inset-0 bg-gradient-radial-light dark:bg-gradient-radial-dark opacity-60" />
 
-      {/* Animated glow spots */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse-slow" />
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl animate-pulse-slow animation-delay-2000" />
+      {/* Animated glow spots - brighter in light mode */}
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-400/30 dark:bg-blue-500/20 rounded-full blur-3xl animate-pulse-slow" />
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-400/30 dark:bg-cyan-500/20 rounded-full blur-3xl animate-pulse-slow animation-delay-2000" />
 
       {/* Subtle grid overlay for tech feel */}
       <div className="absolute inset-0 opacity-10">
@@ -61,7 +61,19 @@ export function GradientTechBackground({ className }: GradientTechBackgroundProp
           }
         }
 
-        .bg-gradient-tech {
+        .bg-gradient-tech-light {
+          background: linear-gradient(
+            135deg,
+            #e0f2fe 0%,
+            #bae6fd 25%,
+            #7dd3fc 50%,
+            #93c5fd 75%,
+            #dbeafe 100%
+          );
+          background-size: 400% 400%;
+        }
+
+        .bg-gradient-tech-dark {
           background: linear-gradient(
             135deg,
             #001a33 0%,
@@ -73,7 +85,15 @@ export function GradientTechBackground({ className }: GradientTechBackgroundProp
           background-size: 400% 400%;
         }
 
-        .bg-gradient-radial {
+        .bg-gradient-radial-light {
+          background: radial-gradient(
+            circle at 50% 50%,
+            transparent 0%,
+            rgba(186, 230, 253, 0.5) 100%
+          );
+        }
+
+        .bg-gradient-radial-dark {
           background: radial-gradient(
             circle at 50% 50%,
             transparent 0%,

@@ -6,6 +6,12 @@
 
 基于 [Next.js](https://nextjs.org) 和 [Electron](https://electronjs.org) 构建。
 
+> **⚠️ 重要提示**
+>
+> - 本项目为**学习使用**，可能存在一些问题和 bug，敬请谅解。
+> - **Windows 用户**：Windows 系统构建可能需要多次尝试才能成功。如果构建失败，请尝试重新运行构建命令。
+> - **推荐使用 macOS**：macOS 版本体验更好，Windows 版本优化投入有限。
+
 ## 技术栈
 
 - **前端**: Next.js 15 + React 19
@@ -205,10 +211,6 @@ pnpm run build
 - 在 [GitHub Issues](https://github.com/DeepFundAI/ai-browser/issues) 上报告问题
 - 加入讨论并分享反馈
 - 贡献代码让 AI Browser 变得更好
-
-### Star 历史
-
-[![Star History Chart](https://api.star-history.com/svg?repos=DeepFundAI/ai-browser&type=Date)](https://star-history.com/#DeepFundAI/ai-browser&Date)
 
 ## 贡献
 
