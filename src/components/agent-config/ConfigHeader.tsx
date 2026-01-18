@@ -1,7 +1,9 @@
+'use client';
+
 import React from 'react';
 import { Button, Space, Typography } from 'antd';
 import { SaveOutlined, ReloadOutlined, SettingOutlined, ArrowLeftOutlined } from '@ant-design/icons';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 
 const { Title, Text } = Typography;

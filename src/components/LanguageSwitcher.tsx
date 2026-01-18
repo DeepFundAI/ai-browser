@@ -19,7 +19,7 @@ export const LanguageSwitcher: React.FC = () => {
       suffixIcon={<GlobalOutlined />}
       options={languages}
       size="small"
-      className='!text-text-01-dark'
+      className='!text-text-01 dark:!text-text-01-dark'
       popupClassName='language-switcher-dropdown'
     />
   );

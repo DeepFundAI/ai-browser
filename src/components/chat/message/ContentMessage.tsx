@@ -31,7 +31,7 @@ export const MessageContent: React.FC<MessageDisplayProps> = ({
     const displayContent = message.content;
 
     return (
-      <div className="px-4 py-3 rounded-lg bg-message border border-border-message break-words">
+      <div className="px-4 py-3 rounded-lg bg-message dark:bg-message-dark border border-border-message dark:border-border-message-dark break-words">
         <span className="text-base whitespace-pre-wrap">
           {displayContent}
         </span>
@@ -77,7 +77,7 @@ export const AgentMessageContent: React.FC<AgentMessageContentProps> = ({
       return null; // Don't display empty content messages
     }
     return (
-      <div className="message-text text-text-12-dark markdown-container">
+      <div className="message-text text-text-12 dark:text-text-12-dark markdown-container">
         <ReactMarkdown>{content}</ReactMarkdown>
       </div>
     );

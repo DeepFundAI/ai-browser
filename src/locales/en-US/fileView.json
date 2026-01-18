@@ -1,8 +1,8 @@
 {
   "title": "AI Generated File Preview",
   "last_updated": "Last updated: {{time}}",
-  "waiting_generation": "Waiting for content generation...",
-  "lines_words": "Lines: {{lines}} | Words: {{words}}",
+  "waiting_content": "Waiting for content generation...",
+  "stats": "Lines: {{lines}} | Words: {{words}}",
   "code": "Code",
   "preview": "Preview",
   "copy": "Copy",
@@ -12,5 +12,5 @@
   "download_success": "File downloaded successfully",
   "waiting_ai": "Waiting for AI to generate content...",
   "no_content": "No content yet",
-  "no_content_tip": "When AI starts generating or modifying files, content will be displayed here in real-time"
+  "no_content_hint": "When AI starts generating or modifying files, content will be displayed here in real-time"
 }

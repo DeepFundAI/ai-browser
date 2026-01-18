@@ -1,15 +1,19 @@
+'use client';
+
 import React from 'react'
 import { Button } from 'antd'
-import { HistoryOutlined, ToolOutlined } from '@ant-design/icons'
-import { useRouter } from 'next/router'
+import { HistoryOutlined, SettingOutlined } from '@ant-design/icons'
+import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import { HistoryPanel } from '@/components/history'
 import { useHistoryStore } from '@/stores/historyStore'
-import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { useTranslation } from 'react-i18next'
 
 export default function Header() {
   const router = useRouter()
-  const { taskId, executionId } = router.query
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const taskId = searchParams.get('taskId')
+  const executionId = searchParams.get('executionId')
   const { t } = useTranslation('header')
 
   // Check if in scheduled task detail mode
@@ -27,13 +31,13 @@ export default function Header() {
     selectHistoryTask(task);
 
     // If not on main page, navigate to it
-    if (router.pathname !== '/main') {
+    if (pathname !== '/main') {
       router.push('/main');
     }
   }
 
   return (
-    <div className=' flex justify-between items-center h-12 w-full px-7 bg-header text-text-01-dark' style={{
+    <div className=' flex justify-between items-center h-12 w-full px-7 bg-header dark:bg-header-dark text-text-01 dark:text-text-01-dark' style={{
             WebkitAppRegion: 'drag'
           } as React.CSSProperties}>
       {/* Don't show back button in scheduled task mode */}
@@ -60,34 +64,32 @@ export default function Header() {
         </div>
       )}
       <div className='flex justify-center items-center gap-4'>
-        {/* Toolbox button - only show in home page */}
-        {!isTaskDetailMode && (router.pathname === '/home' || router.pathname === '/') && (
-          <Button
-            type="text"
-            icon={<ToolOutlined />}
-            size="small"
-            onClick={() => router.push('/toolbox')}
-            className='!text-text-01-dark hover:!bg-blue-500/10'
-            style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
-          >
-            {t('toolbox')}
-          </Button>
-        )}
         <Button
           type="text"
           icon={<HistoryOutlined />}
           size="small"
           onClick={() => setShowHistoryPanel(true)}
-          className='!text-text-01-dark'
+          className='!text-text-01 dark:!text-text-01-dark'
           style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
         >
           {isTaskDetailMode ? t('execution_history') : t('history')}
         </Button>
 
-        {/* Language Switcher */}
-        <div style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}>
-          <LanguageSwitcher />
-        </div>
+        {/* Settings button */}
+        <Button
+          type="text"
+          icon={<SettingOutlined />}
+          size="small"
+          onClick={() => {
+            if (typeof window !== 'undefined' && (window as any).api) {
+              (window as any).api.openSettings();
+            }
+          }}
+          className='!text-text-01 dark:!text-text-01-dark hover:!bg-purple-500/10'
+          style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+        >
+          {t('settings')}
+        </Button>
       </div>
 
       {/* Global history task panel - passing scheduled task info */}

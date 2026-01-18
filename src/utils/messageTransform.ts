@@ -41,6 +41,9 @@ export class MessageProcessor {
       case 'agent_result':
         this.handleAgentResultMessage(message);
         break;
+      case 'finish':
+        this.handleFinishMessage(message);
+        break;
       case 'error':
         this.handleErrorMessage(message);
         break;
@@ -220,10 +223,24 @@ export class MessageProcessor {
   private handleAgentResultMessage(message: any) {
     const agentKey = `${message.taskId}-${message.nodeId}-${this.executionId}`;
     let agentGroup = this.agentGroups.get(agentKey);
-    
+
     if (agentGroup) {
       agentGroup.result = message.result;
       agentGroup.status = 'completed';
+    }
+  }
+
+  // Handle finish message (token usage)
+  private handleFinishMessage(message: any) {
+    const agentKey = `${message.taskId}-${message.nodeId}-${this.executionId}`;
+    let agentGroup = this.agentGroups.get(agentKey);
+
+    if (agentGroup && message.usage) {
+      agentGroup.usage = {
+        promptTokens: message.usage.promptTokens,
+        completionTokens: message.usage.completionTokens,
+        totalTokens: message.usage.totalTokens
+      };
     }
   }
 

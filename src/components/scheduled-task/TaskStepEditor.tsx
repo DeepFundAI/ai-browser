@@ -16,18 +16,15 @@ interface TaskStepEditorProps {
  */
 export const TaskStepEditor: React.FC<TaskStepEditorProps> = ({ value = [], onChange }) => {
   const { t } = useTranslation('scheduledTask');
-  const [steps, setSteps] = useState<TaskStep[]>(value);
+  const steps = value;
   const [showTemplateModal, setShowTemplateModal] = useState(false);
 
   const { templates, loadTemplates } = useScheduledTaskStore();
 
   useEffect(() => {
     loadTemplates();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    setSteps(value);
-  }, [value]);
 
   // Add new step
   const handleAddStep = () => {
@@ -39,7 +36,6 @@ export const TaskStepEditor: React.FC<TaskStepEditorProps> = ({ value = [], onCh
     };
 
     const newSteps = [...steps, newStep];
-    setSteps(newSteps);
     onChange?.(newSteps);
   };
 
@@ -48,7 +44,6 @@ export const TaskStepEditor: React.FC<TaskStepEditorProps> = ({ value = [], onCh
     const newSteps = steps.map((step) =>
       step.id === id ? { ...step, ...updates } : step
     );
-    setSteps(newSteps);
     onChange?.(newSteps);
   };
 
@@ -60,7 +55,6 @@ export const TaskStepEditor: React.FC<TaskStepEditorProps> = ({ value = [], onCh
       ...step,
       order: index + 1,
     }));
-    setSteps(reorderedSteps);
     onChange?.(reorderedSteps);
   };
 
@@ -71,7 +65,6 @@ export const TaskStepEditor: React.FC<TaskStepEditorProps> = ({ value = [], onCh
       id: `step_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
     }));
 
-    setSteps(importedSteps);
     onChange?.(importedSteps);
     setShowTemplateModal(false);
   };
@@ -89,7 +82,6 @@ export const TaskStepEditor: React.FC<TaskStepEditorProps> = ({ value = [], onCh
       order: idx + 1,
     }));
 
-    setSteps(reorderedSteps);
     onChange?.(reorderedSteps);
   };
 
@@ -106,7 +98,6 @@ export const TaskStepEditor: React.FC<TaskStepEditorProps> = ({ value = [], onCh
       order: idx + 1,
     }));
 
-    setSteps(reorderedSteps);
     onChange?.(reorderedSteps);
   };
 
@@ -128,7 +119,7 @@ export const TaskStepEditor: React.FC<TaskStepEditorProps> = ({ value = [], onCh
 
       {/* Step list */}
       {steps.length === 0 ? (
-        <div className="text-center py-8 text-text-12-dark bg-tool-call rounded border border-border-message">
+        <div className="text-center py-8 text-text-12 dark:!text-text-12-dark bg-tool-call dark:!bg-tool-call-dark rounded border border-border-message dark:!border-border-message-dark">
           {t('no_steps')}
         </div>
       ) : (
@@ -136,14 +127,14 @@ export const TaskStepEditor: React.FC<TaskStepEditorProps> = ({ value = [], onCh
           {steps.map((step, index) => (
             <Card
               key={step.id}
-              className="!bg-tool-call !border-border-message"
+              className="!bg-tool-call dark:!bg-tool-call-dark !border-border-message dark:!border-border-message-dark"
               size="small"
             >
               <div className="flex items-start gap-3">
                 {/* Step number and drag icon */}
                 <div className="flex flex-col items-center gap-1 pt-1">
-                  <HolderOutlined className="text-text-12-dark cursor-move" />
-                  <span className="text-sm font-bold text-text-01-dark">
+                  <HolderOutlined className="text-text-12 dark:!text-text-12-dark cursor-move" />
+                  <span className="text-sm font-bold text-text-01 dark:!text-text-01-dark">
                     {index + 1}
                   </span>
                 </div>
@@ -156,7 +147,7 @@ export const TaskStepEditor: React.FC<TaskStepEditorProps> = ({ value = [], onCh
                     onChange={(e) =>
                       handleUpdateStep(step.id, { name: e.target.value })
                     }
-                    className="!bg-main-view !border-border-message !text-text-01-dark"
+                    className="!bg-main-view dark:!bg-main-view-dark !border-border-message dark:!border-border-message-dark !text-text-01 dark:!text-text-01-dark"
                   />
                   <Input.TextArea
                     placeholder={t('step_description')}
@@ -165,7 +156,7 @@ export const TaskStepEditor: React.FC<TaskStepEditorProps> = ({ value = [], onCh
                       handleUpdateStep(step.id, { content: e.target.value })
                     }
                     rows={2}
-                    className="!bg-main-view !border-border-message !text-text-01-dark"
+                    className="!bg-main-view dark:!bg-main-view-dark !border-border-message dark:!border-border-message-dark !text-text-01 dark:!text-text-01-dark"
                   />
                 </div>
 
@@ -210,13 +201,13 @@ export const TaskStepEditor: React.FC<TaskStepEditorProps> = ({ value = [], onCh
           dataSource={templates}
           renderItem={(template) => (
             <List.Item
-              className="cursor-pointer hover:bg-tool-call px-4 rounded"
+              className="cursor-pointer hover:bg-tool-call dark:!bg-tool-call-dark px-4 rounded"
               onClick={() => handleImportFromTemplate(template)}
             >
               <List.Item.Meta
-                title={<span className="text-text-01-dark">{template.name}</span>}
+                title={<span className="text-text-01 dark:!text-text-01-dark">{template.name}</span>}
                 description={
-                  <div className="text-text-12-dark">
+                  <div className="text-text-12 dark:!text-text-12-dark">
                     <div>{template.description}</div>
                     <div className="mt-1 text-xs">
                       {t('contains_steps', { count: template.steps.length })}

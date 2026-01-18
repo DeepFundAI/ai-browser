@@ -23,7 +23,7 @@ export const WorkflowDisplay: React.FC<WorkflowDisplayProps> = ({
     <div className="workflow-display space-y-4">
       <div className='flex items-center gap-2'>
         <Atlas />
-        <span className="text-lg font-bold">Atlas</span>
+        <span className="text-lg font-bold text-text-01 dark:text-text-01-dark">Atlas</span>
       </div>
 
       {/* Thinking process - dark theme style */}

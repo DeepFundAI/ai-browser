@@ -6,6 +6,7 @@ import path from "node:path";
 import fs from "node:fs";
 import { randomUUID } from "node:crypto";
 import { ConfigManager } from "../utils/config-manager";
+import { SettingsManager } from "../utils/settings-manager";
 import type { HumanRequestMessage, HumanResponseMessage, HumanInteractionContext } from "../../../src/models/human-interaction";
 
 export class EkoService {
@@ -179,7 +180,7 @@ export class EkoService {
     }
 
     // Create FileAgent with task-specific work directory
-    if (agentConfig.fileAgent.enabled) {
+    if (agentConfig?.fileAgent?.enabled) {
       const taskWorkPath = this.getTaskWorkPath(taskId);
       fs.mkdirSync(taskWorkPath, { recursive: true });
       agents.push(
@@ -187,7 +188,20 @@ export class EkoService {
       );
     }
 
-    return new Eko({ llms, agents, callback: this.createCallback() });
+    // Get network settings for timeout and retry configuration
+    const settingsManager = SettingsManager.getInstance();
+    const networkSettings = settingsManager.getAppSettings().network;
+
+    return new Eko({
+      llms,
+      agents,
+      callback: this.createCallback(),
+      globalConfig: {
+        streamFirstTimeout: networkSettings.requestTimeout * 1000,  // Convert seconds to milliseconds
+        streamTokenTimeout: networkSettings.streamTimeout * 1000,   // Convert seconds to milliseconds
+        maxRetryNum: networkSettings.retryAttempts
+      }
+    });
   }
 
   private initializeEko() {
@@ -198,13 +212,27 @@ export class EkoService {
     this.mcpClient = new SimpleSseMcpClient("http://localhost:5173/api/mcp/sse");
 
     // Only create BrowserAgent once (no file storage involved)
-    if (agentConfig.browserAgent.enabled) {
+    if (agentConfig?.browserAgent?.enabled) {
       this.browserAgent = new BrowserAgent(this.detailView, this.mcpClient, agentConfig.browserAgent.customPrompt);
     }
 
     // Create default Eko instance with only BrowserAgent for restore/modify scenarios
     const defaultAgents = this.browserAgent ? [this.browserAgent] : [];
-    this.eko = new Eko({ llms, agents: defaultAgents, callback: this.createCallback() });
+
+    // Get network settings for timeout and retry configuration
+    const settingsManager = SettingsManager.getInstance();
+    const networkSettings = settingsManager.getAppSettings().network;
+
+    this.eko = new Eko({
+      llms,
+      agents: defaultAgents,
+      callback: this.createCallback(),
+      globalConfig: {
+        streamFirstTimeout: networkSettings.requestTimeout * 1000,  // Convert seconds to milliseconds
+        streamTokenTimeout: networkSettings.streamTimeout * 1000,   // Convert seconds to milliseconds
+        maxRetryNum: networkSettings.retryAttempts
+      }
+    });
   }
 
   /**
@@ -228,7 +256,7 @@ export class EkoService {
     const agentConfig = configManager.getAgentConfig();
 
     // Recreate BrowserAgent with new config
-    if (agentConfig.browserAgent.enabled) {
+    if (agentConfig?.browserAgent?.enabled) {
       this.browserAgent = new BrowserAgent(this.detailView, this.mcpClient, agentConfig.browserAgent.customPrompt);
     } else {
       this.browserAgent = null;
@@ -236,7 +264,21 @@ export class EkoService {
 
     // Create default Eko instance
     const defaultAgents = this.browserAgent ? [this.browserAgent] : [];
-    this.eko = new Eko({ llms, agents: defaultAgents, callback: this.createCallback() });
+
+    // Get network settings for timeout and retry configuration
+    const settingsManager = SettingsManager.getInstance();
+    const networkSettings = settingsManager.getAppSettings().network;
+
+    this.eko = new Eko({
+      llms,
+      agents: defaultAgents,
+      callback: this.createCallback(),
+      globalConfig: {
+        streamFirstTimeout: networkSettings.requestTimeout * 1000,  // Convert seconds to milliseconds
+        streamTokenTimeout: networkSettings.streamTimeout * 1000,   // Convert seconds to milliseconds
+        maxRetryNum: networkSettings.retryAttempts
+      }
+    });
 
     if (this.mainWindow && !this.mainWindow.isDestroyed()) {
       this.mainWindow.webContents.send('eko-config-reloaded', {

@@ -2,6 +2,7 @@ import { app, BrowserWindow, systemPreferences } from 'electron';
 import path from 'node:path';
 import { isDev } from '../utils/constants';
 import { store } from '../utils/store';
+import { applyClientConfigToWindow } from '../utils/client-config';
 
 async function setupMacPermissions() {
   // macOS requires explicit microphone permission request
@@ -35,6 +36,9 @@ export async function createWindow(rendererURL: string) {
       zoomFactor: 1.0,
     },
   });
+
+  // Apply client configuration via cookies
+  applyClientConfigToWindow(win);
 
   win.webContents.session.setPermissionRequestHandler((_webContents, permission, callback) => {
     // Allow media permissions (includes microphone and camera)

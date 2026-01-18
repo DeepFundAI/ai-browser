@@ -5,11 +5,11 @@
 export interface AgentConfig {
   browserAgent: {
     enabled: boolean
-    customPrompt: string
+    customPrompt?: string
   }
   fileAgent: {
     enabled: boolean
-    customPrompt: string
+    customPrompt?: string
   }
   mcpTools: {
     [toolName: string]: {

@@ -1,28 +1,47 @@
 # Configuration Guide
 
-This guide explains how to configure AI models and API keys for the AI Browser application.
+This guide explains how to configure AI Browser through the Settings interface.
 
-## Configuration Strategy
+## 🎯 Recommended: Settings UI (All Users)
 
-The application supports multiple configuration methods with the following priority:
+**All configuration is now done through the Settings UI** - no manual file editing required!
 
-**Priority Order**: User UI Configuration > Environment Variables > Default Values
+### How to Access Settings
 
-### Configuration Methods
+1. Click the **Settings** icon (⚙️) in the top-right corner of the application
+2. Choose from 6 configuration panels:
+   - **Providers**: AI provider selection, API keys, and models
+   - **General**: Language, startup behavior, window preferences
+   - **Chat**: Temperature, max tokens, streaming, and chat behavior
+   - **Agent**: Browser/File agent settings, custom prompts, MCP tools
+   - **UI**: Theme (Dark/Light/System), font size, density, editor preferences
+   - **Network**: Proxy, request timeout, stream timeout, retry attempts
 
-1. **UI Configuration (Recommended for End Users)**
-   - Configure directly in the application settings
-   - No need to edit files or restart the app
-   - Changes take effect immediately
+### Benefits of Settings UI
 
-2. **Environment Variables (For Development)**
-   - Uses `.env.local` file in development
-   - Uses bundled `.env.production` file in production builds
-   - Suitable for developers and automated deployments
+✅ **No file editing** - Configure everything through a user-friendly interface
+✅ **Real-time updates** - Changes take effect immediately, no restart needed
+✅ **Persistent storage** - Settings saved securely with electron-store
+✅ **Import/Export** - Backup and restore your configuration
+✅ **Cross-window sync** - All windows reflect changes instantly
 
-3. **Default Values**
-   - Built-in fallback values
-   - Used when no other configuration is provided
+## Configuration Storage
+
+- **Settings Location**: `~/Library/Application Support/ai-browser/config.json` (macOS)
+- **Storage Type**: Encrypted electron-store
+- **Backup**: Use Export feature in Settings UI
+
+## Alternative: Environment Variables (For Development Only)
+
+> ⚠️ **Not Recommended**: Environment variables are legacy configuration. Use Settings UI instead.
+
+If you're a developer and need to use environment variables during development:
+
+1. Create `.env.local` file (see `.env.template` for reference)
+2. Add your API keys
+3. Restart the development server
+
+**Note**: Settings UI configuration always takes priority over environment variables.
 
 ## Supported AI Providers
 
@@ -36,105 +55,151 @@ The application supports the following AI providers:
 | **Anthropic Claude** | claude-3.7-sonnet, claude-3.5-sonnet, claude-3-opus, etc. | [console.anthropic.com](https://console.anthropic.com/settings/keys) |
 | **OpenRouter** | Multiple providers (Claude, GPT, Gemini, etc.) | [openrouter.ai](https://openrouter.ai/keys) |
 
-## UI Configuration (Recommended)
+## Complete Settings Guide
 
-### Configure AI Provider in the Application
+The Settings interface provides 8 configuration panels. Below are the **implemented features** (based on actual codebase):
 
-1. **Launch the Application**
-   - Open the AI Browser application
+### 1. General Panel ✅
 
-2. **Access Model Settings**
-   - On the home page, you'll see the model configuration panel
-   - The panel is located above the input area
+Configure language, startup behavior, and window preferences.
 
-3. **Select Provider**
-   - Click the provider dropdown
-   - Choose from: Deepseek, Qwen, Google Gemini, Anthropic, or OpenRouter
+**Language:**
+- Switch between English and 中文 (Chinese)
+- Changes apply immediately to all windows
 
-4. **Select Model**
-   - After selecting a provider, choose your preferred model
-   - Different providers offer different models with varying capabilities
+**Startup Settings:**
+- **Launch on system startup**: Auto-start when you log in
+- **Start minimized**: Launch to system tray (only applies when auto-starting)
 
-5. **Configure API Key**
-   - Click "Edit API Key"
-   - Enter your API key for the selected provider
-   - Click the checkmark to save
-   - API key status indicator shows:
-     - 🟢 **Set by user**: You configured it in the UI
-     - 🟢 **Set via environment variable**: Configured in .env file
-     - 🟡 **Not configured**: No API key found
+**Window Behavior:**
+- **Minimize to tray**: Hide to system tray when minimized
+- **Close to tray**: Keep running in system tray when closed
 
-6. **Get API Key**
-   - Click "Get API Key" link to open the provider's API key page
-   - Sign up or log in to get your API key
-   - Copy and paste it into the application
+### 2. Providers Panel
 
-### Configuration Takes Effect Immediately
+Configure AI providers, API keys, and select models.
 
-- No need to restart the application
-- Changes apply to the next message you send
-- All running tasks are terminated when configuration changes
+**Available providers:**
+- DeepSeek (deepseek-chat, deepseek-reasoner)
+- Qwen (qwen-max, qwen-plus, qwen-vl-max)
+- Google Gemini (gemini-1.5-flash, gemini-2.0-flash, etc.)
+- Anthropic Claude (claude-3.7-sonnet, claude-3.5-sonnet, etc.)
+- OpenRouter (multiple providers)
 
-## Environment Variables Setup (For Developers)
+**Where to get API keys:**
+- DeepSeek: [platform.deepseek.com](https://platform.deepseek.com/api_keys)
+- Qwen: [bailian.console.aliyun.com](https://bailian.console.aliyun.com/)
+- Google Gemini: [aistudio.google.com](https://aistudio.google.com/app/apikey)
+- Anthropic: [console.anthropic.com](https://console.anthropic.com/settings/keys)
+- OpenRouter: [openrouter.ai](https://openrouter.ai/keys)
 
-### 1. Copy Configuration Template
+### 3. Chat Panel ✅
 
-Copy the template file to create your local environment configuration:
+Configure AI model behavior and chat parameters.
+
+**Available settings:**
+- **Temperature** (0.0 - 2.0): Control response creativity/randomness
+- **Max Tokens**: Maximum response length (auto-capped to model limit)
+- **Show Token Usage**: Display token consumption for each response
+- **Auto Save History**: Automatically save conversation history
+- **History Retention Days**: How long to keep saved conversations (7-90 days)
+
+### 4. Agent Panel ✅
+
+Configure Browser Agent, File Agent, and MCP tools.
+
+**Browser Agent:**
+- Enable/disable automated browser control
+- Customize browser agent system prompt
+
+**File Agent:**
+- Enable/disable file system operations
+- Customize file agent system prompt
+
+**MCP Tools:**
+- View and manage Model Context Protocol tools
+- Configure MCP server connections
+
+### 5. Scheduled Tasks Panel ✅
+
+Create and manage automated recurring tasks.
+
+**Features:**
+- Create tasks with multiple execution steps
+- Set interval schedule (minutes/hours/days)
+- Enable/disable tasks
+- View execution history
+- Run tasks immediately (on-demand)
+
+**Note**: Scheduled tasks use separate IndexedDB storage, not in unified settings.
+
+### 6. User Interface Panel ✅
+
+Configure theme, appearance, and editor preferences.
+
+**Available settings:**
+- **Theme**: Dark / Light / System (follows OS preference)
+- **Font Size**: Small / Medium / Large
+- **Density**: Compact / Comfortable / Spacious
+- **Show Line Numbers**: Display line numbers in code editor
+- **Word Wrap**: Enable word wrapping in editor
+
+### 7. Network Panel ✅
+
+Configure proxy, timeouts, and retry behavior.
+
+**Available settings:**
+- **Proxy**: HTTP/HTTPS/SOCKS5 proxy configuration
+- **Request Timeout** (60-300s): First response timeout
+- **Stream Timeout** (60-300s): Streaming token timeout
+- **Retry Attempts** (0-5): Number of retry attempts on failure
+
+### 8. Memory Panel
+
+Context management settings (Coming Soon)
+
+**Planned features:**
+- Conversation memory settings
+- Context window management
+- Long-term memory configuration
+
+## Import/Export Settings
+
+### Export Your Configuration
+
+1. Open Settings (⚙️)
+2. Click **Export Settings** button at the bottom
+3. Save the JSON file to your preferred location
+
+### Import a Configuration
+
+1. Open Settings (⚙️)
+2. Click **Import Settings** button at the bottom
+3. Select a previously exported JSON file
+4. Confirm the import
+
+### Reset to Defaults
+
+1. Open Settings (⚙️)
+2. Click **Reset to Defaults** button at the bottom
+3. Confirm the reset
+4. All settings will revert to factory defaults
+
+## Legacy: Environment Variables (For Developers Only)
+
+> ⚠️ **Deprecated**: This method is kept for backwards compatibility only. **Use Settings UI instead.**
+
+If you need to use environment variables during development (not recommended):
 
 ```bash
+# Copy template
 cp .env.template .env.local
+
+# Edit .env.local with your API keys
+# See .env.template for available variables
 ```
 
-### 2. Configure API Keys
-
-Edit `.env.local` and fill in your API keys:
-
-```bash
-# AI Service API Keys
-# ===================
-
-# DeepSeek API Configuration
-# Get your API key from: https://platform.deepseek.com/api_keys
-DEEPSEEK_API_KEY=your_actual_deepseek_api_key_here
-DEEPSEEK_BASE_URL=https://api.deepseek.com/v1
-
-# Alibaba Cloud Qwen API Configuration
-# Get your API key from: https://bailian.console.aliyun.com/
-QWEN_API_KEY=your_actual_qwen_api_key_here
-
-# Google Gemini API Configuration
-# Get your API key from: https://aistudio.google.com/app/apikey
-GOOGLE_API_KEY=your_actual_google_api_key_here
-
-# Anthropic Claude API Configuration
-# Get your API key from: https://console.anthropic.com/settings/keys
-ANTHROPIC_API_KEY=your_actual_anthropic_api_key_here
-
-# OpenRouter API Configuration (supports multiple providers)
-# Get your API key from: https://openrouter.ai/keys
-OPENROUTER_API_KEY=your_actual_openrouter_api_key_here
-
-# Text-to-Speech Configuration
-TTS_REGION=eastasia
-TTS_KEY=your_actual_tts_key_here
-
-# Application Settings
-# ===================
-
-# Screenshot settings
-EKO_SCREENSHOT_SCALE=0.5
-# Alternative: use maximum width for proportional scaling
-# EKO_SCREENSHOT_MAX_WIDTH=1280
-
-# Development Settings
-# ===================
-
-# Next.js development settings
-NEXT_PUBLIC_APP_ENV=development
-
-# Electron settings
-ELECTRON_IS_DEV=true
-```
+**Note**: Settings UI configuration always overrides environment variables.
 
 ## Model Capabilities & Token Limits
 
@@ -151,129 +216,66 @@ Different models have different maximum token limits:
 
 The application automatically configures the correct token limit based on your selected model.
 
-## Security Notes
+## Security & Best Practices
 
-- **Never commit actual API keys** to version control
-- Use `.env.local` for local development (already in `.gitignore`)
-- User-configured API keys are stored securely in electron-store (encrypted)
-- All hardcoded API keys have been removed from source code
-- Configuration template provides placeholder values for security
+✅ **Do:**
+- Use the Settings UI to configure API keys
+- Export your settings regularly as backup
+- Use different API keys for development and production
 
-## Configuration Priority Examples
+❌ **Don't:**
+- Never commit actual API keys to version control
+- Don't share your exported settings files (they contain API keys)
+- Don't hardcode API keys in source code
 
-### Example 1: User Configuration Overrides Environment Variable
-
-```
-User UI: DEEPSEEK_API_KEY = "sk-user-key"
-.env.local: DEEPSEEK_API_KEY = "sk-env-key"
-Result: Uses "sk-user-key"
-```
-
-### Example 2: Environment Variable as Fallback
-
-```
-User UI: DEEPSEEK_API_KEY = (not set)
-.env.local: DEEPSEEK_API_KEY = "sk-env-key"
-Result: Uses "sk-env-key"
-```
-
-### Example 3: Default Values
-
-```
-User UI: DEEPSEEK_API_KEY = (not set)
-.env.local: DEEPSEEK_API_KEY = (not set)
-Result: No API key, will show error when trying to use
-```
-
-## Development Workflow
-
-### For End Users
-1. Launch the application
-2. Click provider dropdown on home page
-3. Select your preferred AI provider
-4. Enter API key in the UI
-5. Start chatting!
-
-### For Developers
-1. Copy `.env.template` to `.env.local`
-2. Fill in your actual API keys in `.env.local`
-3. Restart the development server if it's running
-4. The application will automatically use the environment variables
-5. Can override specific keys in the UI if needed
-
-## Production Deployment
-
-### For Desktop Application Build
-
-**Option 1: Bundle API Keys (Not Recommended for Distribution)**
-
-Before building the desktop application, configure the `.env.production` file:
-
-```bash
-# Edit production configuration file
-# Replace all placeholder API keys with actual values
-```
-
-Then build the application:
-
-```bash
-npm run build
-```
-
-The `.env.production` file will be bundled with the application.
-
-**Option 2: User Configuration (Recommended)**
-
-Build the application without API keys:
-
-```bash
-npm run build
-```
-
-End users will configure their own API keys in the UI after installation.
+**Security Features:**
+- API keys stored in encrypted electron-store
+- Settings files are excluded from git (`.gitignore`)
+- Import/Export uses secure JSON format
 
 ## Troubleshooting
 
-### UI Configuration Issues
+### Settings UI Issues
 
-**Problem**: API key status shows "Not configured"
-- **Solution**: Click "Edit API Key" and enter your API key
-- Verify you clicked the checkmark to save
+**Problem**: Can't find Settings
+- **Solution**: Click the ⚙️ icon in the top-right corner of the application
 
-**Problem**: Changes not taking effect
-- **Solution**: Configuration reloads automatically
-- Check console for error messages
-- Try selecting a different model and switching back
+**Problem**: Changes not saving
+- **Solution**:
+  - Make sure you click **Save** or **Apply** button
+  - Check electron-store permissions in `~/Library/Application Support/ai-browser/`
 
-**Problem**: Can't find the configuration panel
-- **Solution**: The model configuration panel is on the home page, above the input area
-- Make sure you're on the home page, not in a chat session
+**Problem**: Settings not syncing across windows
+- **Solution**:
+  - Close all windows and restart the application
+  - Check for error messages in Developer Tools (Help → Toggle Developer Tools)
 
-### API Key Errors
+### API Key Issues
 
 **Problem**: "API key is invalid" error
 - **Solution**:
-  - Verify you copied the complete API key
+  - Verify you copied the complete API key (no extra spaces)
   - Check that the API key is active in the provider's dashboard
   - Ensure you have sufficient credits/quota
 
 **Problem**: "Cannot connect to API" error
 - **Solution**:
   - Check your internet connection
-  - Verify the API provider's service is operational
+  - If using proxy, verify proxy settings in Network panel
+  - Verify the API provider's service status
   - Try a different provider to isolate the issue
-
-### Development Environment
-
-If you encounter API key errors in development:
-1. Check that all required API keys are set in `.env.local`
-2. Verify API keys are valid and have sufficient quota
-3. Restart the development server after changing environment variables
-4. Check browser console and terminal for specific error messages
 
 ### Common Issues
 
-- **Configuration not saving**: Check electron-store permissions
-- **API authentication errors**: Verify API keys are correct and have proper permissions
-- **Model not available**: Some providers may have regional restrictions
+- **Model not available**: Some providers have regional restrictions
 - **Rate limiting**: You may have exceeded the API provider's rate limits
+- **Proxy not working**: Ensure proxy format is correct (e.g., `http://127.0.0.1:7890`)
+- **Import failed**: Ensure the JSON file is from a valid Settings export
+
+### Getting Help
+
+If you encounter issues not covered here:
+
+1. Check the [GitHub Issues](https://github.com/DeepFundAI/ai-browser/issues) page
+2. Open Developer Tools (Help → Toggle Developer Tools) to check for errors
+3. Create a new issue with details about your problem

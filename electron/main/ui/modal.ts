@@ -2,6 +2,7 @@ import { BrowserWindow, ipcMain, app } from 'electron';
 import path from 'node:path';
 import { isDev } from '../utils/constants';
 import { t } from '../i18n';
+import { applyClientConfigToWindow } from '../utils/client-config';
 
 export interface ModalButton {
   label: string;
@@ -70,6 +71,9 @@ export function showModal(options: ModalOptions): Promise<string | null> {
         preload: getPreloadPath(),
       },
     });
+
+    // Apply client configuration via cookies
+    applyClientConfigToWindow(modalWindow);
 
     // Generate unique channel name for this modal
     const responseChannel = `modal-response-${Date.now()}`;

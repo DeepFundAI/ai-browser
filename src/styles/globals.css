@@ -2,79 +2,144 @@
 @import "./markdown.css";
 @import url('https://fonts.googleapis.com/css2?family=Berkshire+Swash&display=swap');
 
+/* Define custom dark mode variant for Tailwind CSS 4.0 */
+@custom-variant dark (&:is(.dark *));
+
+/* Light theme (default) */
 :root {
   --background: #ffffff;
   --foreground: #171717;
 }
 
+/* Dark theme */
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+}
+
 @theme {
-  /* Vibrant tech-inspired gradient background with rich colors */
-  --background-image-main-view:
+  /* ===== Dark theme variables (with -dark suffix) ===== */
+
+  /* Main view background - dark gradient */
+  --background-image-main-view-dark:
     radial-gradient(ellipse at 15% 15%, rgba(59, 130, 246, 0.15) 0%, transparent 40%),
     radial-gradient(ellipse at 85% 20%, rgba(147, 51, 234, 0.12) 0%, transparent 45%),
     radial-gradient(ellipse at 20% 85%, rgba(16, 185, 129, 0.10) 0%, transparent 40%),
     radial-gradient(ellipse at 80% 80%, rgba(96, 165, 250, 0.08) 0%, transparent 50%),
     linear-gradient(135deg, #0a0e17 0%, #0d1117 30%, #050810 60%, #0a0e17 100%);
-  --background-image-main-view-header: rgba(255, 255, 255, 0.05);
-  --background-image-main-view-footer: rgba(0, 0, 0, 0.3);
+  --background-image-main-view-header-dark: rgba(255, 255, 255, 0.05);
+  --background-image-main-view-footer-dark: rgba(0, 0, 0, 0.3);
 
-  --background-image-icon-bg-common: rgba(255, 255, 255, 0.08);
-  --background-image-icon-bg-voice-open: rgba(59, 130, 246, 0.3);
+  --background-image-icon-bg-common-dark: rgba(255, 255, 255, 0.08);
+  --background-image-icon-bg-voice-open-dark: rgba(59, 130, 246, 0.3);
 
+  --shadow-tool-hover-dark: 0 0 20px rgba(59, 130, 246, 0.3);
+  --color-bg-tool-hover-dark: rgba(59, 130, 246, 0.15);
+  --color-border-tool-hover-dark: rgba(255, 255, 255, 0.2);
 
-  --shadow-tool-hover: 0 0 20px rgba(59, 130, 246, 0.3);
-  --color-bg-tool-hover: rgba(59, 130, 246, 0.15);
-  --color-border-tool-hover: rgba(255, 255, 255, 0.2);
-
-
-  --color-border-view-window-edge: rgba(255, 255, 255, 0.1);
-  --color-icon-bg-hangup: #991B1B;
-  --color-view-window-edge: rgba(255, 255, 255, 0.9);
-  --color-main-view-hover: rgba(0, 0, 0, 0.7);
+  --color-border-view-window-edge-dark: rgba(255, 255, 255, 0.1);
+  --color-icon-bg-hangup-dark: #991B1B;
+  --color-view-window-edge-dark: rgba(255, 255, 255, 0.9);
+  --color-main-view-hover-dark: rgba(0, 0, 0, 0.7);
 
   --my-font: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
 
-  /* Background colors - Fellou.ai inspired glass morphism */
-  /* Header */
-  --background-image-header: rgba(255, 255, 255, 0.03);
-  /* Message */
-  --background-image-message: rgba(255, 255, 255, 0.05);
-  /* Atlas AI assistant */
-  --background-image-atlas: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%);
-  /* Task execution button background */
+  /* Background colors - dark theme glass morphism */
+  --background-image-header-dark: rgba(255, 255, 255, 0.03);
+  --background-image-message-dark: linear-gradient(135deg, rgba(139, 92, 246, 0.12) 0%, rgba(59, 130, 246, 0.08) 100%);
+  --background-image-atlas-dark: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%);
+  --background-image-ask-status-dark: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+  --background-color-thinking-dark: rgba(255, 255, 255, 0.04);
+  --background-color-step-dark: #3B82F6;
+  --background-color-tool-call-dark: rgba(255, 255, 255, 0.05);
+
+  /* Border colors - dark theme */
+  --color-border-message-dark: rgba(255, 255, 255, 0.1);
+
+  /* ===== Light theme variables (without suffix) ===== */
+
+  /* Main view background - light gradient (modern subtle blue-white) */
+  --background-image-main-view:
+    radial-gradient(ellipse at 20% 20%, rgba(59, 130, 246, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(139, 92, 246, 0.03) 0%, transparent 50%),
+    linear-gradient(180deg, #F8FAFC 0%, #FFFFFF 100%);
+  --background-image-main-view-header: rgba(255, 255, 255, 0.98);
+  --background-image-main-view-footer: rgba(255, 255, 255, 0.95);
+
+  --background-image-icon-bg-common: rgba(0, 0, 0, 0.05);
+  --background-image-icon-bg-voice-open: rgba(59, 130, 246, 0.15);
+
+  --shadow-tool-hover: 0 0 12px rgba(59, 130, 246, 0.2);
+  --color-bg-tool-hover: rgba(59, 130, 246, 0.1);
+  --color-border-tool-hover: #d1d5db;
+
+  --color-border-view-window-edge: #e5e7eb;
+  --color-icon-bg-hangup: #dc2626;
+  --color-view-window-edge: rgba(0, 0, 0, 0.8);
+  --color-main-view-hover: rgba(0, 0, 0, 0.05);
+
+  /* Background colors - light theme */
+  --background-image-header: rgba(255, 255, 255, 0.98);
+  --background-image-message: #ffffff;
+  --background-image-atlas: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(147, 51, 234, 0.08) 100%);
   --background-image-ask-status: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
-  /* Deep thinking */
-  --background-color-thinking: rgba(255, 255, 255, 0.04);
-  /* Steps */
-  --background-color-step: #3B82F6;
-  /* Tool call background */
-  --background-color-tool-call: rgba(255, 255, 255, 0.03);
+  --background-color-thinking: rgba(0, 0, 0, 0.03);
+  --background-color-step: #3b82f6;
+  --background-color-tool-call: rgba(255, 255, 255, 0.85);
+
+  /* Border colors - light theme */
+  --color-border-message: #d1d5db;
+
+  /* Density spacing variables */
+  /* Compact mode */
+  --spacing-compact-xs: 4px;
+  --spacing-compact-sm: 8px;
+  --spacing-compact-md: 12px;
+  --spacing-compact-lg: 16px;
+  --spacing-compact-xl: 20px;
+
+  /* Comfortable mode (default) */
+  --spacing-comfortable-xs: 6px;
+  --spacing-comfortable-sm: 12px;
+  --spacing-comfortable-md: 16px;
+  --spacing-comfortable-lg: 24px;
+  --spacing-comfortable-xl: 32px;
+
+  /* Spacious mode */
+  --spacing-spacious-xs: 8px;
+  --spacing-spacious-sm: 16px;
+  --spacing-spacious-md: 24px;
+  --spacing-spacious-lg: 32px;
+  --spacing-spacious-xl: 48px;
+
+  /* Active density spacing (default to comfortable) */
+  --spacing-xs: var(--spacing-comfortable-xs);
+  --spacing-sm: var(--spacing-comfortable-sm);
+  --spacing-md: var(--spacing-comfortable-md);
+  --spacing-lg: var(--spacing-comfortable-lg);
+  --spacing-xl: var(--spacing-comfortable-xl);
 
 
-  /* Border colors - Glass morphism style */
-  --color-border-message: rgba(255, 255, 255, 0.1);
-
-
-  /* Text colors (Light theme) */
+  /* Text colors (Light theme) - Higher contrast for better readability */
   /* Primary text */
-  --color-text-01: #131C30;
+  --color-text-01: #1f2937;
   /* Secondary text */
-  --color-text-02-01: #2A354E;
+  --color-text-02-01: #374151;
   /* Tertiary text */
-  --color-text-03: #545E71;
+  --color-text-03: #6b7280;
   /* Quaternary text */
-  --color-text-04: #A9B2BE;
+  --color-text-04: #9ca3af;
   /* Theme color */
-  --color-text-05: #3B82F6;
+  --color-text-05: #2563eb;
   /* Special colors */
-  --color-text-06: #EF4444;
-  --color-text-07: #F97316;
-  --color-text-08: #F59E0B;
-  --color-text-09: #10B981;
-  --color-text-10: #DC2626;
-  --color-text-11: #2A354E;
-  --color-text-12: #EF4444;
-  --color-text-13: #10B981;
+  --color-text-06: #dc2626;
+  --color-text-07: #ea580c;
+  --color-text-08: #d97706;
+  --color-text-09: #059669;
+  --color-text-10: #dc2626;
+  --color-text-11: #374151;
+  --color-text-12: #6b7280;
+  --color-text-13: #059669;
 
   /* Text colors (Dark theme) - Fellou.ai inspired */
   /* Primary text */
@@ -101,14 +166,24 @@
 
 }
 
-.gradient-border {
+/* Dark theme - purple gradient border */
+.dark .gradient-border {
   position: relative;
   display: inline-block;
   padding: 2px; /* Border width */
   border-radius: 12px;
-  /* Fellou.ai purple gradient border - subtle */
   background: linear-gradient(135deg, rgba(94, 49, 216, 0.3), rgba(145, 75, 241, 0.2), rgba(94, 49, 216, 0.3));
   backdrop-filter: blur(12px);
+  transition: all 0.3s ease;
+}
+
+/* Light theme - white background with border */
+.light .gradient-border {
+  position: relative;
+  display: inline-block;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
   transition: all 0.3s ease;
 }
 
@@ -127,9 +202,9 @@
   box-shadow: 0 0 0 2px rgba(145, 75, 241, 0.4) inset;
 }
 
-/* Ant Design Select dropdown customization - Fellou.ai purple theme */
-/* Dropdown container styling */
-.ant-select-dropdown {
+/* Ant Design Select dropdown customization - theme-responsive */
+/* Dark theme dropdown */
+.dark .ant-select-dropdown {
   background: rgba(8, 12, 16, 0.96) !important;
   backdrop-filter: blur(20px) !important;
   border: 1px solid rgba(145, 75, 241, 0.3) !important;
@@ -137,28 +212,61 @@
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(145, 75, 241, 0.2) !important;
 }
 
-/* Dropdown items styling */
-.ant-select-item {
+/* Light theme dropdown */
+.light .ant-select-dropdown {
+  background: #ffffff !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Dark theme dropdown items */
+.dark .ant-select-item {
   color: rgba(255, 255, 255, 0.9) !important;
   border-radius: 8px !important;
   margin: 2px 4px !important;
   transition: all 0.2s ease !important;
 }
 
-/* Hover state for dropdown items */
-.ant-select-item-option-active:not(.ant-select-item-option-selected) {
+/* Light theme dropdown items */
+.light .ant-select-item {
+  color: #1f2937 !important;
+  border-radius: 8px !important;
+  margin: 2px 4px !important;
+  transition: all 0.2s ease !important;
+}
+
+/* Dark theme hover state */
+.dark .ant-select-item-option-active:not(.ant-select-item-option-selected) {
   background: rgba(94, 49, 216, 0.15) !important;
 }
 
-/* Selected state */
-.ant-select-item-option-selected {
+/* Light theme hover state */
+.light .ant-select-item-option-active:not(.ant-select-item-option-selected) {
+  background: rgba(94, 49, 216, 0.05) !important;
+}
+
+/* Dark theme selected state */
+.dark .ant-select-item-option-selected {
   background: rgba(94, 49, 216, 0.25) !important;
   font-weight: 500 !important;
 }
 
-/* Selected state hover */
-.ant-select-item-option-selected.ant-select-item-option-active {
+/* Light theme selected state */
+.light .ant-select-item-option-selected {
+  background: rgba(94, 49, 216, 0.1) !important;
+  font-weight: 500 !important;
+}
+
+/* Dark theme selected state hover */
+.dark .ant-select-item-option-selected.ant-select-item-option-active {
   background: rgba(94, 49, 216, 0.35) !important;
+}
+
+/* Light theme selected state hover */
+.light .ant-select-item-option-selected.ant-select-item-option-active {
+  background: rgba(94, 49, 216, 0.15) !important;
 }
 
 /* Select box focus state */
@@ -179,17 +287,35 @@
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+/* Density mode switching */
+:root[data-density="compact"] {
+  --spacing-xs: var(--spacing-compact-xs);
+  --spacing-sm: var(--spacing-compact-sm);
+  --spacing-md: var(--spacing-compact-md);
+  --spacing-lg: var(--spacing-compact-lg);
+  --spacing-xl: var(--spacing-compact-xl);
+}
+
+:root[data-density="comfortable"] {
+  --spacing-xs: var(--spacing-comfortable-xs);
+  --spacing-sm: var(--spacing-comfortable-sm);
+  --spacing-md: var(--spacing-comfortable-md);
+  --spacing-lg: var(--spacing-comfortable-lg);
+  --spacing-xl: var(--spacing-comfortable-xl);
+}
+
+:root[data-density="spacious"] {
+  --spacing-xs: var(--spacing-spacious-xs);
+  --spacing-sm: var(--spacing-spacious-sm);
+  --spacing-md: var(--spacing-spacious-md);
+  --spacing-lg: var(--spacing-spacious-lg);
+  --spacing-xl: var(--spacing-spacious-xl);
 }
 
 html,
@@ -199,14 +325,26 @@ body,
   padding: 0;
   width: 100%;
   height: 100%;
-  /* Subtle tech-inspired background with minimal distraction */
+  background: var(--background);
+  background-attachment: fixed;
+}
+
+/* Dark theme: tech-inspired gradient background */
+.dark html,
+.dark body,
+.dark #__next {
   background:
     radial-gradient(ellipse at 50% 0%, rgba(59, 130, 246, 0.03) 0%, transparent 50%),
     radial-gradient(ellipse at 0% 100%, rgba(59, 130, 246, 0.02) 0%, transparent 40%),
     radial-gradient(ellipse at 100% 100%, rgba(96, 165, 250, 0.02) 0%, transparent 40%),
-    #000000;
-  background-color: #000000;
-  background-attachment: fixed;
+    var(--background);
+}
+
+/* Light theme: clean white background */
+html:not(.dark),
+body:not(.dark),
+#__next:not(.dark) {
+  background: var(--background);
 }
 
 /* Scrollbar track */

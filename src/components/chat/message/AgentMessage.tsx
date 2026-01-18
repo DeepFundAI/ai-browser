@@ -37,7 +37,7 @@ const StepNodeDisplay: React.FC<StepNodeDisplayProps> = ({
 
   return (
     <div className="step-item flex items-center justify-start gap-2 mt-3">
-      <span className="font-semibold w-5 h-5 bg-step rounded-full flex items-center justify-center">
+      <span className="font-semibold w-5 h-5 bg-step dark:bg-step-dark rounded-full flex items-center justify-center">
         {nodeIndex + 1}
       </span>
       <span className='line-clamp-1 flex-1'>
@@ -67,7 +67,7 @@ export const StepAgentDisplay: React.FC<StepAgentDisplayProps> = ({
     <div className="step-agent-display text-base">
       {/* Agent information - status display removed */}
       <div className="px-2 border-l-2 border-text-05-dark mb-3">
-        <div className="flex items-center gap-1 text-text-05-dark font-semibold ">
+        <div className="flex items-center gap-1 text-text-05 dark:text-text-05-dark font-semibold ">
           <DeepThinking />
           {agent.name} {t('agent')}
         </div>

@@ -5,6 +5,7 @@ import { ExpandCollapse, FinishStatus, RuningStatus } from '@/icons/deepfundai-i
 import { AgentGroupMessage, ToolAction, FileAttachment } from '@/models';
 import type { HumanResponseMessage } from '@/models/human-interaction';
 import { AgentMessageContent } from './ContentMessage';
+import { TokenUsageDisplay } from './TokenUsageDisplay';
 import { useTranslation } from 'react-i18next';
 
 interface AgentGroupDisplayProps {
@@ -71,6 +72,11 @@ export const AgentGroupDisplay: React.FC<AgentGroupDisplayProps> = ({
             );
           })}
 
+          {/* Token usage display */}
+          <div className="pl-6">
+            <TokenUsageDisplay usage={agentMessage.usage} />
+          </div>
+
           {/* Retry button for error status */}
           {isError && onRetry && (
             <div className="pl-6 mt-4">
@@ -79,7 +85,7 @@ export const AgentGroupDisplay: React.FC<AgentGroupDisplayProps> = ({
                 size="small"
                 icon={<ReloadOutlined />}
                 onClick={onRetry}
-                className="!bg-transparent !border-border-message hover:!border-blue-500 hover:!text-blue-500"
+                className="!bg-transparent !border-border-message dark:border-border-message-dark hover:!border-blue-500 hover:!text-blue-500"
               >
                 {t('retry')}
               </Button>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Tabs, Switch, Input, Button, Card, message, Spin, Divider, Space, Typography } from 'antd';
+import { Modal, Tabs, Switch, Input, Button, Card, App, Spin, Divider, Space, Typography } from 'antd';
 import { SaveOutlined, ReloadOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import type { AgentConfig, McpToolSchema } from '@/types';
@@ -18,6 +18,7 @@ interface AgentConfigModalProps {
  * Modal version of agent configuration page
  */
 export default function AgentConfigModal({ visible, onClose }: AgentConfigModalProps) {
+  const { message } = App.useApp();
   const { t } = useTranslation('agentConfig');
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);

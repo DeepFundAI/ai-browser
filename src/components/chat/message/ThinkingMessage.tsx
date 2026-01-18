@@ -23,7 +23,7 @@ export const ThinkingDisplay: React.FC<ThinkingDisplayProps> = ({
   const displayText = content;
 
   return (
-    <div className="bg-thinking rounded-lg p-4">
+    <div className="bg-thinking dark:bg-thinking-dark rounded-lg p-4">
       {/* Header */}
       <div
         className="flex items-center justify-start gap-1 cursor-pointer mb-3"
@@ -35,19 +35,19 @@ export const ThinkingDisplay: React.FC<ThinkingDisplayProps> = ({
           ) : (
             <DeepThinking />
           )}
-          <span className="text-white font-medium text-sm">{t('thinking')}</span>
+          <span className="text-text-01 dark:text-text-01-dark font-medium text-sm">{t('thinking')}</span>
         </div>
         <Button
           type="text"
           size="small"
           icon={collapsed ? <ExpandCollapse className=' rotate-180' /> : <ExpandCollapse />}
-          className="!text-gray-400 hover:!text-white"
+          className="!text-text-12 dark:!text-text-12-dark hover:!text-text-01 dark:hover:!text-text-01-dark"
         />
       </div>
 
       {/* Content */}
       {!collapsed && (
-        <div className="text-sm text-text-12-dark leading-relaxed">
+        <div className="text-sm text-text-12 dark:text-text-12-dark leading-relaxed">
           {displayText}
         </div>
       )}

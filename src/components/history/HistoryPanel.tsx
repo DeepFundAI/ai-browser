@@ -122,10 +122,10 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
     <Drawer
       title={isTaskDetailMode ? t('execution_history') : t('history')}
       placement="left"
-      size="large"
       open={visible}
       onClose={onClose}
-      width={480}
+      size={480}
+      mask={false}
       className="history-panel-drawer"
       styles={{
         wrapper: {
@@ -135,9 +135,6 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
         body: {
           padding: '16px',
           height: '100%',
-          // Fellou.ai inspired elegant gradient background
-          background: 'linear-gradient(180deg, #1e1c23 0%, #281c39 100%)',
-          backdropFilter: 'blur(16px)',
         }
       }}
       extra={
@@ -149,10 +146,12 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
             cancelText={t('cancel')}
             okType="danger"
             onConfirm={handleClearAll}
-            overlayInnerStyle={{
-              backgroundColor: 'rgba(30, 28, 35, 0.98)',
-              backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(94, 49, 216, 0.3)'
+            styles={{
+              body: {
+                backgroundColor: 'rgba(30, 28, 35, 0.98)',
+                backdropFilter: 'blur(20px)',
+                border: '1px solid rgba(94, 49, 216, 0.3)'
+              }
             }}
           >
             <Button danger icon={<ClearOutlined />}>
@@ -164,13 +163,17 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
     >
       <div className="space-y-4 flex flex-col h-full">
         {/* Search box */}
-        <Search
-          placeholder={t('search_placeholder')}
-          allowClear
-          enterButton={<SearchOutlined />}
-          onSearch={handleSearch}
-          onChange={(e) => !e.target.value && handleSearch('')}
-        />
+        <div className="flex items-center">
+          <Search
+            placeholder={t('search_placeholder')}
+            allowClear
+            enterButton={<SearchOutlined />}
+            onSearch={handleSearch}
+            onChange={(e) => !e.target.value && handleSearch('')}
+            size="large"
+            className="w-full"
+          />
+        </div>
 
         {/* History item list */}
         <HistoryList

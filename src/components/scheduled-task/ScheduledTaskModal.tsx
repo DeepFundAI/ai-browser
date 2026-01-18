@@ -117,14 +117,15 @@ export const ScheduledTaskModal: React.FC = () => {
       onCancel={handleCancel}
       onOk={handleSubmit}
       title={isEditMode ? t('edit_task') : t('create_task')}
-      width="85%"
-      style={{ minHeight: '60vh' }}
+      width={900}
+      centered
+      style={{ top: 20 }}
       styles={{
-        body: { minHeight: '50vh', maxHeight: '75vh', overflowY: 'auto' }
+        body: { minHeight: '50vh', maxHeight: '70vh', overflowY: 'auto' }
       }}
       okText={isEditMode ? t('save') : t('create_and_enable')}
       cancelText={t('cancel')}
-      destroyOnClose
+      destroyOnHidden
     >
       <Form
         form={form}
@@ -139,7 +140,7 @@ export const ScheduledTaskModal: React.FC = () => {
         >
           <Input
             placeholder={t('enter_task_name')}
-            className="!bg-main-view !border-border-message !text-text-01-dark"
+            className="!bg-main-view dark:!bg-main-view-dark !border-border-message dark:!border-border-message-dark !text-text-01 dark:!text-text-01-dark"
           />
         </Form.Item>
 
@@ -151,7 +152,7 @@ export const ScheduledTaskModal: React.FC = () => {
           <Input.TextArea
             placeholder={t('enter_task_description')}
             rows={2}
-            className="!bg-main-view !border-border-message !text-text-01-dark"
+            className="!bg-main-view dark:!bg-main-view-dark !border-border-message dark:!border-border-message-dark !text-text-01 dark:!text-text-01-dark"
           />
         </Form.Item>
 

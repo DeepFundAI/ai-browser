@@ -9,6 +9,7 @@ import { logger } from '@/utils/logger';
 interface ChatInputAreaProps {
   query: string;
   isCurrentTaskRunning: boolean;
+  hasValidProvider?: boolean;
   onQueryChange: (value: string) => void;
   onSend: () => void;
   onCancel: () => void;
@@ -21,6 +22,7 @@ interface ChatInputAreaProps {
 export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   query,
   isCurrentTaskRunning,
+  hasValidProvider = true,
   onQueryChange,
   onSend,
   onCancel,
@@ -31,6 +33,10 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
+      if (!hasValidProvider) {
+        antdMessage.warning(t('no_provider_warning') || 'Please configure AI provider in Settings first');
+        return;
+      }
       onSend();
     }
   };
@@ -90,9 +96,16 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
         ) : (
           <Button
             type='text'
-            onClick={onSend}
-            disabled={!query.trim()}
+            onClick={() => {
+              if (!hasValidProvider) {
+                antdMessage.warning(t('no_provider_warning') || 'Please configure AI provider in Settings first');
+                return;
+              }
+              onSend();
+            }}
+            disabled={!query.trim() || !hasValidProvider}
             className='!p-0 !w-8 !h-8 !min-w-0 flex items-center justify-center'
+            title={!hasValidProvider ? (t('no_provider_tooltip') || 'Configure AI provider first') : ''}
           >
             <SendMessage />
           </Button>

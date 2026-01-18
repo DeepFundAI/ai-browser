@@ -142,14 +142,14 @@ export const ToolDisplay: React.FC<ToolDisplayProps> = ({
   return (
     <div className="inline-flex items-center gap-2">
       <div
-        className="inline-flex items-center gap-2 px-3 py-2 bg-tool-call rounded-md border text-xs border-border-message text-text-12-dark cursor-pointer hover:bg-opacity-80 transition-colors"
+        className="inline-flex items-center gap-2 px-3 py-2 bg-tool-call dark:bg-tool-call-dark rounded-md border text-xs border-border-message dark:border-border-message-dark text-text-12 dark:text-text-12-dark cursor-pointer hover:bg-opacity-80 transition-colors"
         onClick={() => onToolClick(message)}
       >
         {getToolIcon(message.toolName)}
         <span>{t('executing_tool', { toolName: message.toolName || 'tool' })}</span>
         {/* Only show loading indicator when executing */}
         {isExecuting && (
-          <Spin indicator={<LoadingOutlined spin style={{ color: '#3b82f6', fontSize: 14 }} />} size="small" />
+          <Spin indicator={<LoadingOutlined spin style={{ color: 'currentColor', fontSize: 14 }} />} size="small" />
         )}
       </div>
 

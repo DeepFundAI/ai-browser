@@ -134,18 +134,15 @@ export class TaskStorage {
   async getAllTasks(): Promise<Task[]> {
     try {
       await this.init();
-      if (!this.db) {
-        throw new Error('Database not properly initialized');
-      }
+      if (!this.db) throw new Error('Database not properly initialized');
 
-      // Add timeout mechanism to prevent permanent hang
-      return Promise.race([
+      return await this._raceWithTimeout(
         this._getAllTasksInternal(),
-        this._timeout(10000, 'Get task list timeout') // 10 second timeout
-      ]);
+        10000,
+        'getAllTasks'
+      );
     } catch (error) {
-      console.error('getAllTasks error:', error);
-      // If database has issues, return empty array instead of throwing error
+      console.error('[TaskStorage] getAllTasks error:', error);
       return [];
     }
   }
@@ -186,15 +183,21 @@ export class TaskStorage {
   }
 
   /**
-   * Timeout helper function
+   * Race with timeout, auto-cancel on completion
    */
-  private _timeout(ms: number, message: string): Promise<never> {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        console.error(message);
-        resolve([] as never);
+  private async _raceWithTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
+    let timeoutId: NodeJS.Timeout;
+
+    const timeoutPromise = new Promise<T>((resolve) => {
+      timeoutId = setTimeout(() => {
+        console.warn(`[TaskStorage] Query timeout after ${ms}ms: ${message}`);
+        resolve([] as T);
       }, ms);
     });
+
+    const result = await Promise.race([promise, timeoutPromise]);
+    clearTimeout(timeoutId!);
+    return result;
   }
 
   /**
@@ -377,16 +380,19 @@ export class TaskStorage {
    * Optimization: Add timeout mechanism
    */
   async getTasksByType(taskType: 'normal' | 'scheduled'): Promise<Task[]> {
-    await this.init();
-    if (!this.db) throw new Error('Database not initialized');
+    try {
+      await this.init();
+      if (!this.db) throw new Error('Database not initialized');
 
-    return Promise.race([
-      this._getTasksByTypeInternal(taskType),
-      this._timeout(10000, 'Get tasks by type timeout')
-    ]).catch((error) => {
+      return await this._raceWithTimeout(
+        this._getTasksByTypeInternal(taskType),
+        10000,
+        'getTasksByType'
+      );
+    } catch (error) {
       console.error('getTasksByType error:', error);
       return [];
-    });
+    }
   }
 
   /**
@@ -421,16 +427,19 @@ export class TaskStorage {
    * Optimization: Add timeout mechanism
    */
   async getExecutionsByScheduledTaskId(scheduledTaskId: string): Promise<Task[]> {
-    await this.init();
-    if (!this.db) throw new Error('Database not initialized');
+    try {
+      await this.init();
+      if (!this.db) throw new Error('Database not initialized');
 
-    return Promise.race([
-      this._getExecutionsByScheduledTaskIdInternal(scheduledTaskId),
-      this._timeout(10000, 'Get execution history timeout')
-    ]).catch((error) => {
+      return await this._raceWithTimeout(
+        this._getExecutionsByScheduledTaskIdInternal(scheduledTaskId),
+        10000,
+        'getExecutionsByScheduledTaskId'
+      );
+    } catch (error) {
       console.error('getExecutionsByScheduledTaskId error:', error);
       return [];
-    });
+    }
   }
 
   /**
@@ -462,6 +471,68 @@ export class TaskStorage {
       request.onerror = () => reject(request.error);
       transaction.onerror = () => reject(transaction.error);
     });
+  }
+
+  /**
+   * Clean up expired normal tasks based on retention days
+   * Only affects taskType='normal', does not touch scheduled task execution history
+   */
+  async cleanupExpiredTasks(retentionDays: number): Promise<{
+    success: boolean;
+    deletedCount: number;
+    error?: string;
+  }> {
+    try {
+      await this.init();
+      if (!this.db) throw new Error('Database not initialized');
+
+      const cutoffDate = new Date();
+      cutoffDate.setDate(cutoffDate.getDate() - retentionDays);
+
+      return new Promise((resolve, reject) => {
+        const transaction = this.db!.transaction([this.STORE_NAME], 'readwrite');
+        const store = transaction.objectStore(this.STORE_NAME);
+        const index = store.index('updatedAt');
+
+        // Range query: updatedAt < cutoffDate
+        const range = IDBKeyRange.upperBound(cutoffDate);
+        const request = index.openCursor(range);
+
+        let deletedCount = 0;
+        const errors: any[] = [];
+
+        request.onsuccess = () => {
+          const cursor = request.result;
+          if (cursor) {
+            const task = cursor.value;
+            // Only delete normal tasks
+            if (task.taskType === 'normal') {
+              const deleteRequest = cursor.delete();
+              deleteRequest.onsuccess = () => deletedCount++;
+              deleteRequest.onerror = () => errors.push(deleteRequest.error);
+            }
+            cursor.continue();
+          } else {
+            // Cursor finished
+            resolve({
+              success: errors.length === 0,
+              deletedCount,
+              error: errors.length > 0 ? `${errors.length} deletion errors` : undefined
+            });
+          }
+        };
+
+        request.onerror = () => reject(request.error);
+        transaction.onerror = () => reject(transaction.error);
+      });
+    } catch (error) {
+      console.error('[TaskStorage] cleanupExpiredTasks error:', error);
+      return {
+        success: false,
+        deletedCount: 0,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
   }
 
   /**
