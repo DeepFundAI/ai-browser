@@ -140,15 +140,15 @@ export const ModelSelector: React.FC = () => {
   // Empty state - show configure button with red warning
   if (modelOptions.length === 0) {
     return (
-      <div className="group flex items-center gap-2 px-3.5 py-2 rounded-xl border-2 border-red-500/60 bg-red-500/10 backdrop-blur-sm hover:bg-red-500/20 hover:border-red-500/80 hover:shadow-[0_0_20px_rgba(239,68,68,0.4)] transition-all duration-300 animate-pulse">
-        <SettingOutlined className="text-red-400 text-base" />
-        <span className="text-xs font-semibold text-red-400">No models</span>
+      <div className="group flex items-center gap-2 px-3.5 py-2 rounded-xl border-2 border-red-500/60 bg-red-500/10 dark:bg-red-500/10 backdrop-blur-sm hover:bg-red-500/20 hover:border-red-500/80 hover:shadow-[0_0_20px_rgba(239,68,68,0.4)] transition-all duration-200 animate-pulse cursor-pointer">
+        <SettingOutlined className="text-red-500 dark:text-red-400 text-base" />
+        <span className="text-xs font-semibold text-red-500 dark:text-red-400">No models</span>
         <Button
           type="link"
           size="small"
-          icon={<SettingOutlined className="!text-blue-400" />}
+          icon={<SettingOutlined className="!text-blue-500 dark:!text-blue-400" />}
           onClick={handleOpenSettings}
-          className="!text-blue-400 hover:!text-blue-300 !p-0 !h-auto !text-xs !font-semibold transition-colors duration-300 hover:underline cursor-pointer"
+          className="!text-blue-500 dark:!text-blue-400 hover:!text-blue-600 dark:hover:!text-blue-300 !p-0 !h-auto !text-xs !font-semibold transition-colors duration-200 hover:underline cursor-pointer"
         >
           Configure
         </Button>
@@ -156,10 +156,17 @@ export const ModelSelector: React.FC = () => {
     );
   }
 
-  // Normal state - show compact selector with border
+  // Normal state - show compact selector with border (theme-aware)
   return (
-    <div className="group flex items-center gap-2.5 px-3.5 py-2 rounded-xl border border-white/20 bg-white/5 backdrop-blur-sm hover:bg-white/10 hover:border-purple-400/40 hover:shadow-[0_0_20px_rgba(145,75,241,0.2)] transition-all duration-300">
-      <SettingOutlined className="text-gray-400 group-hover:text-purple-400 text-base flex-shrink-0 transition-colors duration-300" />
+    <div className="group flex items-center gap-2.5 px-3.5 py-2 rounded-xl cursor-pointer
+      border border-gray-200 dark:border-white/20
+      bg-gray-50 dark:bg-white/5
+      backdrop-blur-sm
+      hover:bg-gray-100 dark:hover:bg-white/10
+      hover:border-purple-300 dark:hover:border-purple-400/40
+      hover:shadow-md dark:hover:shadow-[0_0_20px_rgba(145,75,241,0.2)]
+      transition-all duration-200">
+      <SettingOutlined className="text-gray-400 dark:text-gray-400 group-hover:text-purple-500 dark:group-hover:text-purple-400 text-base flex-shrink-0 transition-colors duration-200" />
       <Select
         value={selectedModel}
         onChange={handleModelChange}

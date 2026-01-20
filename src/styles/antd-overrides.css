@@ -1,0 +1,348 @@
+/**
+ * Ant Design Component Style Overrides
+ * INPUT: Ant Design default styles
+ * OUTPUT: Theme-aware custom styles for antd components
+ * POSITION: Imported after globals.css, applies purple theme to antd
+ *
+ * Note: Update this file when antd components need custom styling
+ */
+
+/* ============================================
+   SELECT DROPDOWN
+   ============================================ */
+
+/* Dark theme dropdown container */
+.dark .ant-select-dropdown {
+  background: rgba(8, 12, 16, 0.96) !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(145, 75, 241, 0.3) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(145, 75, 241, 0.2) !important;
+}
+
+/* Light theme dropdown container */
+.light .ant-select-dropdown {
+  background: #ffffff !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Dark theme dropdown items */
+.dark .ant-select-item {
+  color: rgba(255, 255, 255, 0.9) !important;
+  border-radius: 8px !important;
+  margin: 2px 4px !important;
+  transition: all 0.2s ease !important;
+}
+
+/* Light theme dropdown items */
+.light .ant-select-item {
+  color: #1f2937 !important;
+  border-radius: 8px !important;
+  margin: 2px 4px !important;
+  transition: all 0.2s ease !important;
+}
+
+/* Dark theme hover state */
+.dark .ant-select-item-option-active:not(.ant-select-item-option-selected) {
+  background: rgba(94, 49, 216, 0.15) !important;
+}
+
+/* Light theme hover state */
+.light .ant-select-item-option-active:not(.ant-select-item-option-selected) {
+  background: rgba(94, 49, 216, 0.08) !important;
+}
+
+/* Dark theme selected state */
+.dark .ant-select-item-option-selected {
+  background: rgba(94, 49, 216, 0.25) !important;
+  font-weight: 500 !important;
+}
+
+/* Light theme selected state */
+.light .ant-select-item-option-selected {
+  background: rgba(94, 49, 216, 0.12) !important;
+  font-weight: 500 !important;
+}
+
+/* Dark theme selected + hover state */
+.dark .ant-select-item-option-selected.ant-select-item-option-active {
+  background: rgba(94, 49, 216, 0.35) !important;
+}
+
+/* Light theme selected + hover state */
+.light .ant-select-item-option-selected.ant-select-item-option-active {
+  background: rgba(94, 49, 216, 0.18) !important;
+}
+
+/* Custom select focus state */
+.custom-select.ant-select-focused .ant-select-selector {
+  border-color: rgba(145, 75, 241, 0.4) !important;
+  box-shadow: 0 0 0 2px rgba(145, 75, 241, 0.15) !important;
+}
+
+/* Custom select hover state */
+.custom-select:not(.ant-select-disabled):hover .ant-select-selector {
+  border-color: rgba(145, 75, 241, 0.3) !important;
+}
+
+/* ============================================
+   COMPACT SELECT (ModelSelector)
+   ============================================ */
+
+.custom-select-compact .ant-select-selector {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  height: auto !important;
+  min-height: 0 !important;
+}
+
+.custom-select-compact .ant-select-selection-search {
+  inset-inline-start: 0 !important;
+}
+
+.custom-select-compact .ant-select-selection-item {
+  padding-inline-end: 16px !important;
+  line-height: 1.4 !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+
+/* Light mode compact select text */
+.light .custom-select-compact .ant-select-selection-item {
+  color: #374151 !important;
+}
+
+/* Dark mode compact select text */
+.dark .custom-select-compact .ant-select-selection-item {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Hover state text color - light */
+.light .group:hover .custom-select-compact .ant-select-selection-item {
+  color: #5e31d8 !important;
+}
+
+/* Hover state text color - dark */
+.dark .group:hover .custom-select-compact .ant-select-selection-item {
+  color: #914bf1 !important;
+}
+
+/* ============================================
+   BUTTON OVERRIDES
+   ============================================ */
+
+/* Text button hover - light mode */
+.light .ant-btn-text:not(:disabled):hover {
+  background: rgba(0, 0, 0, 0.04) !important;
+}
+
+/* Text button hover - dark mode */
+.dark .ant-btn-text:not(:disabled):hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Primary button glow effect - dark mode */
+.dark .ant-btn-primary:not(:disabled):hover {
+  box-shadow: 0 0 20px rgba(145, 75, 241, 0.4) !important;
+}
+
+/* ============================================
+   INPUT OVERRIDES
+   ============================================ */
+
+/* Input focus ring - both themes */
+.ant-input:focus,
+.ant-input-focused,
+.ant-input-affix-wrapper:focus,
+.ant-input-affix-wrapper-focused {
+  border-color: rgba(94, 49, 216, 0.5) !important;
+  box-shadow: 0 0 0 2px rgba(94, 49, 216, 0.1) !important;
+}
+
+/* Light mode input */
+.light .ant-input,
+.light .ant-input-affix-wrapper {
+  background: #ffffff !important;
+  border-color: #e5e7eb !important;
+}
+
+.light .ant-input:hover,
+.light .ant-input-affix-wrapper:hover {
+  border-color: #d1d5db !important;
+}
+
+/* ============================================
+   MODAL OVERRIDES
+   ============================================ */
+
+/* Modal mask - both themes */
+.ant-modal-mask {
+  backdrop-filter: blur(4px) !important;
+}
+
+/* Light mode modal */
+.light .ant-modal-content {
+  background: #ffffff !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* Dark mode modal */
+.dark .ant-modal-content {
+  background: #1e1c23 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* ============================================
+   DRAWER OVERRIDES
+   ============================================ */
+
+/* Light mode drawer */
+.light .ant-drawer-content {
+  background: #ffffff !important;
+}
+
+/* Dark mode drawer */
+.dark .ant-drawer-content {
+  background: #1e1c23 !important;
+}
+
+/* Drawer mask */
+.ant-drawer-mask {
+  backdrop-filter: blur(4px) !important;
+}
+
+/* ============================================
+   TOOLTIP OVERRIDES
+   ============================================ */
+
+/* Dark tooltip on light theme */
+.light .ant-tooltip-inner {
+  background: #1f2937 !important;
+  color: #ffffff !important;
+}
+
+/* Light tooltip arrow on light theme */
+.light .ant-tooltip-arrow::before {
+  background: #1f2937 !important;
+}
+
+/* ============================================
+   MESSAGE OVERRIDES
+   ============================================ */
+
+/* Message container styling */
+.ant-message-notice-content {
+  border-radius: 10px !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Light mode message */
+.light .ant-message-notice-content {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+/* Dark mode message */
+.dark .ant-message-notice-content {
+  background: rgba(30, 28, 35, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+/* ============================================
+   POPCONFIRM OVERRIDES
+   ============================================ */
+
+/* Light mode popconfirm */
+.light .ant-popconfirm .ant-popover-inner {
+  background: #ffffff !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Dark mode popconfirm */
+.dark .ant-popconfirm .ant-popover-inner {
+  background: rgba(30, 28, 35, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* ============================================
+   SWITCH OVERRIDES
+   ============================================ */
+
+/* Switch checked state - both themes */
+.ant-switch-checked {
+  background: #5e31d8 !important;
+}
+
+.ant-switch-checked:hover:not(.ant-switch-disabled) {
+  background: #914bf1 !important;
+}
+
+/* ============================================
+   TABS OVERRIDES
+   ============================================ */
+
+/* Active tab indicator */
+.ant-tabs-ink-bar {
+  background: #5e31d8 !important;
+}
+
+/* Active tab text */
+.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: #5e31d8 !important;
+}
+
+/* Tab hover - light mode */
+.light .ant-tabs-tab:hover .ant-tabs-tab-btn {
+  color: #5e31d8 !important;
+}
+
+/* Tab hover - dark mode */
+.dark .ant-tabs-tab:hover .ant-tabs-tab-btn {
+  color: #914bf1 !important;
+}
+
+/* ============================================
+   SLIDER OVERRIDES
+   ============================================ */
+
+/* Slider track */
+.ant-slider-track {
+  background: #5e31d8 !important;
+}
+
+.ant-slider:hover .ant-slider-track {
+  background: #914bf1 !important;
+}
+
+/* Slider handle */
+.ant-slider-handle::after {
+  box-shadow: 0 0 0 2px #5e31d8 !important;
+}
+
+.ant-slider:hover .ant-slider-handle::after {
+  box-shadow: 0 0 0 2px #914bf1 !important;
+}
+
+/* ============================================
+   TAG OVERRIDES
+   ============================================ */
+
+/* Light mode tag */
+.light .ant-tag {
+  background: #f3f4f6 !important;
+  border-color: #e5e7eb !important;
+  color: #374151 !important;
+}
+
+/* Dark mode tag */
+.dark .ant-tag {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}

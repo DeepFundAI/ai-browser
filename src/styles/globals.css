@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "./markdown.css";
+@import "./antd-overrides.css";
 @import url('https://fonts.googleapis.com/css2?family=Berkshire+Swash&display=swap');
 
 /* Define custom dark mode variant for Tailwind CSS 4.0 */
@@ -177,14 +178,44 @@
   transition: all 0.3s ease;
 }
 
-/* Light theme - white background with border */
+/* Dark theme - hover effect */
+.dark .gradient-border:hover {
+  background: linear-gradient(135deg, rgba(94, 49, 216, 0.4), rgba(145, 75, 241, 0.3), rgba(94, 49, 216, 0.4));
+  box-shadow: 0 0 20px rgba(145, 75, 241, 0.2);
+}
+
+/* Dark theme - focus within effect */
+.dark .gradient-border:focus-within {
+  background: linear-gradient(135deg, rgba(94, 49, 216, 0.5), rgba(145, 75, 241, 0.35), rgba(94, 49, 216, 0.5));
+  box-shadow: 0 0 25px rgba(145, 75, 241, 0.3);
+}
+
+/* Light theme - elevated card with subtle shadow */
 .light .gradient-border {
   position: relative;
   display: inline-block;
   border-radius: 12px;
   background: #ffffff;
-  border: 1px solid #d1d5db;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+              0 2px 4px -2px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
+}
+
+/* Light theme - hover effect */
+.light .gradient-border:hover {
+  border-color: rgba(94, 49, 216, 0.3);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+              0 4px 6px -4px rgba(0, 0, 0, 0.1),
+              0 0 0 1px rgba(94, 49, 216, 0.1);
+}
+
+/* Light theme - focus within effect */
+.light .gradient-border:focus-within {
+  border-color: rgba(94, 49, 216, 0.4);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+              0 4px 6px -4px rgba(0, 0, 0, 0.1),
+              0 0 0 2px rgba(94, 49, 216, 0.15);
 }
 
 /* Remove the container-level focus effect - we'll handle it at textarea level */
@@ -200,84 +231,6 @@
 /* Add focus effect directly to textarea with a glowing border */
 .gradient-border textarea:focus {
   box-shadow: 0 0 0 2px rgba(145, 75, 241, 0.4) inset;
-}
-
-/* Ant Design Select dropdown customization - theme-responsive */
-/* Dark theme dropdown */
-.dark .ant-select-dropdown {
-  background: rgba(8, 12, 16, 0.96) !important;
-  backdrop-filter: blur(20px) !important;
-  border: 1px solid rgba(145, 75, 241, 0.3) !important;
-  border-radius: 12px !important;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(145, 75, 241, 0.2) !important;
-}
-
-/* Light theme dropdown */
-.light .ant-select-dropdown {
-  background: #ffffff !important;
-  backdrop-filter: blur(20px) !important;
-  border: 1px solid #e5e7eb !important;
-  border-radius: 12px !important;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1) !important;
-}
-
-/* Dark theme dropdown items */
-.dark .ant-select-item {
-  color: rgba(255, 255, 255, 0.9) !important;
-  border-radius: 8px !important;
-  margin: 2px 4px !important;
-  transition: all 0.2s ease !important;
-}
-
-/* Light theme dropdown items */
-.light .ant-select-item {
-  color: #1f2937 !important;
-  border-radius: 8px !important;
-  margin: 2px 4px !important;
-  transition: all 0.2s ease !important;
-}
-
-/* Dark theme hover state */
-.dark .ant-select-item-option-active:not(.ant-select-item-option-selected) {
-  background: rgba(94, 49, 216, 0.15) !important;
-}
-
-/* Light theme hover state */
-.light .ant-select-item-option-active:not(.ant-select-item-option-selected) {
-  background: rgba(94, 49, 216, 0.05) !important;
-}
-
-/* Dark theme selected state */
-.dark .ant-select-item-option-selected {
-  background: rgba(94, 49, 216, 0.25) !important;
-  font-weight: 500 !important;
-}
-
-/* Light theme selected state */
-.light .ant-select-item-option-selected {
-  background: rgba(94, 49, 216, 0.1) !important;
-  font-weight: 500 !important;
-}
-
-/* Dark theme selected state hover */
-.dark .ant-select-item-option-selected.ant-select-item-option-active {
-  background: rgba(94, 49, 216, 0.35) !important;
-}
-
-/* Light theme selected state hover */
-.light .ant-select-item-option-selected.ant-select-item-option-active {
-  background: rgba(94, 49, 216, 0.15) !important;
-}
-
-/* Select box focus state */
-.custom-select.ant-select-focused .ant-select-selector {
-  border-color: rgba(145, 75, 241, 0.4) !important;
-  box-shadow: 0 0 0 2px rgba(145, 75, 241, 0.15) !important;
-}
-
-/* Select box hover state */
-.custom-select:not(.ant-select-disabled):hover .ant-select-selector {
-  border-color: rgba(145, 75, 241, 0.3) !important;
 }
 
 @theme inline {
