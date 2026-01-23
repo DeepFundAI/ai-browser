@@ -49,7 +49,7 @@ export const UserInterfacePanel: React.FC<UserInterfacePanelProps> = ({
       {/* Fixed header */}
       <div className="flex-shrink-0 p-8 pb-0">
         <div className="flex items-center gap-3 mb-4">
-          <SkinOutlined className="text-3xl text-pink-400" />
+          <SkinOutlined className="text-3xl text-primary dark:text-purple-400" />
           <Title level={2} className="!text-text-01 dark:!text-text-01-dark !mb-0">
             {t('ui.title')}
           </Title>

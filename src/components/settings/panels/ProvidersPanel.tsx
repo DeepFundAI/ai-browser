@@ -53,11 +53,11 @@ const ProviderListItem: React.FC<ProviderListItemProps> = ({
     <button
       onClick={onClick}
       className={clsx(
-        'w-full flex items-center gap-3 px-4 py-3 rounded-lg mb-2 transition-all duration-200',
+        'w-full flex items-center gap-3 px-4 py-3 rounded-lg mb-2 transition-all duration-200 cursor-pointer',
         'text-left border',
         isSelected
-          ? 'bg-blue-500/20 border-blue-500/50'
-          : 'border-gray-200 hover:bg-white dark:bg-white/5 hover:border-gray-300 dark:border-white/20'
+          ? 'bg-primary/10 dark:bg-primary/20 border-primary/50 shadow-sm shadow-primary/10'
+          : 'border-gray-200 dark:border-white/20 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 hover:border-gray-300 dark:hover:border-white/30'
       )}
     >
       {isCustom ? (
@@ -93,7 +93,7 @@ interface ModelListItemProps {
 
 const ModelListItem: React.FC<ModelListItemProps> = ({ model, onToggle }) => {
   return (
-    <div className="flex items-center justify-between px-4 py-3 rounded-lg bg-white dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 transition-all mb-2">
+    <div className="flex items-center justify-between px-4 py-3 rounded-lg bg-white dark:bg-white/5 border border-gray-100 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-white/10 hover:border-gray-200 dark:hover:border-white/10 transition-all duration-200 mb-2">
       <div className="flex-1">
         <div className="text-text-01 dark:text-text-01-dark font-medium text-sm">{model.name}</div>
         <div className="text-text-12 dark:text-text-12-dark text-xs mt-0.5">{model.id}</div>
@@ -102,6 +102,7 @@ const ModelListItem: React.FC<ModelListItemProps> = ({ model, onToggle }) => {
         checked={model.enabled}
         onChange={onToggle}
         size="small"
+        className="cursor-pointer"
       />
     </div>
   );
@@ -150,7 +151,7 @@ const AddModelInline: React.FC<AddModelInlineProps> = ({ onAdd }) => {
         icon={<PlusOutlined />}
         onClick={handleAdd}
         size="small"
-        className="bg-white border-gray-200 dark:border-white/10 text-text-01 dark:text-text-01-darkhover:bg-gray-100 dark:bg-white/10"
+        className="!bg-white dark:!bg-white/10 !border-gray-200 dark:!border-white/10 !text-text-01 dark:!text-text-01-dark hover:!bg-gray-100 dark:hover:!bg-white/20 hover:!border-primary/30 cursor-pointer transition-all duration-200"
       >
         {t('providers.add_model')}
       </Button>
@@ -397,7 +398,7 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between mb-6 flex-shrink-0">
         <div className="flex items-center gap-3">
-          <CloudOutlined className="text-3xl text-blue-400" />
+          <CloudOutlined className="text-3xl text-primary dark:text-purple-400" />
           <Title level={2} className="!text-text-01 dark:!text-text-01-dark !mb-0">
             {t('providers.title')}
           </Title>
@@ -406,7 +407,7 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
           type="primary"
           icon={<PlusOutlined />}
           onClick={() => setShowAddModal(true)}
-          className="bg-teal-600 hover:bg-teal-700 border-none"
+          className="!bg-primary hover:!bg-primary-hover !border-none cursor-pointer transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
         >
           {t('providers.add_custom_provider')}
         </Button>
@@ -480,7 +481,7 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
                         type="text"
                         danger
                         icon={<DeleteOutlined />}
-                        className="!text-red-400 hover:!text-red-300"
+                        className="!text-red-400 hover:!text-red-300 hover:!bg-red-500/10 cursor-pointer transition-all duration-200"
                       />
                     </Popconfirm>
                   )}
@@ -500,7 +501,7 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
                     type="primary"
                     size="large"
                     onClick={handleEnableProvider}
-                    className="bg-teal-600 hover:bg-teal-700 border-none"
+                    className="!bg-primary hover:!bg-primary-hover !border-none cursor-pointer transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                   >
                     {t('providers.enable_provider')}
                   </Button>
@@ -558,7 +559,7 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
                       />
                       <button
                         onClick={() => setShowApiKey(!showApiKey)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-text-12 dark:text-text-12-dark hover:text-white"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-text-12 dark:text-text-12-dark hover:text-primary dark:hover:text-purple-400 cursor-pointer transition-colors duration-200"
                       >
                         {showApiKey ? <EyeInvisibleOutlined /> : <EyeOutlined />}
                       </button>
@@ -568,7 +569,7 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
                         <Link
                           href={providerMeta.getKeyUrl}
                           target="_blank"
-                          className="text-blue-400 text-xs"
+                          className="!text-primary dark:!text-purple-400 hover:!text-primary-hover dark:hover:!text-purple-300 text-xs transition-colors duration-200"
                         >
                           {t('providers.get_api_key', { name: currentConfig.name })}
                         </Link>
@@ -588,7 +589,7 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
                           icon={<DownloadOutlined />}
                           onClick={handleFetchModels}
                           loading={isFetchingModels}
-                          className="bg-white border-gray-200 dark:border-white/10 text-text-01 dark:text-text-01-darkhover:bg-gray-100 dark:bg-white/10"
+                          className="!bg-white dark:!bg-white/10 !border-gray-200 dark:!border-white/10 !text-text-01 dark:!text-text-01-dark hover:!bg-gray-100 dark:hover:!bg-white/20 hover:!border-primary/30 cursor-pointer transition-all duration-200"
                         >
                           {t('providers.fetch')}
                         </Button>

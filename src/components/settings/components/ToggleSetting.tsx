@@ -40,6 +40,7 @@ export const ToggleSetting: React.FC<ToggleSettingProps> = ({
         checked={checked}
         onChange={onChange}
         disabled={disabled}
+        className="cursor-pointer"
       />
     </div>
   );

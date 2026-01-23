@@ -69,7 +69,8 @@ export default function Header() {
           icon={<HistoryOutlined />}
           size="small"
           onClick={() => setShowHistoryPanel(true)}
-          className='!text-text-01 dark:!text-text-01-dark'
+          className='!text-gray-700 dark:!text-text-01-dark cursor-pointer transition-all duration-200
+            hover:!bg-gray-100 dark:hover:!bg-white/10 hover:!text-primary dark:hover:!text-purple-400'
           style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
         >
           {isTaskDetailMode ? t('execution_history') : t('history')}
@@ -85,7 +86,8 @@ export default function Header() {
               (window as any).api.openSettings();
             }
           }}
-          className='!text-text-01 dark:!text-text-01-dark hover:!bg-purple-500/10'
+          className='!text-gray-700 dark:!text-text-01-dark cursor-pointer transition-all duration-200
+            hover:!bg-gray-100 dark:hover:!bg-white/10 hover:!text-primary dark:hover:!text-purple-400'
           style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
         >
           {t('settings')}

@@ -117,7 +117,7 @@ export const NetworkPanel: React.FC<NetworkPanelProps> = ({
       {/* Fixed header */}
       <div className="flex-shrink-0 p-8 pb-0">
         <div className="flex items-center gap-3 mb-4">
-          <GlobalOutlined className="text-3xl text-blue-400" />
+          <GlobalOutlined className="text-3xl text-primary dark:text-purple-400" />
           <Title level={2} className="!text-text-01 dark:!text-text-01-dark !mb-0">
             {t('network.title')}
           </Title>
@@ -207,7 +207,7 @@ export const NetworkPanel: React.FC<NetworkPanelProps> = ({
                       <Button
                         onClick={handleTestProxy}
                         loading={testingProxy}
-                        className="!bg-white dark:!bg-white/5 !border-gray-200 dark:!border-white/10 !text-gray-700 dark:!text-gray-300 hover:!bg-gray-100 dark:hover:!bg-white/10"
+                        className="!bg-white dark:!bg-white/10 !border-gray-200 dark:!border-white/10 !text-gray-700 dark:!text-gray-300 hover:!bg-gray-100 dark:hover:!bg-white/20 hover:!border-primary/30 cursor-pointer transition-all duration-200"
                       >
                         {t('network.test_proxy')}
                       </Button>

@@ -42,11 +42,11 @@ const TabItem: React.FC<TabItemProps> = ({
     <button
       onClick={onClick}
       className={clsx(
-        'w-full flex items-center gap-3 px-4 py-3 rounded-lg mb-2 transition-all duration-200',
+        'w-full flex items-center gap-3 px-4 py-3 rounded-lg mb-2 transition-all duration-200 cursor-pointer',
         'text-left border',
         isSelected
-          ? 'bg-blue-500/20 border-blue-500/50'
-          : 'border-gray-200 dark:border-white/10 hover:bg-white dark:bg-white/5 hover:border-gray-300 dark:border-white/20'
+          ? 'bg-primary/10 dark:bg-primary/20 border-primary/50 shadow-sm shadow-primary/10'
+          : 'border-gray-200 dark:border-white/20 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 hover:border-gray-300 dark:hover:border-white/30'
       )}
     >
       <span className="text-lg text-text-12 dark:text-text-12-dark">{icon}</span>
@@ -67,10 +67,10 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, onToggle }) => {
   return (
     <div
       className={clsx(
-        'flex items-start justify-between p-4 rounded-lg border transition-all mb-3',
+        'flex items-start justify-between p-4 rounded-lg border transition-all duration-200 mb-3',
         tool.enabled
-          ? 'bg-blue-500/10 border-blue-500/30'
-          : 'bg-white dark:bg-white/5 border-gray-200 dark:border-white/10'
+          ? 'bg-primary/10 dark:bg-primary/20 border-primary/30'
+          : 'bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/10'
       )}
     >
       <div className="flex-1 pr-4">
@@ -83,6 +83,7 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, onToggle }) => {
         checked={tool.enabled}
         onChange={onToggle}
         size="small"
+        className="cursor-pointer"
       />
     </div>
   );
@@ -340,7 +341,7 @@ export const AgentPanel: React.FC<AgentPanelProps> = ({
       {/* Fixed header */}
       <div className="flex-shrink-0 p-8 pb-0">
         <div className="flex items-center gap-3 mb-4">
-          <RobotOutlined className="text-3xl text-cyan-400" />
+          <RobotOutlined className="text-3xl text-primary dark:text-purple-400" />
           <Title level={2} className="!text-text-01 dark:!text-text-01-dark !mb-0">
             {t('agent.title')}
           </Title>

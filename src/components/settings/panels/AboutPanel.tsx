@@ -11,7 +11,7 @@ export const AboutPanel: React.FC = () => {
   return (
     <div className="p-8">
       <div className="flex items-center gap-3 mb-6">
-        <InfoCircleOutlined className="text-3xl text-blue-400" />
+        <InfoCircleOutlined className="text-3xl text-primary dark:text-purple-400" />
         <Title level={2} className="!text-text-01 dark:!text-text-01-dark !mb-0">
           {t('about.title')}
         </Title>
@@ -20,7 +20,7 @@ export const AboutPanel: React.FC = () => {
       <div className="bg-white dark:bg-white/5 backdrop-blur-sm rounded-lg border border-gray-200 dark:border-white/10 p-8">
         <div className="space-y-6">
           <div className="text-center">
-            <div className="text-6xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+            <div className="text-6xl font-bold mb-4 bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent">
               DeepFundAI Browser
             </div>
             <Paragraph className="!text-text-12 dark:text-text-12-dark text-lg">

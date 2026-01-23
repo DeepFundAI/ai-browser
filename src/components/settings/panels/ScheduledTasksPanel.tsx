@@ -56,10 +56,10 @@ const TaskCard: React.FC<TaskCardProps> = ({
   return (
     <div
       className={clsx(
-        'p-4 rounded-lg border transition-all mb-3',
+        'p-4 rounded-lg border transition-all duration-200 mb-3',
         task.enabled
-          ? 'bg-green-500/10 border-green-500/30'
-          : 'bg-white dark:bg-white/5 border-gray-200 dark:border-white/10'
+          ? 'bg-primary/10 dark:bg-primary/20 border-primary/30'
+          : 'bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/10'
       )}
     >
       {/* Header */}
@@ -71,7 +71,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
               className={clsx(
                 'px-2 py-0.5 rounded text-xs',
                 task.enabled
-                  ? 'bg-green-500/20 text-green-400'
+                  ? 'bg-primary/20 text-primary dark:text-purple-400'
                   : 'bg-gray-500/20 text-text-12 dark:text-text-12-dark'
               )}
             >
@@ -86,6 +86,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
           checked={task.enabled}
           onChange={onToggle}
           size="small"
+          className="cursor-pointer"
         />
       </div>
 
@@ -106,7 +107,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
           icon={<PlayCircleOutlined />}
           onClick={onExecuteNow}
           disabled={!task.enabled}
-          className="!bg-white dark:!bg-white/5 !border-gray-200 dark:!border-white/10 !text-gray-700 dark:!text-gray-300 hover:!bg-gray-100 dark:hover:!bg-white/10 disabled:opacity-50"
+          className="!bg-white dark:!bg-white/10 !border-gray-200 dark:!border-white/10 !text-gray-700 dark:!text-gray-300 hover:!bg-gray-100 dark:hover:!bg-white/20 hover:!border-primary/30 disabled:opacity-50 cursor-pointer transition-all duration-200"
         >
           {t('scheduled_tasks.run_now')}
         </Button>
@@ -114,7 +115,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
           size="small"
           icon={<HistoryOutlined />}
           onClick={onViewHistory}
-          className="!bg-white dark:!bg-white/5 !border-gray-200 dark:!border-white/10 !text-gray-700 dark:!text-gray-300 hover:!bg-gray-100 dark:hover:!bg-white/10"
+          className="!bg-white dark:!bg-white/10 !border-gray-200 dark:!border-white/10 !text-gray-700 dark:!text-gray-300 hover:!bg-gray-100 dark:hover:!bg-white/20 hover:!border-primary/30 cursor-pointer transition-all duration-200"
         >
           {t('scheduled_tasks.history')}
         </Button>
@@ -122,7 +123,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
           size="small"
           icon={<EditOutlined />}
           onClick={onEdit}
-          className="!bg-white dark:!bg-white/5 !border-gray-200 dark:!border-white/10 !text-gray-700 dark:!text-gray-300 hover:!bg-gray-100 dark:hover:!bg-white/10"
+          className="!bg-white dark:!bg-white/10 !border-gray-200 dark:!border-white/10 !text-gray-700 dark:!text-gray-300 hover:!bg-gray-100 dark:hover:!bg-white/20 hover:!border-primary/30 cursor-pointer transition-all duration-200"
         >
           {t('scheduled_tasks.edit')}
         </Button>
@@ -138,7 +139,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
             size="small"
             icon={<DeleteOutlined />}
             danger
-            className="bg-red-500/10 border-red-500/30 hover:bg-red-500/20"
+            className="!bg-red-500/10 !border-red-500/30 hover:!bg-red-500/20 hover:!border-red-500/50 cursor-pointer transition-all duration-200"
           >
             {t('scheduled_tasks.delete')}
           </Button>
@@ -263,7 +264,7 @@ export const ScheduledTasksPanel: React.FC = () => {
       <div className="flex-shrink-0 p-8 pb-0">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <ClockCircleOutlined className="text-3xl text-green-400" />
+            <ClockCircleOutlined className="text-3xl text-primary dark:text-purple-400" />
             <Title level={2} className="!text-text-01 dark:!text-text-01-dark !mb-0">
               {t('scheduled_tasks.title')}
             </Title>
@@ -272,7 +273,7 @@ export const ScheduledTasksPanel: React.FC = () => {
             <Button
               icon={<ReloadOutlined />}
               onClick={handleReload}
-              className="!bg-white dark:!bg-white/5 !border-gray-200 dark:!border-white/10 !text-gray-700 dark:!text-gray-300 hover:!bg-gray-100 dark:hover:!bg-white/10"
+              className="!bg-white dark:!bg-white/10 !border-gray-200 dark:!border-white/10 !text-gray-700 dark:!text-gray-300 hover:!bg-gray-100 dark:hover:!bg-white/20 hover:!border-primary/30 cursor-pointer transition-all duration-200"
             >
               Reload
             </Button>
@@ -280,7 +281,7 @@ export const ScheduledTasksPanel: React.FC = () => {
               type="primary"
               icon={<PlusOutlined />}
               onClick={handleCreateNew}
-              className="bg-green-600 hover:bg-green-700 border-none"
+              className="!bg-primary hover:!bg-primary-hover !border-none cursor-pointer transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
             >
               {t('scheduled_tasks.create_task')}
             </Button>
@@ -310,7 +311,7 @@ export const ScheduledTasksPanel: React.FC = () => {
                   type="primary"
                   icon={<PlusOutlined />}
                   onClick={handleCreateNew}
-                  className="bg-green-600 hover:bg-green-700 border-none"
+                  className="!bg-primary hover:!bg-primary-hover !border-none cursor-pointer transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                 >
                   {t('scheduled_tasks.create_task')}
                 </Button>
