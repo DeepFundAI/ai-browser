@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { ToolAction, DisplayMessage, AgentGroupMessage } from '@/models';
-import { message as antdMessage } from 'antd';
+import { App } from 'antd';
+import { useTranslation } from 'react-i18next';
 
 interface UseToolHistoryOptions {
   isHistoryMode: boolean;
@@ -12,6 +13,8 @@ interface UseToolHistoryOptions {
  * Hook for managing tool history and screenshot display
  */
 export const useToolHistory = ({ isHistoryMode, playbackStatus, displayMessages }: UseToolHistoryOptions) => {
+  const { t } = useTranslation('main');
+  const { message } = App.useApp();
   const [toolHistory, setToolHistory] = useState<(ToolAction & { screenshot?: string, toolSequence?: number })[]>([]);
   const [currentHistoryIndex, setCurrentHistoryIndex] = useState<number>(-1);
   const [showDetail, setShowDetail] = useState(false);
@@ -94,7 +97,7 @@ export const useToolHistory = ({ isHistoryMode, playbackStatus, displayMessages 
           await (window.api as any).showHistoryView?.(historyTool.screenshot);
         } catch (error) {
           console.error('[useToolHistory] Failed to show history view:', error);
-          antdMessage.error('截图显示失败，请重试');
+          message.error(t('screenshot_display_failed') || 'Failed to display screenshot');
         }
       } else {
         try {
@@ -104,7 +107,7 @@ export const useToolHistory = ({ isHistoryMode, playbackStatus, displayMessages 
         }
       }
     }
-  }, [currentHistoryIndex, toolHistory, isHistoryMode]);
+  }, [currentHistoryIndex, toolHistory, isHistoryMode, message, t]);
 
   return {
     toolHistory,

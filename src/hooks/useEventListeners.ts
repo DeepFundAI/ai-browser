@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { message as antdMessage } from 'antd';
+import { App } from 'antd';
 import { StreamCallbackMessage } from '@jarvis-agent/core/dist/types';
 import { Task } from '@/models';
 import { scheduledTaskStorage } from '@/services/scheduled-task-storage';
@@ -34,6 +34,7 @@ export const useEventListeners = ({
   setCurrentUrl,
 }: UseEventListenersOptions) => {
   const { t } = useTranslation('main');
+  const { message } = App.useApp();
 
   // Sync detail panel visibility with Electron main process
   useEffect(() => {
@@ -110,7 +111,7 @@ export const useEventListeners = ({
           status: 'abort',
           endTime: new Date(timestamp),
         });
-        antdMessage.warning(t('task_terminated_with_reason', { reason }));
+        message.warning(t('task_terminated_with_reason', { reason }));
       } catch (error) {
         console.error('[useEventListeners] Failed to update aborted task:', error);
       }
@@ -121,7 +122,7 @@ export const useEventListeners = ({
     return () => {
       (window.api as any).removeAllListeners?.('task-aborted-by-system');
     };
-  }, [updateTask, t]);
+  }, [updateTask, t, message]);
 
   // Monitor scheduled task execution completion
   useEffect(() => {
@@ -151,10 +152,10 @@ export const useEventListeners = ({
           });
         }
 
-        antdMessage.success(t('task_execution_completed'));
+        message.success(t('task_execution_completed'));
       } catch (error) {
         console.error('[useEventListeners] Failed to update task completion:', error);
-        antdMessage.error(t('failed_update_task_status'));
+        message.error(t('failed_update_task_status'));
       }
     };
 
@@ -163,7 +164,7 @@ export const useEventListeners = ({
     return () => {
       (window.api as any).removeAllListeners?.('task-execution-complete');
     };
-  }, [isTaskDetailMode, tasks, updateTask, scheduledTaskIdFromUrl, taskIdRef, t]);
+  }, [isTaskDetailMode, tasks, updateTask, scheduledTaskIdFromUrl, taskIdRef, t, message]);
 
   // Monitor EkoService stream messages
   useEffect(() => {
