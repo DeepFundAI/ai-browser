@@ -9,12 +9,12 @@ interface HumanInteractionCardProps {
   onResponse: (response: HumanResponseMessage) => void;
 }
 
-// Reusable style constants
-const CARD_BASE = "border rounded-lg p-3 backdrop-blur-xl transition-all duration-300";
-const CARD_PENDING = "bg-[rgba(60,45,30,0.4)] border-[rgba(251,146,60,0.3)]";
-const CARD_COMPLETED = "bg-[rgba(16,185,129,0.1)] border-[rgba(16,185,129,0.3)] opacity-70";
-const BADGE_PENDING = "text-[rgba(251,146,60,1)]";
-const BADGE_COMPLETED = "text-[rgba(16,185,129,1)]";
+// Reusable style constants - theme aware
+const CARD_BASE = "border rounded-lg p-3 backdrop-blur-xl transition-all duration-200";
+const CARD_PENDING = "bg-orange-50 dark:bg-[rgba(60,45,30,0.4)] border-orange-200 dark:border-[rgba(251,146,60,0.3)]";
+const CARD_COMPLETED = "bg-emerald-50 dark:bg-[rgba(16,185,129,0.1)] border-emerald-200 dark:border-[rgba(16,185,129,0.3)] opacity-80";
+const BADGE_PENDING = "text-orange-500 dark:text-[rgba(251,146,60,1)]";
+const BADGE_COMPLETED = "text-emerald-500 dark:text-[rgba(16,185,129,1)]";
 
 /**
  * Human Interaction Card Component
@@ -84,7 +84,7 @@ export const HumanInteractionCard: React.FC<HumanInteractionCardProps> = ({
           disabled={completed}
           placeholder="Please enter your response..."
           rows={2}
-          className="!bg-[rgba(255,255,255,0.05)] !border-[rgba(255,255,255,0.15)] !text-text-01 dark:text-text-01-dark !text-sm !rounded-lg focus:!bg-[rgba(255,255,255,0.08)] focus:!border-[rgba(59,130,246,0.5)] focus:!shadow-[0_0_0_2px_rgba(59,130,246,0.15)]"
+          className="!bg-white dark:!bg-[rgba(255,255,255,0.05)] !border-gray-200 dark:!border-[rgba(255,255,255,0.15)] !text-text-01 dark:!text-text-01-dark !text-sm !rounded-lg focus:!bg-gray-50 dark:focus:!bg-[rgba(255,255,255,0.08)] focus:!border-primary dark:focus:!border-[rgba(59,130,246,0.5)] focus:!shadow-[0_0_0_2px_rgba(94,49,216,0.15)]"
         />
         <Button
           type="primary"
@@ -157,7 +157,7 @@ export const HumanInteractionCard: React.FC<HumanInteractionCardProps> = ({
         {/* Site card for login scenarios */}
         {message.context?.siteName && (
           <div
-            className="bg-[rgba(255,255,255,0.08)] border border-[rgba(255,255,255,0.12)] rounded-lg p-2 px-3 flex items-center justify-between mb-3 cursor-pointer transition-all duration-200 hover:bg-[rgba(255,255,255,0.12)] hover:border-[rgba(59,130,246,0.4)]"
+            className="bg-gray-50 dark:bg-[rgba(255,255,255,0.08)] border border-gray-200 dark:border-[rgba(255,255,255,0.12)] rounded-lg p-2 px-3 flex items-center justify-between mb-3 cursor-pointer transition-all duration-200 hover:bg-gray-100 dark:hover:bg-[rgba(255,255,255,0.12)] hover:border-purple-300 dark:hover:border-[rgba(59,130,246,0.4)]"
             onClick={() => {
               if (message.context?.actionUrl) {
                 console.log('Navigating to:', message.context.actionUrl);

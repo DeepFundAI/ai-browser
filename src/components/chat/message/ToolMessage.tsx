@@ -142,7 +142,13 @@ export const ToolDisplay: React.FC<ToolDisplayProps> = ({
   return (
     <div className="inline-flex items-center gap-2">
       <div
-        className="inline-flex items-center gap-2 px-3 py-2 bg-tool-call dark:bg-tool-call-dark rounded-md border text-xs border-border-message dark:border-border-message-dark text-text-12 dark:text-text-12-dark cursor-pointer hover:bg-opacity-80 transition-colors"
+        className="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-xs cursor-pointer transition-all duration-200
+          bg-gray-50 dark:bg-tool-call-dark
+          border border-gray-200 dark:border-border-message-dark
+          text-gray-600 dark:text-text-12-dark
+          hover:bg-gray-100 dark:hover:bg-white/10
+          hover:border-purple-300 dark:hover:border-purple-500/30
+          hover:shadow-sm dark:hover:shadow-[0_0_12px_rgba(145,75,241,0.15)]"
         onClick={() => onToolClick(message)}
       >
         {getToolIcon(message.toolName)}
@@ -156,7 +162,9 @@ export const ToolDisplay: React.FC<ToolDisplayProps> = ({
       {/* Display file link for file_write tool when completed - on the same line */}
       {fileInfo && (
         <div
-          className="text-xs text-blue-400 hover:text-blue-300 cursor-pointer transition-colors flex items-center gap-1"
+          className="text-xs cursor-pointer transition-colors duration-200 flex items-center gap-1
+            text-blue-500 dark:text-blue-400
+            hover:text-blue-600 dark:hover:text-blue-300"
           onClick={handleFileLinkClick}
         >
           📄 {fileInfo.fileName}
