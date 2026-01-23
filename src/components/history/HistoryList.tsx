@@ -76,12 +76,13 @@ export const HistoryList: React.FC<HistoryListProps> = ({
       renderItem={(item) => (
         <List.Item
           key={item.id}
-          className={`cursor-pointer transition-colors ${
-            currentTaskId === item.id ? 'opacity-80' : 'hover:opacity-70'
+          className={`cursor-pointer transition-all duration-200 rounded-lg my-1 ${
+            currentTaskId === item.id
+              ? 'bg-primary/10 dark:bg-primary/20'
+              : 'hover:bg-gray-100 dark:hover:bg-white/5'
           }`}
           style={{
-            backgroundColor: currentTaskId === item.id ? 'rgba(59, 130, 246, 0.1)' : undefined,
-            borderLeft: currentTaskId === item.id ? '3px solid #3B82F6' : undefined
+            borderLeft: currentTaskId === item.id ? '3px solid var(--primary-color, #5e31d8)' : '3px solid transparent'
           }}
           onClick={() => onSelectItem(item)}
           actions={[
@@ -91,6 +92,7 @@ export const HistoryList: React.FC<HistoryListProps> = ({
                   type="text"
                   icon={<EyeOutlined />}
                   size="small"
+                  className="!text-gray-500 dark:!text-gray-400 hover:!text-primary dark:hover:!text-purple-400 hover:!bg-primary/10 cursor-pointer transition-all duration-200"
                   onClick={(e) => {
                     e.stopPropagation();
                     onSelectItem(item);
@@ -127,6 +129,7 @@ export const HistoryList: React.FC<HistoryListProps> = ({
                   danger
                   icon={<DeleteOutlined />}
                   size="small"
+                  className="!text-red-400 hover:!text-red-300 hover:!bg-red-500/10 cursor-pointer transition-all duration-200"
                   onClick={(e) => e.stopPropagation()}
                 />
               </Tooltip>
@@ -138,7 +141,7 @@ export const HistoryList: React.FC<HistoryListProps> = ({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 flex-1 mr-2">
                   {item.taskType === 'scheduled' && (
-                    <ClockCircleOutlined className="text-blue-500" />
+                    <ClockCircleOutlined className="text-primary dark:text-purple-400" />
                   )}
                   <span className="text-sm font-medium truncate text-text-01 dark:text-text-01-dark">
                     {item.name}

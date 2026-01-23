@@ -109,10 +109,14 @@ export const TaskStepEditor: React.FC<TaskStepEditorProps> = ({ value = [], onCh
           type="primary"
           icon={<PlusOutlined />}
           onClick={handleAddStep}
+          className="!bg-primary hover:!bg-primary-hover !border-none cursor-pointer transition-all duration-200"
         >
           {t('manual_add_step')}
         </Button>
-        <Button onClick={() => setShowTemplateModal(true)}>
+        <Button
+          onClick={() => setShowTemplateModal(true)}
+          className="!bg-white dark:!bg-white/10 !border-gray-200 dark:!border-white/10 !text-gray-700 dark:!text-gray-300 hover:!bg-gray-100 dark:hover:!bg-white/20 hover:!border-primary/30 cursor-pointer transition-all duration-200"
+        >
           {t('import_from_template')}
         </Button>
       </div>
@@ -166,6 +170,7 @@ export const TaskStepEditor: React.FC<TaskStepEditorProps> = ({ value = [], onCh
                     size="small"
                     onClick={() => handleMoveUp(index)}
                     disabled={index === 0}
+                    className="!bg-white dark:!bg-white/10 !border-gray-200 dark:!border-white/10 !text-gray-700 dark:!text-gray-300 hover:!bg-gray-100 dark:hover:!bg-white/20 disabled:opacity-50 cursor-pointer transition-all duration-200"
                   >
                     ↑
                   </Button>
@@ -173,6 +178,7 @@ export const TaskStepEditor: React.FC<TaskStepEditorProps> = ({ value = [], onCh
                     size="small"
                     onClick={() => handleMoveDown(index)}
                     disabled={index === steps.length - 1}
+                    className="!bg-white dark:!bg-white/10 !border-gray-200 dark:!border-white/10 !text-gray-700 dark:!text-gray-300 hover:!bg-gray-100 dark:hover:!bg-white/20 disabled:opacity-50 cursor-pointer transition-all duration-200"
                   >
                     ↓
                   </Button>
@@ -181,6 +187,7 @@ export const TaskStepEditor: React.FC<TaskStepEditorProps> = ({ value = [], onCh
                     danger
                     icon={<DeleteOutlined />}
                     onClick={() => handleRemoveStep(step.id)}
+                    className="!bg-red-500/10 !border-red-500/30 hover:!bg-red-500/20 hover:!border-red-500/50 cursor-pointer transition-all duration-200"
                   />
                 </div>
               </div>
@@ -201,7 +208,7 @@ export const TaskStepEditor: React.FC<TaskStepEditorProps> = ({ value = [], onCh
           dataSource={templates}
           renderItem={(template) => (
             <List.Item
-              className="cursor-pointer hover:bg-tool-call dark:!bg-tool-call-dark px-4 rounded"
+              className="cursor-pointer hover:bg-gray-100 dark:hover:bg-white/10 px-4 rounded transition-all duration-200"
               onClick={() => handleImportFromTemplate(template)}
             >
               <List.Item.Meta
@@ -216,7 +223,11 @@ export const TaskStepEditor: React.FC<TaskStepEditorProps> = ({ value = [], onCh
                   </div>
                 }
               />
-              <Button type="primary" size="small">
+              <Button
+                type="primary"
+                size="small"
+                className="!bg-primary hover:!bg-primary-hover !border-none cursor-pointer transition-all duration-200"
+              >
                 {t('select')}
               </Button>
             </List.Item>

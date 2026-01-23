@@ -154,7 +154,11 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
               }
             }}
           >
-            <Button danger icon={<ClearOutlined />}>
+            <Button
+              danger
+              icon={<ClearOutlined />}
+              className="!bg-red-500/10 !border-red-500/30 hover:!bg-red-500/20 hover:!border-red-500/50 cursor-pointer transition-all duration-200"
+            >
               {t('clear_history')}
             </Button>
           </Popconfirm>
