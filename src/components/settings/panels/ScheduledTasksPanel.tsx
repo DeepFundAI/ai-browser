@@ -56,10 +56,10 @@ const TaskCard: React.FC<TaskCardProps> = ({
   return (
     <div
       className={clsx(
-        'p-4 rounded-lg border transition-all duration-200 mb-3',
+        'p-4 rounded-xl transition-all duration-200 mb-3',
         task.enabled
-          ? 'bg-primary/10 dark:bg-primary/20 border-primary/30'
-          : 'bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/10'
+          ? 'bg-purple-50 dark:bg-purple-500/15 shadow-[inset_0_0_0_1px_rgb(233,213,255)] dark:shadow-[inset_0_0_0_1px_rgba(168,85,247,0.3)]'
+          : 'bg-gray-50/50 dark:bg-white/5 hover:bg-gray-100/50 dark:hover:bg-white/10'
       )}
     >
       {/* Header */}

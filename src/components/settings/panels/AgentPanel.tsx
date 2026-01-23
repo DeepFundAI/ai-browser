@@ -42,11 +42,11 @@ const TabItem: React.FC<TabItemProps> = ({
     <button
       onClick={onClick}
       className={clsx(
-        'w-full flex items-center gap-3 px-4 py-3 rounded-lg mb-2 transition-all duration-200 cursor-pointer',
-        'text-left border',
+        'w-full flex items-center gap-3 px-4 py-3 rounded-xl mb-2 transition-all duration-200 cursor-pointer',
+        'text-left',
         isSelected
-          ? 'bg-primary/10 dark:bg-primary/20 border-primary/50 shadow-sm shadow-primary/10'
-          : 'border-gray-200 dark:border-white/20 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 hover:border-gray-300 dark:hover:border-white/30'
+          ? 'bg-purple-50 dark:bg-purple-500/15 shadow-[inset_0_0_0_1px_rgb(233,213,255)] dark:shadow-[inset_0_0_0_1px_rgba(168,85,247,0.3)]'
+          : 'bg-gray-50/50 dark:bg-white/5 hover:bg-gray-100/50 dark:hover:bg-white/10'
       )}
     >
       <span className="text-lg text-text-12 dark:text-text-12-dark">{icon}</span>
@@ -67,10 +67,10 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool, onToggle }) => {
   return (
     <div
       className={clsx(
-        'flex items-start justify-between p-4 rounded-lg border transition-all duration-200 mb-3',
+        'flex items-start justify-between p-4 rounded-xl transition-all duration-200 mb-3',
         tool.enabled
-          ? 'bg-primary/10 dark:bg-primary/20 border-primary/30'
-          : 'bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/10'
+          ? 'bg-purple-50 dark:bg-purple-500/15 shadow-[inset_0_0_0_1px_rgb(233,213,255)] dark:shadow-[inset_0_0_0_1px_rgba(168,85,247,0.3)]'
+          : 'bg-gray-50/50 dark:bg-white/5 hover:bg-gray-100/50 dark:hover:bg-white/10'
       )}
     >
       <div className="flex-1 pr-4">

@@ -71,7 +71,7 @@ export const UserInterfacePanel: React.FC<UserInterfacePanelProps> = ({
               onChange={(value) => handleChange({ theme: value })}
             />
 
-            <Divider className="!border-gray-200 dark:border-white/10" />
+            <Divider className="!border-black/5 dark:!border-white/5" />
 
             {/* Font Settings */}
             <div>
@@ -98,7 +98,7 @@ export const UserInterfacePanel: React.FC<UserInterfacePanelProps> = ({
               </div>
             </div>
 
-            <Divider className="!border-gray-200 dark:border-white/10" />
+            <Divider className="!border-black/5 dark:!border-white/5" />
 
             {/* Layout Settings */}
             <div>
@@ -112,7 +112,7 @@ export const UserInterfacePanel: React.FC<UserInterfacePanelProps> = ({
               </div>
             </div>
 
-            <Divider className="!border-gray-200 dark:border-white/10" />
+            <Divider className="!border-black/5 dark:!border-white/5" />
 
             {/* Editor Settings */}
             <div>

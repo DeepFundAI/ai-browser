@@ -82,7 +82,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
           </div>
         </div>
 
-        <Divider className="!border-gray-200 dark:border-white/10" />
+        <Divider className="!border-black/5 dark:!border-white/5" />
 
         {/* Response Settings */}
         <div>
@@ -97,7 +97,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
           </div>
         </div>
 
-        <Divider className="!border-gray-200 dark:border-white/10" />
+        <Divider className="!border-black/5 dark:!border-white/5" />
 
         {/* History Settings */}
         <div>

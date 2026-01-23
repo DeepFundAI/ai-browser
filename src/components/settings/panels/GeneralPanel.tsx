@@ -74,7 +74,7 @@ export const GeneralPanel: React.FC<GeneralPanelProps> = ({
           </div>
         </div>
 
-        <Divider className="!border-gray-200 dark:!border-white/10" />
+        <Divider className="!border-black/5 dark:!border-white/5" />
 
         {/* Startup Settings */}
         <div>
@@ -103,7 +103,7 @@ export const GeneralPanel: React.FC<GeneralPanelProps> = ({
           </div>
         </div>
 
-        <Divider className="!border-gray-200 dark:!border-white/10" />
+        <Divider className="!border-black/5 dark:!border-white/5" />
 
         {/* Window Behavior */}
         <div>

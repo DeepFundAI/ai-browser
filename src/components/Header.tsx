@@ -47,7 +47,7 @@ export default function Header() {
             WebkitAppRegion: 'no-drag'
           } as React.CSSProperties}
           onClick={() => goback()}
-          className='cursor-pointer ml-8 flex items-center'
+          className='cursor-pointer ml-20 flex items-center'
         >
           <span className='text-3xl font-bold  tracking-normal hover:scale-105 transition-all duration-300 drop-shadow-2xl relative font-["Berkshire_Swash",_cursive]'>
             DeepFundAI
@@ -56,10 +56,10 @@ export default function Header() {
         </div>
       )}
       {isTaskDetailMode && (
-        <div className='flex items-center gap-2 ml-8 px-3 py-1 bg-blue-500/20 rounded-md border border-blue-500/50'>
-          <span className='text-blue-400 text-xs font-medium'>{t('scheduled_task')}</span>
+        <div className='flex items-center gap-1.5 ml-20 px-2.5 py-1 bg-slate-100 dark:bg-white/10 rounded-full'>
+          <span className='text-slate-600 dark:text-slate-300 text-xs font-medium'>{t('scheduled_task')}</span>
           {taskId && (
-            <span className='text-blue-300 text-xs opacity-70'>#{String(taskId).slice(-6)}</span>
+            <span className='text-slate-400 dark:text-slate-500 text-xs font-mono'>#{String(taskId).slice(-6)}</span>
           )}
         </div>
       )}

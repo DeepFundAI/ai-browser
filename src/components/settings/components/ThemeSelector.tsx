@@ -35,11 +35,11 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
             onClick={() => onChange(theme.value)}
             className={`
               flex flex-col items-center justify-center cursor-pointer
-              h-24 rounded-lg border-2 transition-all duration-200
+              h-24 rounded-xl transition-all duration-200
               hover:scale-[1.02] active:scale-[0.98]
               ${value === theme.value
-                ? 'border-primary dark:border-purple-400 bg-primary/10 dark:bg-primary/20 shadow-sm shadow-primary/10'
-                : 'border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 hover:border-gray-300 dark:hover:border-white/20'
+                ? 'bg-purple-50 dark:bg-purple-500/15 shadow-[inset_0_0_0_1px_rgb(233,213,255)] dark:shadow-[inset_0_0_0_1px_rgba(168,85,247,0.3)]'
+                : 'bg-gray-50/50 dark:bg-white/5 hover:bg-gray-100/50 dark:hover:bg-white/10'
               }
             `}
           >

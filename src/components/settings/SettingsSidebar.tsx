@@ -108,8 +108,8 @@ export const SettingsSidebar: React.FC<SettingsSidebarProps> = ({
               'transition-all duration-200 ease-in-out',
               'hover:scale-[1.02] active:scale-[0.98]',
               activeTab === item.id
-                ? 'bg-primary/10 dark:bg-primary/20 text-primary dark:text-purple-300 border border-primary/30 shadow-lg shadow-primary/10'
-                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white border border-transparent',
+                ? 'bg-primary/10 dark:bg-primary/15 text-primary dark:text-purple-300'
+                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white',
               item.comingSoon && 'opacity-60'
             )}
           >
