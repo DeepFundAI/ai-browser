@@ -10,12 +10,59 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* ========== UI Component Tokens ========== */
+
+  /* Selected state (SelectableCard) */
+  --surface-selected-bg: #faf5ff;                    /* purple-50 */
+  --surface-selected-border: rgb(233, 213, 255);    /* purple-200 */
+
+  /* Default surface (SelectableCard) */
+  --surface-default-bg: rgba(249, 250, 251, 0.5);   /* gray-50/50 */
+  --surface-default-hover: rgba(243, 244, 246, 0.5); /* gray-100/50 */
+
+  /* Divider (SettingsDivider) */
+  --divider-color: rgba(0, 0, 0, 0.05);             /* black/5 */
+
+  /* Secondary button (ActionButton) */
+  --btn-secondary-bg: #ffffff;
+  --btn-secondary-border: #e5e7eb;                  /* gray-200 */
+  --btn-secondary-text: #374151;                    /* gray-700 */
+  --btn-secondary-hover-bg: #f3f4f6;               /* gray-100 */
+
+  /* Danger button (ActionButton) */
+  --btn-danger-bg: rgba(239, 68, 68, 0.1);         /* red-500/10 */
+  --btn-danger-border: rgba(239, 68, 68, 0.3);     /* red-500/30 */
+  --btn-danger-text: #ef4444;                       /* red-500 */
+  --btn-danger-hover-bg: rgba(239, 68, 68, 0.2);   /* red-500/20 */
+  --btn-danger-hover-border: rgba(239, 68, 68, 0.5); /* red-500/50 */
 }
 
 /* Dark theme */
 .dark {
   --background: #0a0a0a;
   --foreground: #ededed;
+
+  /* ========== UI Component Tokens (Dark) ========== */
+
+  /* Selected state */
+  --surface-selected-bg: rgba(168, 85, 247, 0.15);  /* purple-500/15 */
+  --surface-selected-border: rgba(168, 85, 247, 0.3); /* purple-500/30 */
+
+  /* Default surface */
+  --surface-default-bg: rgba(255, 255, 255, 0.05);  /* white/5 */
+  --surface-default-hover: rgba(255, 255, 255, 0.1); /* white/10 */
+
+  /* Divider */
+  --divider-color: rgba(255, 255, 255, 0.05);       /* white/5 */
+
+  /* Secondary button */
+  --btn-secondary-bg: rgba(255, 255, 255, 0.1);    /* white/10 */
+  --btn-secondary-border: rgba(255, 255, 255, 0.1); /* white/10 */
+  --btn-secondary-text: #d1d5db;                    /* gray-300 */
+  --btn-secondary-hover-bg: rgba(255, 255, 255, 0.2); /* white/20 */
+
+  /* Danger button - same as light mode */
 }
 
 @theme {
