@@ -199,6 +199,7 @@ pnpm run build
 ## 文档
 
 - [配置指南](./docs/CONFIGURATION.zh-CN.md) - 详细的 API 密钥设置说明
+- [测试指南](./docs/TESTING.zh-CN.md) - 使用 Playwright 进行 E2E 测试
 
 ## 致谢
 
@@ -211,6 +212,12 @@ pnpm run build
 - 在 [GitHub Issues](https://github.com/DeepFundAI/ai-browser/issues) 上报告问题
 - 加入讨论并分享反馈
 - 贡献代码让 AI Browser 变得更好
+
+### 微信公众号
+
+扫码关注公众号，有问题可以后台留言交流：
+
+<img src="./docs/shotscreen/weixin.jpg" width="200" alt="微信公众号" />
 
 ## 贡献
 

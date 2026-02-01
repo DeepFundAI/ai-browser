@@ -205,6 +205,7 @@ Comprehensive settings interface with 8 panels:
 ## Documentation
 
 - [Configuration Guide](./docs/CONFIGURATION.md) - Detailed API key setup instructions
+- [Testing Guide](./docs/TESTING.md) - E2E testing with Playwright
 
 ## Acknowledgements
 
