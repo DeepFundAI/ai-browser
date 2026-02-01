@@ -16,9 +16,10 @@ import {
   DeleteOutlined,
   ApiOutlined
 } from '@ant-design/icons';
-import { Typography, Input, Button, Switch, Tag, App, Popconfirm } from 'antd';
+import { Typography, Input, Switch, Tag, App, Popconfirm } from 'antd';
 import { useTranslation } from 'react-i18next';
 import clsx from 'clsx';
+import { SelectableCard, ActionButton } from '@/components/ui';
 import {
   ProviderConfig,
   ModelInfo,
@@ -50,36 +51,34 @@ const ProviderListItem: React.FC<ProviderListItemProps> = ({
   const isCustom = provider.type === 'custom';
 
   return (
-    <button
+    <SelectableCard
+      selected={isSelected}
       onClick={onClick}
-      className={clsx(
-        'w-full flex items-center gap-3 px-4 py-3 rounded-xl mb-2 transition-all duration-200 cursor-pointer',
-        'text-left',
-        isSelected
-          ? 'bg-purple-50 dark:bg-purple-500/15 shadow-[inset_0_0_0_1px_rgb(233,213,255)] dark:shadow-[inset_0_0_0_1px_rgba(168,85,247,0.3)]'
-          : 'bg-gray-50/50 dark:bg-white/5 hover:bg-gray-100/50 dark:hover:bg-white/10'
-      )}
+      hoverScale={false}
+      className="w-full mb-2 px-4 py-3"
     >
-      {isCustom ? (
-        <ApiOutlined className="text-lg text-purple-400" />
-      ) : (
-        <CloudOutlined className="text-lg text-text-12 dark:text-text-12-dark" />
-      )}
-      <span className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-200 truncate">
-        {provider.name}
-      </span>
-      {isCustom && (
-        <Tag color="purple" className="!text-xs !px-1.5 !py-0 !border-purple-500/30">
-          CUSTOM
-        </Tag>
-      )}
-      {hasApiKey && (
-        <div className={clsx(
-          'w-2 h-2 rounded-full flex-shrink-0',
-          provider.enabled ? 'bg-green-500' : 'bg-gray-500'
-        )} />
-      )}
-    </button>
+      <div className="flex items-center gap-3 text-left">
+        {isCustom ? (
+          <ApiOutlined className="text-lg text-purple-400" />
+        ) : (
+          <CloudOutlined className="text-lg text-text-12 dark:text-text-12-dark" />
+        )}
+        <span className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-200 truncate">
+          {provider.name}
+        </span>
+        {isCustom && (
+          <Tag color="purple" className="!text-xs !px-1.5 !py-0 !border-purple-500/30">
+            CUSTOM
+          </Tag>
+        )}
+        {hasApiKey && (
+          <div className={clsx(
+            'w-2 h-2 rounded-full flex-shrink-0',
+            provider.enabled ? 'bg-green-500' : 'bg-gray-500'
+          )} />
+        )}
+      </div>
+    </SelectableCard>
   );
 };
 
@@ -147,14 +146,14 @@ const AddModelInline: React.FC<AddModelInlineProps> = ({ onAdd }) => {
         className="flex-1 bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-text-01 dark:text-text-01-darkplaceholder-gray-400 dark:placeholder-gray-400"
         size="small"
       />
-      <Button
+      <ActionButton
+        variant="secondary"
         icon={<PlusOutlined />}
         onClick={handleAdd}
         size="small"
-        className="!bg-white dark:!bg-white/10 !border-gray-200 dark:!border-white/10 !text-text-01 dark:!text-text-01-dark hover:!bg-gray-100 dark:hover:!bg-white/20 hover:!border-primary/30 cursor-pointer transition-all duration-200"
       >
         {t('providers.add_model')}
-      </Button>
+      </ActionButton>
     </div>
   );
 };
@@ -403,14 +402,13 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
             {t('providers.title')}
           </Title>
         </div>
-        <Button
-          type="primary"
+        <ActionButton
+          variant="primary"
           icon={<PlusOutlined />}
           onClick={() => setShowAddModal(true)}
-          className="!bg-primary hover:!bg-primary-hover !border-none cursor-pointer transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
         >
           {t('providers.add_custom_provider')}
-        </Button>
+        </ActionButton>
       </div>
 
       {/* Main content: Provider list + Details */}
@@ -497,14 +495,13 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
               {/* State 1: Not enabled - Show enable button */}
               {!hasApiKey && !isActive && (
                 <div className="pt-8">
-                  <Button
-                    type="primary"
+                  <ActionButton
+                    variant="primary"
                     size="large"
                     onClick={handleEnableProvider}
-                    className="!bg-primary hover:!bg-primary-hover !border-none cursor-pointer transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                   >
                     {t('providers.enable_provider')}
-                  </Button>
+                  </ActionButton>
                 </div>
               )}
 
@@ -584,15 +581,14 @@ export const ProvidersPanel: React.FC<ProvidersPanelProps> = ({
                         <Text className="!text-text-01 dark:!text-text-01-dark font-medium text-lg">
                           {t('providers.models_title')}
                         </Text>
-                        <Button
-                          type="default"
+                        <ActionButton
+                          variant="secondary"
                           icon={<DownloadOutlined />}
                           onClick={handleFetchModels}
                           loading={isFetchingModels}
-                          className="!bg-white dark:!bg-white/10 !border-gray-200 dark:!border-white/10 !text-text-01 dark:!text-text-01-dark hover:!bg-gray-100 dark:hover:!bg-white/20 hover:!border-primary/30 cursor-pointer transition-all duration-200"
                         >
                           {t('providers.fetch')}
-                        </Button>
+                        </ActionButton>
                       </div>
 
                       {/* Model search */}

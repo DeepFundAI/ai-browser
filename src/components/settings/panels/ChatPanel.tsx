@@ -7,9 +7,10 @@
 
 import React from 'react';
 import { MessageOutlined } from '@ant-design/icons';
-import { Typography, Divider } from 'antd';
+import { Typography } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { SliderSetting, ToggleSetting, InputSetting } from '../components';
+import { SettingsDivider } from '@/components/ui';
 import { ChatSettings } from '@/models/settings';
 import { getDefaultChatSettings } from '@/config/settings-defaults';
 
@@ -82,7 +83,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
           </div>
         </div>
 
-        <Divider className="!border-black/5 dark:!border-white/5" />
+        <SettingsDivider />
 
         {/* Response Settings */}
         <div>
@@ -97,7 +98,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
           </div>
         </div>
 
-        <Divider className="!border-black/5 dark:!border-white/5" />
+        <SettingsDivider />
 
         {/* History Settings */}
         <div>

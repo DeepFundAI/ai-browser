@@ -7,9 +7,10 @@
 
 import React from 'react';
 import { SkinOutlined } from '@ant-design/icons';
-import { Typography, Divider, InputNumber, Space } from 'antd';
+import { Typography, InputNumber, Space } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { ToggleSetting, ThemeSelector, DensitySelector } from '../components';
+import { SettingsDivider } from '@/components/ui';
 import { UISettings } from '@/models/settings';
 import { getDefaultUISettings } from '@/config/settings-defaults';
 
@@ -71,7 +72,7 @@ export const UserInterfacePanel: React.FC<UserInterfacePanelProps> = ({
               onChange={(value) => handleChange({ theme: value })}
             />
 
-            <Divider className="!border-black/5 dark:!border-white/5" />
+            <SettingsDivider />
 
             {/* Font Settings */}
             <div>
@@ -98,7 +99,7 @@ export const UserInterfacePanel: React.FC<UserInterfacePanelProps> = ({
               </div>
             </div>
 
-            <Divider className="!border-black/5 dark:!border-white/5" />
+            <SettingsDivider />
 
             {/* Layout Settings */}
             <div>
@@ -112,7 +113,7 @@ export const UserInterfacePanel: React.FC<UserInterfacePanelProps> = ({
               </div>
             </div>
 
-            <Divider className="!border-black/5 dark:!border-white/5" />
+            <SettingsDivider />
 
             {/* Editor Settings */}
             <div>

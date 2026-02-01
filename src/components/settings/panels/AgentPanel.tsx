@@ -14,8 +14,8 @@ import {
 } from '@ant-design/icons';
 import { Typography, Switch, Input, Spin, App } from 'antd';
 import { useTranslation } from 'react-i18next';
-import clsx from 'clsx';
 import type { AgentConfig, McpToolSchema } from '@/types';
+import { SelectableCard } from '@/components/ui';
 
 const { Title, Paragraph, Text } = Typography;
 const { TextArea } = Input;
@@ -39,19 +39,17 @@ const TabItem: React.FC<TabItemProps> = ({
   onClick
 }) => {
   return (
-    <button
+    <SelectableCard
+      selected={isSelected}
       onClick={onClick}
-      className={clsx(
-        'w-full flex items-center gap-3 px-4 py-3 rounded-xl mb-2 transition-all duration-200 cursor-pointer',
-        'text-left',
-        isSelected
-          ? 'bg-purple-50 dark:bg-purple-500/15 shadow-[inset_0_0_0_1px_rgb(233,213,255)] dark:shadow-[inset_0_0_0_1px_rgba(168,85,247,0.3)]'
-          : 'bg-gray-50/50 dark:bg-white/5 hover:bg-gray-100/50 dark:hover:bg-white/10'
-      )}
+      hoverScale={false}
+      className="w-full mb-2 px-4 py-3"
     >
-      <span className="text-lg text-text-12 dark:text-text-12-dark">{icon}</span>
-      <span className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-200">{label}</span>
-    </button>
+      <div className="flex items-center gap-3 text-left">
+        <span className="text-lg text-text-12 dark:text-text-12-dark">{icon}</span>
+        <span className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-200">{label}</span>
+      </div>
+    </SelectableCard>
   );
 };
 
@@ -65,27 +63,26 @@ interface ToolCardProps {
 
 const ToolCard: React.FC<ToolCardProps> = ({ tool, onToggle }) => {
   return (
-    <div
-      className={clsx(
-        'flex items-start justify-between p-4 rounded-xl transition-all duration-200 mb-3',
-        tool.enabled
-          ? 'bg-purple-50 dark:bg-purple-500/15 shadow-[inset_0_0_0_1px_rgb(233,213,255)] dark:shadow-[inset_0_0_0_1px_rgba(168,85,247,0.3)]'
-          : 'bg-gray-50/50 dark:bg-white/5 hover:bg-gray-100/50 dark:hover:bg-white/10'
-      )}
+    <SelectableCard
+      selected={tool.enabled}
+      hoverScale={false}
+      className="p-4 mb-3"
     >
-      <div className="flex-1 pr-4">
-        <div className="flex items-center gap-3 mb-2">
-          <Text className="!text-text-01 dark:!text-text-01-dark font-medium">{tool.name}</Text>
+      <div className="flex items-start justify-between">
+        <div className="flex-1 pr-4">
+          <div className="flex items-center gap-3 mb-2">
+            <Text className="!text-text-01 dark:!text-text-01-dark font-medium">{tool.name}</Text>
+          </div>
+          <Text className="!text-text-12 dark:text-text-12-dark text-sm block">{tool.description}</Text>
         </div>
-        <Text className="!text-text-12 dark:text-text-12-dark text-sm block">{tool.description}</Text>
+        <Switch
+          checked={tool.enabled}
+          onChange={onToggle}
+          size="small"
+          className="cursor-pointer"
+        />
       </div>
-      <Switch
-        checked={tool.enabled}
-        onChange={onToggle}
-        size="small"
-        className="cursor-pointer"
-      />
-    </div>
+    </SelectableCard>
   );
 };
 
