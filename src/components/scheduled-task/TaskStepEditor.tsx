@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Input, Modal, List, Space, Card } from 'antd';
+import { Input, Modal, List, Card } from 'antd';
 import { DeleteOutlined, HolderOutlined, PlusOutlined } from '@ant-design/icons';
 import { TaskStep, TaskTemplate } from '@/models';
 import { useScheduledTaskStore } from '@/stores/scheduled-task-store';
 import { useTranslation } from 'react-i18next';
+import { ActionButton } from '@/components/ui';
 
 interface TaskStepEditorProps {
   value?: TaskStep[];
@@ -105,20 +106,19 @@ export const TaskStepEditor: React.FC<TaskStepEditorProps> = ({ value = [], onCh
     <div className="task-step-editor">
       {/* Action buttons */}
       <div className="mb-4 flex gap-2">
-        <Button
-          type="primary"
+        <ActionButton
+          variant="primary"
           icon={<PlusOutlined />}
           onClick={handleAddStep}
-          className="!bg-primary hover:!bg-primary-hover !border-none cursor-pointer transition-all duration-200"
         >
           {t('manual_add_step')}
-        </Button>
-        <Button
+        </ActionButton>
+        <ActionButton
+          variant="secondary"
           onClick={() => setShowTemplateModal(true)}
-          className="!bg-white dark:!bg-white/10 !border-gray-200 dark:!border-white/10 !text-gray-700 dark:!text-gray-300 hover:!bg-gray-100 dark:hover:!bg-white/20 hover:!border-primary/30 cursor-pointer transition-all duration-200"
         >
           {t('import_from_template')}
-        </Button>
+        </ActionButton>
       </div>
 
       {/* Step list */}
@@ -166,28 +166,27 @@ export const TaskStepEditor: React.FC<TaskStepEditorProps> = ({ value = [], onCh
 
                 {/* Action buttons */}
                 <div className="flex flex-col gap-1">
-                  <Button
+                  <ActionButton
+                    variant="secondary"
                     size="small"
                     onClick={() => handleMoveUp(index)}
                     disabled={index === 0}
-                    className="!bg-white dark:!bg-white/10 !border-gray-200 dark:!border-white/10 !text-gray-700 dark:!text-gray-300 hover:!bg-gray-100 dark:hover:!bg-white/20 disabled:opacity-50 cursor-pointer transition-all duration-200"
                   >
                     ↑
-                  </Button>
-                  <Button
+                  </ActionButton>
+                  <ActionButton
+                    variant="secondary"
                     size="small"
                     onClick={() => handleMoveDown(index)}
                     disabled={index === steps.length - 1}
-                    className="!bg-white dark:!bg-white/10 !border-gray-200 dark:!border-white/10 !text-gray-700 dark:!text-gray-300 hover:!bg-gray-100 dark:hover:!bg-white/20 disabled:opacity-50 cursor-pointer transition-all duration-200"
                   >
                     ↓
-                  </Button>
-                  <Button
+                  </ActionButton>
+                  <ActionButton
+                    variant="danger"
                     size="small"
-                    danger
                     icon={<DeleteOutlined />}
                     onClick={() => handleRemoveStep(step.id)}
-                    className="!bg-red-500/10 !border-red-500/30 hover:!bg-red-500/20 hover:!border-red-500/50 cursor-pointer transition-all duration-200"
                   />
                 </div>
               </div>
@@ -223,13 +222,12 @@ export const TaskStepEditor: React.FC<TaskStepEditorProps> = ({ value = [], onCh
                   </div>
                 }
               />
-              <Button
-                type="primary"
+              <ActionButton
+                variant="primary"
                 size="small"
-                className="!bg-primary hover:!bg-primary-hover !border-none cursor-pointer transition-all duration-200"
               >
                 {t('select')}
-              </Button>
+              </ActionButton>
             </List.Item>
           )}
         />
