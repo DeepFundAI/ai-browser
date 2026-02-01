@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { message as antdMessage } from 'antd';
+import { App } from 'antd';
 import { EkoResult } from '@jarvis-agent/core/dist/types';
 import { MessageProcessor } from '@/utils/messageTransform';
 import { Task } from '@/models';
@@ -35,16 +35,17 @@ export const useTaskExecution = ({
   setCurrentTaskId,
 }: UseTaskExecutionOptions) => {
   const { t } = useTranslation('main');
+  const { message } = App.useApp();
   const [ekoRequest, setEkoRequest] = useState<Promise<any> | null>(null);
 
-  const sendMessage = useCallback(async (message: string): Promise<boolean> => {
-    if (!message) {
-      antdMessage.warning(t('enter_question'));
+  const sendMessage = useCallback(async (text: string): Promise<boolean> => {
+    if (!text) {
+      message.warning(t('enter_question'));
       return false;
     }
 
     if (isHistoryMode) {
-      antdMessage.warning(t('history_readonly'));
+      message.warning(t('history_readonly'));
       return false;
     }
 
@@ -52,7 +53,7 @@ export const useTaskExecution = ({
     executionIdRef.current = newExecutionId;
     messageProcessorRef.current.setExecutionId(newExecutionId);
 
-    const updatedMessages = messageProcessorRef.current.addUserMessage(message.trim());
+    const updatedMessages = messageProcessorRef.current.addUserMessage(text.trim());
 
     // Create temporary task immediately to prevent blank screen
     if (!taskIdRef.current) {
@@ -83,8 +84,8 @@ export const useTaskExecution = ({
     try {
       const isTemporaryTask = taskIdRef.current.startsWith('temp-');
       const req = isTemporaryTask
-        ? window.api.ekoRun(message.trim())
-        : window.api.ekoModify(taskIdRef.current, message.trim());
+        ? window.api.ekoRun(text.trim())
+        : window.api.ekoModify(taskIdRef.current, text.trim());
 
       setEkoRequest(req);
       const response = await req;
@@ -101,7 +102,7 @@ export const useTaskExecution = ({
         updateTask(taskIdRef.current, { status: 'error' });
       }
       console.error('[useTaskExecution] Failed to send message:', error);
-      antdMessage.error(t('failed_send_message'));
+      message.error(t('failed_send_message'));
       return false;
     } finally {
       setEkoRequest(null);
@@ -131,7 +132,7 @@ export const useTaskExecution = ({
   }, [
     isHistoryMode, isTaskDetailMode, scheduledTaskIdFromUrl,
     taskIdRef, executionIdRef, messageProcessorRef, ekoRequest,
-    createTask, updateTask, updateMessages, setCurrentTaskId, t
+    createTask, updateTask, updateMessages, setCurrentTaskId, t, message
   ]);
 
   return {

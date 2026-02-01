@@ -7,9 +7,10 @@
 
 import React from 'react';
 import { SettingOutlined } from '@ant-design/icons';
-import { Typography, Divider } from 'antd';
+import { Typography } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { SelectSetting, ToggleSetting } from '../components';
+import { SettingsDivider } from '@/components/ui';
 import { GeneralSettings } from '@/models/settings';
 import { getDefaultGeneralSettings } from '@/config/settings-defaults';
 
@@ -74,7 +75,7 @@ export const GeneralPanel: React.FC<GeneralPanelProps> = ({
           </div>
         </div>
 
-        <Divider className="!border-gray-200 dark:!border-white/10" />
+        <SettingsDivider />
 
         {/* Startup Settings */}
         <div>
@@ -103,7 +104,7 @@ export const GeneralPanel: React.FC<GeneralPanelProps> = ({
           </div>
         </div>
 
-        <Divider className="!border-gray-200 dark:!border-white/10" />
+        <SettingsDivider />
 
         {/* Window Behavior */}
         <div>

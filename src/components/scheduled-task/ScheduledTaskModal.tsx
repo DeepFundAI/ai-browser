@@ -188,7 +188,7 @@ export const ScheduledTaskModal: React.FC = () => {
           label={t('enable_on_create')}
           valuePropName="checked"
         >
-          <Switch />
+          <Switch className="cursor-pointer" />
         </Form.Item>
       </Form>
     </Modal>

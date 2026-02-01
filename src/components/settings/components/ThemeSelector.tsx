@@ -7,6 +7,7 @@
 
 import React from 'react';
 import { BulbOutlined, MoonOutlined, DesktopOutlined } from '@ant-design/icons';
+import { SelectableCard } from '@/components/ui';
 
 interface ThemeSelectorProps {
   label: string;
@@ -30,25 +31,21 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
       <div className="text-text-01 dark:text-text-01-dark font-medium mb-3">{label}</div>
       <div className="grid grid-cols-3 gap-3">
         {themes.map(theme => (
-          <button
+          <SelectableCard
             key={theme.value}
+            selected={value === theme.value}
             onClick={() => onChange(theme.value)}
-            className={`
-              flex flex-col items-center justify-center
-              h-24 rounded-lg border-2 transition-all
-              ${value === theme.value
-                ? 'border-blue-500 bg-blue-500/10'
-                : 'border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10'
-              }
-            `}
+            className="h-24"
           >
-            <div className={`text-3xl mb-2 ${value === theme.value ? 'text-blue-400' : 'text-text-12 dark:text-text-12-dark'}`}>
-              {theme.icon}
+            <div className="flex flex-col items-center justify-center h-full">
+              <div className={`text-3xl mb-2 transition-colors duration-200 ${value === theme.value ? 'text-primary dark:text-purple-400' : 'text-text-12 dark:text-text-12-dark'}`}>
+                {theme.icon}
+              </div>
+              <div className={`text-sm font-medium transition-colors duration-200 ${value === theme.value ? 'text-text-01 dark:text-text-01-dark' : 'text-gray-700 dark:text-gray-300'}`}>
+                {theme.label}
+              </div>
             </div>
-            <div className={`text-sm font-medium ${value === theme.value ? 'text-text-01 dark:text-text-01-dark' : 'text-gray-700 dark:text-gray-300'}`}>
-              {theme.label}
-            </div>
-          </button>
+          </SelectableCard>
         ))}
       </div>
     </div>

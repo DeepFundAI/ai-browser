@@ -117,7 +117,7 @@ export const NetworkPanel: React.FC<NetworkPanelProps> = ({
       {/* Fixed header */}
       <div className="flex-shrink-0 p-8 pb-0">
         <div className="flex items-center gap-3 mb-4">
-          <GlobalOutlined className="text-3xl text-blue-400" />
+          <GlobalOutlined className="text-3xl text-primary dark:text-purple-400" />
           <Title level={2} className="!text-text-01 dark:!text-text-01-dark !mb-0">
             {t('network.title')}
           </Title>
@@ -129,7 +129,7 @@ export const NetworkPanel: React.FC<NetworkPanelProps> = ({
 
       {/* Card container */}
       <div className="flex-1 min-h-0 p-8 pt-6">
-        <div className="bg-white dark:!bg-white/5 backdrop-blur-sm rounded-lg border border-gray-200 dark:!border-white/10 h-full flex flex-col">
+        <div className="bg-white dark:!bg-white/5 backdrop-blur-sm rounded-lg border border-gray-200 dark:!border-white/5 h-full flex flex-col">
           {/* Scrollable content inside card */}
           <div className="flex-1 min-h-0 overflow-y-auto p-6 space-y-8">
             {/* Proxy Settings */}
@@ -144,7 +144,7 @@ export const NetworkPanel: React.FC<NetworkPanelProps> = ({
                 />
 
                 {settings.proxy.enabled && (
-                  <div className="mt-6 p-6 bg-white dark:!bg-white/5 rounded-lg border border-gray-200 dark:!border-white/10 space-y-4">
+                  <div className="mt-6 p-6 bg-white dark:!bg-white/5 rounded-lg border border-gray-200 dark:!border-white/5 space-y-4">
                     {/* Proxy Type */}
                     <div>
                       <div className="text-text-01 dark:!text-text-01-dark font-medium mb-2">{t('network.proxy_type')}</div>
@@ -164,7 +164,7 @@ export const NetworkPanel: React.FC<NetworkPanelProps> = ({
                           value={settings.proxy.server}
                           onChange={(e) => handleProxyChange({ server: e.target.value })}
                           placeholder="127.0.0.1"
-                          className="!bg-white dark:!bg-white/5 !border-gray-200 dark:!border-white/10 !text-text-01 dark:!text-text-01-dark"
+                          className="!bg-white dark:!bg-white/5 !border-black/5 dark:!border-white/5 !text-text-01 dark:!text-text-01-dark"
                         />
                       </div>
                       <div>
@@ -188,7 +188,7 @@ export const NetworkPanel: React.FC<NetworkPanelProps> = ({
                           value={settings.proxy.username}
                           onChange={(e) => handleProxyChange({ username: e.target.value })}
                           placeholder={t('network.username_optional')}
-                          className="!bg-white dark:!bg-white/5 !border-gray-200 dark:!border-white/10 !text-text-01 dark:!text-text-01-dark"
+                          className="!bg-white dark:!bg-white/5 !border-black/5 dark:!border-white/5 !text-text-01 dark:!text-text-01-dark"
                         />
                       </div>
                       <div>
@@ -197,7 +197,7 @@ export const NetworkPanel: React.FC<NetworkPanelProps> = ({
                           value={settings.proxy.password}
                           onChange={(e) => handleProxyChange({ password: e.target.value })}
                           placeholder={t('network.password_optional')}
-                          className="!bg-white dark:!bg-white/5 !border-gray-200 dark:!border-white/10 !text-text-01 dark:!text-text-01-dark"
+                          className="!bg-white dark:!bg-white/5 !border-black/5 dark:!border-white/5 !text-text-01 dark:!text-text-01-dark"
                         />
                       </div>
                     </div>
@@ -207,7 +207,7 @@ export const NetworkPanel: React.FC<NetworkPanelProps> = ({
                       <Button
                         onClick={handleTestProxy}
                         loading={testingProxy}
-                        className="!bg-white dark:!bg-white/5 !border-gray-200 dark:!border-white/10 !text-gray-700 dark:!text-gray-300 hover:!bg-gray-100 dark:hover:!bg-white/10"
+                        className="!bg-white dark:!bg-white/10 !border-black/5 dark:!border-white/5 !text-gray-700 dark:!text-gray-300 hover:!bg-gray-100 dark:hover:!bg-white/20 hover:!border-primary/30 cursor-pointer transition-all duration-200"
                       >
                         {t('network.test_proxy')}
                       </Button>
@@ -218,7 +218,7 @@ export const NetworkPanel: React.FC<NetworkPanelProps> = ({
               </div>
             </div>
 
-            <Divider className="!border-gray-200 dark:!border-white/10" />
+            <Divider className="!border-black/5 dark:!border-white/5" />
 
             {/* Network Parameters */}
             <div>

@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { message as antdMessage } from 'antd';
+import { App } from 'antd';
 import { ToolAction, FileAttachment } from '@/models';
 import type { HumanResponseMessage } from '@/models/human-interaction';
 import { useTranslation } from 'react-i18next';
@@ -33,17 +33,18 @@ export const useInteractionHandlers = ({
   getToolStatus,
 }: UseInteractionHandlersOptions) => {
   const { t } = useTranslation('main');
+  const { message } = App.useApp();
 
-  const handleToolClick = useCallback(async (message: ToolAction) => {
+  const handleToolClick = useCallback(async (toolAction: ToolAction) => {
     setCurrentTool({
-      toolName: message.toolName,
-      operation: getToolOperation({ toolName: message.toolName } as any),
-      status: getToolStatus(message.status === 'completed' ? 'tool_result' :
-        message.status === 'running' ? 'tool_running' : 'error')
+      toolName: toolAction.toolName,
+      operation: getToolOperation({ toolName: toolAction.toolName } as any),
+      status: getToolStatus(toolAction.status === 'completed' ? 'tool_result' :
+        toolAction.status === 'running' ? 'tool_running' : 'error')
     });
 
     const historyTool = toolHistory.find(tool =>
-      (tool as any).toolId === (message as any).toolId && tool.id === message.id
+      (tool as any).toolId === (toolAction as any).toolId && tool.id === toolAction.id
     );
 
     if (historyTool?.toolSequence && historyTool.screenshot) {
@@ -59,9 +60,9 @@ export const useInteractionHandlers = ({
       await window.api.sendHumanResponse(response);
     } catch (error) {
       console.error('[useInteractionHandlers] Failed to send human response:', error);
-      antdMessage.error(t('human_response_failed') || 'Failed to send response');
+      message.error(t('human_response_failed') || 'Failed to send response');
     }
-  }, [t]);
+  }, [t, message]);
 
   const handleFileClick = useCallback(async (file: FileAttachment) => {
     try {
@@ -80,12 +81,12 @@ export const useInteractionHandlers = ({
       }
 
       setCurrentUrl(file.url);
-      antdMessage.success(`正在预览文件：${file.name}`);
+      message.success(t('previewing_file', { name: file.name }) || `Previewing: ${file.name}`);
     } catch (error) {
       console.error('[useInteractionHandlers] Failed to open file:', error);
-      antdMessage.error(`打开文件失败：${file.name}`);
+      message.error(t('open_file_failed', { name: file.name }) || `Failed to open: ${file.name}`);
     }
-  }, [showDetail, setCurrentHistoryIndex, setIsViewingAttachment, setShowDetail, setCurrentUrl]);
+  }, [showDetail, setCurrentHistoryIndex, setIsViewingAttachment, setShowDetail, setCurrentUrl, message, t]);
 
   return {
     handleToolClick,

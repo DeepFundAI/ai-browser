@@ -1,11 +1,12 @@
 import React from 'react';
-import { Button, Input, Drawer, Space, Popconfirm, App } from 'antd';
+import { Input, Drawer, Space, Popconfirm, App } from 'antd';
 import { SearchOutlined, ClearOutlined } from '@ant-design/icons';
 import { Task } from '@/models';
 import { taskStorage } from '@/services/task-storage';
 import { useTranslation } from 'react-i18next';
 import { useHistoryData, HistoryItem } from './hooks/useHistoryData';
 import { HistoryList } from './HistoryList';
+import { ActionButton } from '@/components/ui';
 
 const { Search } = Input;
 
@@ -154,9 +155,12 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
               }
             }}
           >
-            <Button danger icon={<ClearOutlined />}>
+            <ActionButton
+              variant="danger"
+              icon={<ClearOutlined />}
+            >
               {t('clear_history')}
-            </Button>
+            </ActionButton>
           </Popconfirm>
         </Space>
       }

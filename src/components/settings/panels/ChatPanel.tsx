@@ -7,9 +7,10 @@
 
 import React from 'react';
 import { MessageOutlined } from '@ant-design/icons';
-import { Typography, Divider } from 'antd';
+import { Typography } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { SliderSetting, ToggleSetting, InputSetting } from '../components';
+import { SettingsDivider } from '@/components/ui';
 import { ChatSettings } from '@/models/settings';
 import { getDefaultChatSettings } from '@/config/settings-defaults';
 
@@ -40,7 +41,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
       {/* Fixed header */}
       <div className="flex-shrink-0 p-8 pb-0">
         <div className="flex items-center gap-3 mb-4">
-          <MessageOutlined className="text-3xl text-green-400" />
+          <MessageOutlined className="text-3xl text-primary dark:text-purple-400" />
           <Title level={2} className="!text-text-01 dark:!text-text-01-dark !mb-0">
             {t('chat.title')}
           </Title>
@@ -82,7 +83,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
           </div>
         </div>
 
-        <Divider className="!border-gray-200 dark:border-white/10" />
+        <SettingsDivider />
 
         {/* Response Settings */}
         <div>
@@ -97,7 +98,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
           </div>
         </div>
 
-        <Divider className="!border-gray-200 dark:border-white/10" />
+        <SettingsDivider />
 
         {/* History Settings */}
         <div>

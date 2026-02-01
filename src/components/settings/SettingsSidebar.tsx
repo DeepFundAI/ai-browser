@@ -103,18 +103,18 @@ export const SettingsSidebar: React.FC<SettingsSidebarProps> = ({
             key={item.id}
             onClick={() => onTabChange(item.id)}
             className={clsx(
-              'w-full flex items-center gap-3 px-4 py-3 rounded-lg mb-1',
+              'w-full flex items-center gap-3 px-4 py-3 rounded-lg mb-1 cursor-pointer',
               'text-left text-sm font-medium relative',
               'transition-all duration-200 ease-in-out',
               'hover:scale-[1.02] active:scale-[0.98]',
               activeTab === item.id
-                ? 'bg-blue-500/20 text-blue-600 dark:text-blue-300 border border-blue-500/30 shadow-lg shadow-blue-500/10'
-                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white border border-transparent',
+                ? 'bg-primary/10 dark:bg-primary/15 text-primary dark:text-purple-300'
+                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white',
               item.comingSoon && 'opacity-60'
             )}
           >
             {activeTab === item.id && (
-              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-blue-400 rounded-r-full" />
+              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full" />
             )}
             <span className={clsx(
               'text-lg transition-transform duration-200',

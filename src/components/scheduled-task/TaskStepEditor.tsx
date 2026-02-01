@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Input, Modal, List, Space, Card } from 'antd';
+import { Input, Modal, List, Card } from 'antd';
 import { DeleteOutlined, HolderOutlined, PlusOutlined } from '@ant-design/icons';
 import { TaskStep, TaskTemplate } from '@/models';
 import { useScheduledTaskStore } from '@/stores/scheduled-task-store';
 import { useTranslation } from 'react-i18next';
+import { ActionButton } from '@/components/ui';
 
 interface TaskStepEditorProps {
   value?: TaskStep[];
@@ -105,16 +106,19 @@ export const TaskStepEditor: React.FC<TaskStepEditorProps> = ({ value = [], onCh
     <div className="task-step-editor">
       {/* Action buttons */}
       <div className="mb-4 flex gap-2">
-        <Button
-          type="primary"
+        <ActionButton
+          variant="primary"
           icon={<PlusOutlined />}
           onClick={handleAddStep}
         >
           {t('manual_add_step')}
-        </Button>
-        <Button onClick={() => setShowTemplateModal(true)}>
+        </ActionButton>
+        <ActionButton
+          variant="secondary"
+          onClick={() => setShowTemplateModal(true)}
+        >
           {t('import_from_template')}
-        </Button>
+        </ActionButton>
       </div>
 
       {/* Step list */}
@@ -162,23 +166,25 @@ export const TaskStepEditor: React.FC<TaskStepEditorProps> = ({ value = [], onCh
 
                 {/* Action buttons */}
                 <div className="flex flex-col gap-1">
-                  <Button
+                  <ActionButton
+                    variant="secondary"
                     size="small"
                     onClick={() => handleMoveUp(index)}
                     disabled={index === 0}
                   >
                     ↑
-                  </Button>
-                  <Button
+                  </ActionButton>
+                  <ActionButton
+                    variant="secondary"
                     size="small"
                     onClick={() => handleMoveDown(index)}
                     disabled={index === steps.length - 1}
                   >
                     ↓
-                  </Button>
-                  <Button
+                  </ActionButton>
+                  <ActionButton
+                    variant="danger"
                     size="small"
-                    danger
                     icon={<DeleteOutlined />}
                     onClick={() => handleRemoveStep(step.id)}
                   />
@@ -201,7 +207,7 @@ export const TaskStepEditor: React.FC<TaskStepEditorProps> = ({ value = [], onCh
           dataSource={templates}
           renderItem={(template) => (
             <List.Item
-              className="cursor-pointer hover:bg-tool-call dark:!bg-tool-call-dark px-4 rounded"
+              className="cursor-pointer hover:bg-gray-100 dark:hover:bg-white/10 px-4 rounded transition-all duration-200"
               onClick={() => handleImportFromTemplate(template)}
             >
               <List.Item.Meta
@@ -216,9 +222,12 @@ export const TaskStepEditor: React.FC<TaskStepEditorProps> = ({ value = [], onCh
                   </div>
                 }
               />
-              <Button type="primary" size="small">
+              <ActionButton
+                variant="primary"
+                size="small"
+              >
                 {t('select')}
-              </Button>
+              </ActionButton>
             </List.Item>
           )}
         />

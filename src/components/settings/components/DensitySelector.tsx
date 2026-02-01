@@ -6,6 +6,7 @@
  */
 
 import React from 'react';
+import { SelectableCard } from '@/components/ui';
 
 interface DensitySelectorProps {
   label: string;
@@ -29,25 +30,21 @@ export const DensitySelector: React.FC<DensitySelectorProps> = ({
       <div className="text-text-01 dark:text-text-01-dark font-medium mb-3">{label}</div>
       <div className="grid grid-cols-3 gap-3">
         {densities.map(density => (
-          <button
+          <SelectableCard
             key={density.value}
+            selected={value === density.value}
             onClick={() => onChange(density.value)}
-            className={`
-              flex flex-col items-center justify-center
-              h-20 rounded-lg border-2 transition-all
-              ${value === density.value
-                ? 'border-blue-500 bg-blue-500/10'
-                : 'border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10'
-              }
-            `}
+            className="h-20"
           >
-            <div className={`text-sm font-medium mb-1 ${value === density.value ? 'text-text-01 dark:text-text-01-dark' : 'text-gray-700 dark:text-gray-300'}`}>
-              {density.label}
+            <div className="flex flex-col items-center justify-center h-full">
+              <div className={`text-sm font-medium mb-1 transition-colors duration-200 ${value === density.value ? 'text-text-01 dark:text-text-01-dark' : 'text-gray-700 dark:text-gray-300'}`}>
+                {density.label}
+              </div>
+              <div className={`text-xs transition-colors duration-200 ${value === density.value ? 'text-text-12 dark:text-text-12-dark' : 'text-gray-500 dark:text-gray-500'}`}>
+                {density.description}
+              </div>
             </div>
-            <div className={`text-xs ${value === density.value ? 'text-text-12 dark:text-text-12-dark' : 'text-gray-500 dark:text-gray-500'}`}>
-              {density.description}
-            </div>
-          </button>
+          </SelectableCard>
         ))}
       </div>
     </div>

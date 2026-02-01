@@ -38,12 +38,13 @@ export const PlaybackControl: React.FC<PlaybackControlProps> = ({
   };
 
   return (
-    <div className="h-full flex items-center justify-center bg-tool-call dark:bg-tool-call-dark rounded-xl">
+    <div className="h-full flex items-center justify-center bg-gray-50 dark:bg-tool-call-dark rounded-xl border border-gray-200 dark:border-transparent">
       <Button
         type="primary"
         size="large"
         icon={isPlaying ? <PauseOutlined /> : <CaretRightOutlined />}
         onClick={handleClick}
+        className="cursor-pointer"
         style={{
           background: 'linear-gradient(135deg, #5E31D8 0%, #8B5CF6 100%)',
           borderColor: 'transparent',
@@ -56,7 +57,7 @@ export const PlaybackControl: React.FC<PlaybackControlProps> = ({
           : t('replay') || '重新回放'}
       </Button>
       {(isPlaying || isCompleted) && (
-        <span className="ml-4 text-sm text-gray-400">
+        <span className="ml-4 text-sm text-gray-500 dark:text-gray-400">
           {progress}% {isCompleted && '(已完成)'}
         </span>
       )}

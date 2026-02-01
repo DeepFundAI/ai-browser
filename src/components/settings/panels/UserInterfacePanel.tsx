@@ -7,9 +7,10 @@
 
 import React from 'react';
 import { SkinOutlined } from '@ant-design/icons';
-import { Typography, Divider, InputNumber, Space } from 'antd';
+import { Typography, InputNumber, Space } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { ToggleSetting, ThemeSelector, DensitySelector } from '../components';
+import { SettingsDivider } from '@/components/ui';
 import { UISettings } from '@/models/settings';
 import { getDefaultUISettings } from '@/config/settings-defaults';
 
@@ -49,7 +50,7 @@ export const UserInterfacePanel: React.FC<UserInterfacePanelProps> = ({
       {/* Fixed header */}
       <div className="flex-shrink-0 p-8 pb-0">
         <div className="flex items-center gap-3 mb-4">
-          <SkinOutlined className="text-3xl text-pink-400" />
+          <SkinOutlined className="text-3xl text-primary dark:text-purple-400" />
           <Title level={2} className="!text-text-01 dark:!text-text-01-dark !mb-0">
             {t('ui.title')}
           </Title>
@@ -71,7 +72,7 @@ export const UserInterfacePanel: React.FC<UserInterfacePanelProps> = ({
               onChange={(value) => handleChange({ theme: value })}
             />
 
-            <Divider className="!border-gray-200 dark:border-white/10" />
+            <SettingsDivider />
 
             {/* Font Settings */}
             <div>
@@ -98,7 +99,7 @@ export const UserInterfacePanel: React.FC<UserInterfacePanelProps> = ({
               </div>
             </div>
 
-            <Divider className="!border-gray-200 dark:border-white/10" />
+            <SettingsDivider />
 
             {/* Layout Settings */}
             <div>
@@ -112,7 +113,7 @@ export const UserInterfacePanel: React.FC<UserInterfacePanelProps> = ({
               </div>
             </div>
 
-            <Divider className="!border-gray-200 dark:border-white/10" />
+            <SettingsDivider />
 
             {/* Editor Settings */}
             <div>
