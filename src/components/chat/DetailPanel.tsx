@@ -2,6 +2,8 @@ import React from 'react';
 import { Button, Slider } from 'antd';
 import { StepUpDown } from '@/icons/deepfundai-icons';
 import { useTranslation } from 'react-i18next';
+import { TabBar } from './TabBar';
+import { useTabManager } from '@/hooks/useTabManager';
 
 interface DetailPanelProps {
   showDetail: boolean;
@@ -30,6 +32,7 @@ export const DetailPanel: React.FC<DetailPanelProps> = ({
   onHistoryIndexChange,
 }) => {
   const { t } = useTranslation('main');
+  const { tabs, activeTabId, switchTab, closeTab } = useTabManager();
 
   return (
     <div className='h-full transition-all pt-5 pb-4 pr-4 duration-300 text-text-01 dark:text-text-01-dark' style={{ width: showDetail ? '800px' : '0px' }}>
@@ -63,7 +66,15 @@ export const DetailPanel: React.FC<DetailPanelProps> = ({
           {/* Detail panel content area - reserved space */}
           <div className='p-4 pt-0 flex-1 '>
             <div className='border-gray-200 dark:border-border-message-dark border rounded-lg h-full flex flex-col overflow-hidden'>
-              <div className='h-[42px] bg-gray-50 dark:bg-tool-call-dark rounded-t-lg flex items-center justify-center p-2 border-b border-gray-200 dark:border-border-message-dark'>
+              {/* Tab bar for multi-tab support */}
+              <TabBar
+                tabs={tabs}
+                activeTabId={activeTabId}
+                onTabClick={switchTab}
+                onTabClose={closeTab}
+              />
+              {/* URL bar */}
+              <div className='h-[42px] bg-gray-50 dark:bg-tool-call-dark flex items-center justify-center p-2 border-b border-gray-200 dark:border-border-message-dark'>
                 {currentUrl && (
                   <div className='text-xs text-gray-500 dark:text-text-12-dark line-clamp-1'>
                     {currentUrl}
