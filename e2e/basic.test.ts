@@ -37,12 +37,17 @@ test.describe('Electron App', () => {
 
   test.afterAll(async () => {
     if (electronApp) {
-      // Force close to avoid timeout
-      try {
-        await electronApp.close();
-      } catch (e) {
-        // Force kill if close fails
-        await electronApp.evaluate(({ app }) => app.quit());
+      // Graceful shutdown: try SIGTERM first, then force kill after timeout
+      const pid = electronApp.process().pid;
+      if (pid) {
+        process.kill(pid, 'SIGTERM');
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        try {
+          process.kill(pid, 0); // Check if still running
+          process.kill(pid, 'SIGKILL'); // Force kill if still alive
+        } catch {
+          // Process already terminated
+        }
       }
     }
   });

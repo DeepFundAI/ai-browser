@@ -169,7 +169,11 @@ export class TabManager implements ITabManager {
       console.warn("[TabManager] No active view for navigation");
       return;
     }
-    await view.webContents.loadURL(url);
+    try {
+      await view.webContents.loadURL(url);
+    } catch (error) {
+      console.error("[TabManager] Navigation failed:", url, error);
+    }
   }
 
   /**
