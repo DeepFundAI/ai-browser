@@ -7,6 +7,9 @@
 
 import React from 'react';
 
+// Search engine types
+export type SearchEngine = 'google' | 'bing' | 'baidu';
+
 // Builtin provider IDs (for type safety where needed)
 export const BUILTIN_PROVIDER_IDS = ['deepseek', 'qwen', 'google', 'anthropic', 'openai', 'openrouter'] as const;
 export type BuiltinProviderId = typeof BUILTIN_PROVIDER_IDS[number];
@@ -96,6 +99,9 @@ export interface GeneralSettings {
   window: {
     minimizeToTray: boolean;
     closeToTray: boolean;
+  };
+  browser: {
+    searchEngine: SearchEngine;
   };
 }
 

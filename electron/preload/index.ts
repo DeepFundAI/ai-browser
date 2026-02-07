@@ -59,6 +59,9 @@ const api = {
   // Detail view control APIs
   setDetailViewVisible: (visible: boolean) => safeInvoke('set-detail-view-visible', visible),
   navigateDetailView: (url: string) => safeInvoke('navigate-detail-view', url),
+  refreshDetailView: () => safeInvoke('refresh-detail-view'),
+  goBackDetailView: () => safeInvoke('go-back-detail-view'),
+  goForwardDetailView: () => safeInvoke('go-forward-detail-view'),
   getCurrentUrl: () => safeInvoke('get-current-url'),
   onUrlChange: (callback: (url: string) => void) => ipcRenderer.on('url-changed', (_event, url) => callback(url)),
 

@@ -74,4 +74,57 @@ export function registerViewHandlers() {
       return errorResponse(error);
     }
   });
+
+  ipcMain.handle('refresh-detail-view', async (event) => {
+    try {
+      const context = windowContextManager.getContext(event.sender.id);
+      const activeView = context?.tabManager?.getActiveView();
+      if (!activeView) {
+        console.error('[ViewHandlers] No active view found');
+        return errorResponse('No active view found');
+      }
+
+      activeView.webContents.reload();
+      return successResponse({ success: true });
+    } catch (error: any) {
+      console.error('[ViewHandlers] refresh-detail-view error:', error);
+      return errorResponse(error);
+    }
+  });
+
+  ipcMain.handle('go-back-detail-view', async (event) => {
+    try {
+      const context = windowContextManager.getContext(event.sender.id);
+      const activeView = context?.tabManager?.getActiveView();
+      if (!activeView) {
+        return errorResponse('No active view found');
+      }
+
+      if (activeView.webContents.navigationHistory.canGoBack()) {
+        activeView.webContents.navigationHistory.goBack();
+      }
+      return successResponse({ success: true });
+    } catch (error: any) {
+      console.error('[ViewHandlers] go-back-detail-view error:', error);
+      return errorResponse(error);
+    }
+  });
+
+  ipcMain.handle('go-forward-detail-view', async (event) => {
+    try {
+      const context = windowContextManager.getContext(event.sender.id);
+      const activeView = context?.tabManager?.getActiveView();
+      if (!activeView) {
+        return errorResponse('No active view found');
+      }
+
+      if (activeView.webContents.navigationHistory.canGoForward()) {
+        activeView.webContents.navigationHistory.goForward();
+      }
+      return successResponse({ success: true });
+    } catch (error: any) {
+      console.error('[ViewHandlers] go-forward-detail-view error:', error);
+      return errorResponse(error);
+    }
+  });
 }

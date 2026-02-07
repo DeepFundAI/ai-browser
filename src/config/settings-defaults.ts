@@ -29,6 +29,9 @@ export function getDefaultGeneralSettings(): GeneralSettings {
     window: {
       minimizeToTray: true,
       closeToTray: true
+    },
+    browser: {
+      searchEngine: 'google'
     }
   };
 }

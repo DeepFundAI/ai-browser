@@ -18,6 +18,10 @@ export interface UseTabManagerReturn {
   switchTab: (tabId: number) => Promise<void>;
   closeTab: (tabId: number) => Promise<void>;
   createTab: (url?: string) => Promise<number | null>;
+  navigateTo: (url: string) => Promise<void>;
+  refresh: () => Promise<void>;
+  goBack: () => Promise<void>;
+  goForward: () => Promise<void>;
 }
 
 export const useTabManager = (): UseTabManagerReturn => {
@@ -60,11 +64,31 @@ export const useTabManager = (): UseTabManagerReturn => {
     return null;
   }, []);
 
+  const navigateTo = useCallback(async (url: string) => {
+    await window.api?.navigateDetailView?.(url);
+  }, []);
+
+  const refresh = useCallback(async () => {
+    await window.api?.refreshDetailView?.();
+  }, []);
+
+  const goBack = useCallback(async () => {
+    await window.api?.goBackDetailView?.();
+  }, []);
+
+  const goForward = useCallback(async () => {
+    await window.api?.goForwardDetailView?.();
+  }, []);
+
   return {
     tabs,
     activeTabId,
     switchTab,
     closeTab,
     createTab,
+    navigateTo,
+    refresh,
+    goBack,
+    goForward,
   };
 };
