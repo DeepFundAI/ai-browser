@@ -81,7 +81,8 @@ export const useToolHistory = ({ isHistoryMode, playbackStatus, displayMessages 
 
     setIsViewingAttachment(false);
 
-    if ((newIndex >= toolHistory.length - 1) && !isHistoryMode) {
+    // Hide history view when switching to realtime (-1) or beyond last item
+    if (newIndex === -1 || ((newIndex >= toolHistory.length - 1) && !isHistoryMode)) {
       setCurrentHistoryIndex(-1);
       try {
         await (window.api as any).hideHistoryView?.();

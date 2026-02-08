@@ -6,6 +6,7 @@
 
 import React, { useCallback } from 'react';
 import { Button, Slider } from 'antd';
+import { CloseOutlined } from '@ant-design/icons';
 import { StepUpDown } from '@/icons/deepfundai-icons';
 import { useTranslation } from 'react-i18next';
 import { TabBar } from './TabBar';
@@ -84,7 +85,7 @@ export const DetailPanel: React.FC<DetailPanelProps> = ({
 
           {/* Detail panel content area */}
           <div className='p-4 pt-2 flex-1'>
-            <div className='border-gray-200 dark:border-border-message-dark border rounded-lg h-full flex flex-col overflow-hidden'>
+            <div className='border-gray-200 dark:border-border-message-dark border rounded-lg h-full flex flex-col overflow-hidden relative'>
               {/* Tab bar for multi-tab support */}
               <TabBar
                 tabs={tabs}
@@ -103,7 +104,29 @@ export const DetailPanel: React.FC<DetailPanelProps> = ({
                 onGoForward={goForward}
               />
               <div className='flex-1 bg-white dark:bg-transparent'></div>
-              <div className='h-[42px] bg-gray-50 dark:bg-tool-call-dark rounded-b-lg flex items-center px-3 border-t border-gray-200 dark:border-border-message-dark'>
+
+              {/* History screenshot overlay - covers TabBar and AddressBar */}
+              {currentHistoryIndex >= 0 && (
+                <div className='absolute inset-0 bottom-[42px] z-10 bg-white dark:bg-gray-900 rounded-t-lg'>
+                  {/* Header with title and close button */}
+                  <div className='flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700'>
+                    <span className='text-sm font-medium text-gray-700 dark:text-gray-300'>
+                      {t('history_screenshot')} ({currentHistoryIndex + 1}/{toolHistory.length})
+                    </span>
+                    <button
+                      onClick={async () => {
+                        onHistoryIndexChange(-1);
+                        await (window.api as any).setDetailViewVisible?.(true);
+                        await (window.api as any).hideHistoryView?.();
+                      }}
+                      className='w-7 h-7 flex items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors'
+                    >
+                      <CloseOutlined className='text-sm text-gray-500 dark:text-gray-400' />
+                    </button>
+                  </div>
+                </div>
+              )}
+              <div className='h-[42px] bg-gray-50 dark:bg-tool-call-dark rounded-b-lg flex items-center px-3 border-t border-gray-200 dark:border-border-message-dark relative z-20'>
                 {/* Tool call progress bar */}
                 {toolHistory.length > 0 && (
                   <div className='flex-1 flex items-center gap-2'>

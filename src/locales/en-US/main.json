@@ -15,6 +15,7 @@
   "completed": "Completed",
   "execution_error": "Execution Error",
   "realtime": "Real-time",
+  "history_screenshot": "History Screenshot",
   "task_execution_completed": "Task execution completed",
   "failed_update_task_status": "Failed to update task status",
   "no_task_running": "No task currently running",
