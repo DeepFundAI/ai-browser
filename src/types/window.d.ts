@@ -45,6 +45,19 @@ declare global {
       setMcpToolEnabled: (toolName: string, enabled: boolean) => Promise<IpcResponse<void>>
       reloadAgentConfig: () => Promise<IpcResponse<{ agentConfig: AgentConfig }>>
 
+      // Detail view APIs
+      navigateDetailView: (url: string) => Promise<IpcResponse<{ url: string }>>
+      refreshDetailView: () => Promise<IpcResponse<{ success: boolean }>>
+      goBackDetailView: () => Promise<IpcResponse<{ success: boolean }>>
+      goForwardDetailView: () => Promise<IpcResponse<{ success: boolean }>>
+
+      // Tab management APIs
+      tabsGetAll: () => Promise<IpcResponse<{ tabs: Array<{ tabId: number; url: string; title: string }>; activeTabId: number }>>
+      tabsCreate: (url?: string) => Promise<IpcResponse<{ tabId: number }>>
+      tabsSwitch: (tabId: number) => Promise<IpcResponse<void>>
+      tabsClose: (tabId: number) => Promise<IpcResponse<void>>
+      onTabsChanged: (callback: (data: { tabs: Array<{ tabId: number; url: string; title: string }>; activeTabId: number }) => void) => () => void
+
       // Generic IPC invoke method
       invoke: <T = any>(channel: string, ...args: any[]) => Promise<T>
     }

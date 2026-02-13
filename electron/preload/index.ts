@@ -59,8 +59,22 @@ const api = {
   // Detail view control APIs
   setDetailViewVisible: (visible: boolean) => safeInvoke('set-detail-view-visible', visible),
   navigateDetailView: (url: string) => safeInvoke('navigate-detail-view', url),
+  refreshDetailView: () => safeInvoke('refresh-detail-view'),
+  goBackDetailView: () => safeInvoke('go-back-detail-view'),
+  goForwardDetailView: () => safeInvoke('go-forward-detail-view'),
   getCurrentUrl: () => safeInvoke('get-current-url'),
   onUrlChange: (callback: (url: string) => void) => ipcRenderer.on('url-changed', (_event, url) => callback(url)),
+
+  // Tab management APIs
+  tabsGetAll: () => safeInvoke('tabs:get-all'),
+  tabsCreate: (url?: string) => safeInvoke('tabs:create', url),
+  tabsSwitch: (tabId: number) => safeInvoke('tabs:switch', tabId),
+  tabsClose: (tabId: number) => safeInvoke('tabs:close', tabId),
+  onTabsChanged: (callback: (data: { tabs: any[]; activeTabId: number }) => void) => {
+    const handler = (_: any, data: any) => callback(data);
+    ipcRenderer.on('tabs-changed', handler);
+    return () => ipcRenderer.removeListener('tabs-changed', handler);
+  },
 
   getMainViewScreenshot: () => safeInvoke('get-main-view-screenshot'),
   showHistoryView: (screenshot: string) => safeInvoke('show-history-view', screenshot),

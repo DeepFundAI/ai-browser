@@ -5,6 +5,7 @@ import { registerConfigHandlers } from "./config-handlers";
 import { registerAgentHandlers } from "./agent-handlers";
 import { registerFileHandlers } from "./file-handlers";
 import { registerSettingsHandlers } from "./settings-handlers";
+import { registerTabHandlers } from "./tab-handlers";
 
 export function registerAllIpcHandlers() {
   registerEkoHandlers();
@@ -14,6 +15,7 @@ export function registerAllIpcHandlers() {
   registerAgentHandlers();
   registerFileHandlers();
   registerSettingsHandlers();
+  registerTabHandlers();
 }
 
 export {
@@ -23,5 +25,6 @@ export {
   registerConfigHandlers,
   registerAgentHandlers,
   registerFileHandlers,
-  registerSettingsHandlers
+  registerSettingsHandlers,
+  registerTabHandlers
 };

@@ -1,9 +1,11 @@
 import { BrowserWindow, WebContentsView } from "electron";
 import { EkoService } from "./eko-service";
+import { TabManager } from "./tab-manager";
 
 export interface WindowContext {
   window: BrowserWindow;
-  detailView: WebContentsView;
+  detailView?: WebContentsView;  // Legacy: will be replaced by tabManager
+  tabManager?: TabManager;
   historyView?: WebContentsView | null;
   ekoService: EkoService;
   webContentsId: number;

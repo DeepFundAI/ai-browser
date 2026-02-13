@@ -20,13 +20,13 @@ import { ConfigManager } from "./utils/config-manager";
 // Initialize configuration manager
 ConfigManager.getInstance().initialize();
 
-import { createView } from "./ui/view";
 import { showCloseConfirmModal } from "./ui/modal";
 import { EkoService } from "./services/eko-service";
 import { ServerManager } from "./services/server-manager";
 import { MainWindowManager } from "./windows/main-window";
 import { taskScheduler } from "./services/task-scheduler";
 import { windowContextManager } from "./services/window-context-manager";
+import { TabManager } from "./services/tab-manager";
 import { SettingsManager } from "./utils/settings-manager";
 import { settingsWatcher } from "./utils/settings-watcher";
 import { cwd } from "node:process";
@@ -115,7 +115,7 @@ if (!isDev) {
 }
 
 let mainWindow: BrowserWindow;
-let detailView: WebContentsView;
+let tabManager: TabManager;
 let historyView: WebContentsView | null = null;
 let ekoService: EkoService;
 let mainWindowManager: MainWindowManager;
@@ -195,28 +195,16 @@ async function initializeMainWindow(): Promise<BrowserWindow> {
     height: windowBounds.height,
   });
 
-  detailView = createView(`https://www.google.com`, "view", '1');
-  mainWindow.contentView.addChildView(detailView);
-  detailView.setBounds({ x: 818, y: 264, width: 748, height: 560 });
-  detailView.setVisible(false);
+  // Initialize TabManager for multi-tab browser support
+  tabManager = new TabManager(mainWindow, { x: 818, y: 264, width: 748, height: 560 });
+  tabManager.createTab("https://www.google.com");
+  tabManager.setVisible(false);
 
-  detailView.webContents.setWindowOpenHandler(({ url }) => {
-    detailView.webContents.loadURL(url);
-    return { action: "deny" };
-  });
-
-  const handleUrlChange = (_event: any, url: string) => {
-    mainWindow?.webContents.send('url-changed', url);
-  };
-
-  detailView.webContents.on('did-navigate', handleUrlChange);
-  detailView.webContents.on('did-navigate-in-page', handleUrlChange);
-
-  ekoService = new EkoService(mainWindow, detailView);
+  ekoService = new EkoService(mainWindow, tabManager);
 
   windowContextManager.registerWindow({
     window: mainWindow,
-    detailView,
+    tabManager,
     historyView,
     ekoService,
     webContentsId: mainWindow.webContents.id,

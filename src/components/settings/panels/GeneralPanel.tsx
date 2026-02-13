@@ -11,7 +11,7 @@ import { Typography } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { SelectSetting, ToggleSetting } from '../components';
 import { SettingsDivider } from '@/components/ui';
-import { GeneralSettings } from '@/models/settings';
+import { GeneralSettings, SearchEngine } from '@/models/settings';
 import { getDefaultGeneralSettings } from '@/config/settings-defaults';
 
 const { Title, Paragraph, Text } = Typography;
@@ -39,6 +39,12 @@ export const GeneralPanel: React.FC<GeneralPanelProps> = ({
   const languageOptions = [
     { label: 'English', value: 'en' },
     { label: '中文', value: 'zh' }
+  ];
+
+  const searchEngineOptions = [
+    { label: 'Google', value: 'google' },
+    { label: 'Bing', value: 'bing' },
+    { label: 'Baidu', value: 'baidu' }
   ];
 
   return (
@@ -71,6 +77,26 @@ export const GeneralPanel: React.FC<GeneralPanelProps> = ({
               value={settings.language}
               options={languageOptions}
               onChange={(value) => handleChange({ language: value as 'en' | 'zh' })}
+            />
+          </div>
+        </div>
+
+        <SettingsDivider />
+
+        {/* Browser Settings */}
+        <div>
+          <Text className="!text-text-01 dark:!text-text-01-dark text-lg font-semibold">{t('general.browser_settings')}</Text>
+          <div className="mt-4">
+            <SelectSetting
+              label={t('general.search_engine')}
+              description={t('general.search_engine_desc')}
+              value={settings.browser?.searchEngine || 'google'}
+              options={searchEngineOptions}
+              onChange={(value) =>
+                handleChange({
+                  browser: { ...settings.browser, searchEngine: value as SearchEngine }
+                })
+              }
             />
           </div>
         </div>

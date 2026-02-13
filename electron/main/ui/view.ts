@@ -19,7 +19,7 @@ export function createView(rendererURL: string, preloadFileName: string, id?: st
     webPreferences: {
       preload: preloadPath,
       contextIsolation: false,
-      partition: `persist:detail-view-${id}`,
+      partition: `persist:detail-view`,
       webSecurity: true,
     },
   });

@@ -1,18 +1,19 @@
 import { Eko, SimpleSseMcpClient, type LLMs, type StreamCallbackMessage, type AgentContext } from "@jarvis-agent/core";
 import { BrowserAgent, FileAgent } from "@jarvis-agent/electron";
 import type { EkoResult } from "@jarvis-agent/core/types";
-import { BrowserWindow, WebContentsView, app } from "electron";
+import { BrowserWindow, app } from "electron";
 import path from "node:path";
 import fs from "node:fs";
 import { randomUUID } from "node:crypto";
 import { ConfigManager } from "../utils/config-manager";
 import { SettingsManager } from "../utils/settings-manager";
+import { TabManager } from "./tab-manager";
 import type { HumanRequestMessage, HumanResponseMessage, HumanInteractionContext } from "../../../src/models/human-interaction";
 
 export class EkoService {
   private eko: Eko | null = null;
   private mainWindow: BrowserWindow;
-  private detailView: WebContentsView;
+  private tabManager: TabManager;
   private mcpClient!: SimpleSseMcpClient;
   private browserAgent: BrowserAgent | null = null;
 
@@ -31,9 +32,9 @@ export class EkoService {
   // Track running task IDs for accurate status checking
   private runningTaskIds: Set<string> = new Set();
 
-  constructor(mainWindow: BrowserWindow, detailView: WebContentsView) {
+  constructor(mainWindow: BrowserWindow, tabManager: TabManager) {
     this.mainWindow = mainWindow;
-    this.detailView = detailView;
+    this.tabManager = tabManager;
     this.initializeEko();
   }
 
@@ -68,16 +69,21 @@ export class EkoService {
             }
 
             if (args?.content) {
-              const url = this.detailView.webContents.getURL();
+              const activeView = this.tabManager.getActiveView();
+              if (!activeView) {
+                resolve();
+                return;
+              }
+              const url = activeView.webContents.getURL();
               const fileName = args.fileName || args.path || 'file.txt';
               if (!url.includes('file-view')) {
-                this.detailView.webContents.loadURL(`http://localhost:5173/file-view`);
-                this.detailView.webContents.once('did-finish-load', () => {
-                  this.detailView.webContents.send('file-updated', 'code', args.content, fileName);
+                activeView.webContents.loadURL(`http://localhost:5173/file-view`);
+                activeView.webContents.once('did-finish-load', () => {
+                  activeView.webContents.send('file-updated', 'code', args.content, fileName);
                   resolve();
                 });
               } else {
-                this.detailView.webContents.send('file-updated', 'code', args.content, fileName);
+                activeView.webContents.send('file-updated', 'code', args.content, fileName);
                 resolve();
               }
             } else {
@@ -129,7 +135,8 @@ export class EkoService {
       ): Promise<boolean> => {
         let context: HumanInteractionContext | undefined;
         try {
-          const url = this.detailView.webContents.getURL();
+          const activeView = this.tabManager.getActiveView();
+          const url = activeView?.webContents.getURL();
           if (url?.startsWith('http')) {
             context = {
               siteName: new URL(url).hostname,
@@ -183,9 +190,12 @@ export class EkoService {
     if (agentConfig?.fileAgent?.enabled) {
       const taskWorkPath = this.getTaskWorkPath(taskId);
       fs.mkdirSync(taskWorkPath, { recursive: true });
-      agents.push(
-        new FileAgent(this.detailView, taskWorkPath, this.mcpClient, agentConfig.fileAgent.customPrompt)
-      );
+      const activeView = this.tabManager.getActiveView();
+      if (activeView) {
+        agents.push(
+          new FileAgent(activeView, taskWorkPath, this.mcpClient, agentConfig.fileAgent.customPrompt)
+        );
+      }
     }
 
     // Get network settings for timeout and retry configuration
@@ -213,7 +223,7 @@ export class EkoService {
 
     // Only create BrowserAgent once (no file storage involved)
     if (agentConfig?.browserAgent?.enabled) {
-      this.browserAgent = new BrowserAgent(this.detailView, this.mcpClient, agentConfig.browserAgent.customPrompt);
+      this.browserAgent = new BrowserAgent(this.tabManager, this.mcpClient, agentConfig.browserAgent.customPrompt);
     }
 
     // Create default Eko instance with only BrowserAgent for restore/modify scenarios
@@ -257,7 +267,7 @@ export class EkoService {
 
     // Recreate BrowserAgent with new config
     if (agentConfig?.browserAgent?.enabled) {
-      this.browserAgent = new BrowserAgent(this.detailView, this.mcpClient, agentConfig.browserAgent.customPrompt);
+      this.browserAgent = new BrowserAgent(this.tabManager, this.mcpClient, agentConfig.browserAgent.customPrompt);
     } else {
       this.browserAgent = null;
     }

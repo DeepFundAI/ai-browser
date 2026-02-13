@@ -69,9 +69,9 @@ export function registerHistoryHandlers() {
         context.window.contentView.addChildView(context.historyView);
         context.historyView.setBounds({
           x: 818,
-          y: 264,
+          y: 200,
           width: 748,
-          height: 560,
+          height: 624,
         });
 
         return successResponse();
