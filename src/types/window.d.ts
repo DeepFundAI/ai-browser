@@ -58,6 +58,9 @@ declare global {
       tabsClose: (tabId: number) => Promise<IpcResponse<void>>
       onTabsChanged: (callback: (data: { tabs: Array<{ tabId: number; url: string; title: string }>; activeTabId: number }) => void) => () => void
 
+      // Fetch models from provider API (bypass CORS)
+      fetchModels: (providerId: string, apiKey: string, baseUrl: string) => Promise<IpcResponse<any>>
+
       // Generic IPC invoke method
       invoke: <T = any>(channel: string, ...args: any[]) => Promise<T>
     }

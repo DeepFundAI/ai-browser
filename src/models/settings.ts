@@ -185,7 +185,7 @@ export const BUILTIN_PROVIDER_META: Record<BuiltinProviderId, BuiltinProviderMet
   google: {
     id: 'google',
     name: 'Google Gemini',
-    defaultBaseUrl: 'https://generativelanguage.googleapis.com/v1beta',
+    defaultBaseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai',
     getKeyUrl: 'https://aistudio.google.com/app/apikey',
     description: 'Google Gemini models with multimodal capabilities'
   },

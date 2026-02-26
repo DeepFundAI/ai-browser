@@ -111,5 +111,78 @@ export function registerSettingsHandlers() {
     }
   });
 
+  // Fetch models from provider API (bypass CORS)
+  ipcMain.handle('settings:fetch-models', async (_event, providerId: string, apiKey: string, baseUrl: string) => {
+    try {
+      console.log(`[SettingsHandlers] Fetching models for ${providerId}`);
+
+      // Build headers based on provider
+      const headers: Record<string, string> = {};
+      if (providerId === 'anthropic') {
+        headers['x-api-key'] = apiKey;
+        headers['anthropic-version'] = '2023-06-01';
+      } else {
+        headers['Authorization'] = `Bearer ${apiKey}`;
+      }
+
+      const url = `${baseUrl}/models`;
+
+      return new Promise((resolve) => {
+        const request = net.request({ method: 'GET', url });
+
+        Object.entries(headers).forEach(([key, value]) => {
+          request.setHeader(key, value);
+        });
+
+        let isResolved = false;
+
+        const timeoutId = setTimeout(() => {
+          if (!isResolved) {
+            isResolved = true;
+            request.abort();
+            resolve({ success: false, error: 'Request timeout (10s)' });
+          }
+        }, 10000);
+
+        let responseData = '';
+
+        request.on('response', (response) => {
+          response.on('data', (chunk) => {
+            responseData += chunk.toString();
+          });
+
+          response.on('end', () => {
+            clearTimeout(timeoutId);
+            if (isResolved) return;
+            isResolved = true;
+
+            if (response.statusCode !== 200) {
+              resolve({ success: false, error: `API error: ${response.statusCode}` });
+              return;
+            }
+            try {
+              const data = JSON.parse(responseData);
+              resolve({ success: true, data });
+            } catch {
+              resolve({ success: false, error: 'Invalid JSON response' });
+            }
+          });
+        });
+
+        request.on('error', (error) => {
+          clearTimeout(timeoutId);
+          if (isResolved) return;
+          isResolved = true;
+          resolve({ success: false, error: error.message });
+        });
+
+        request.end();
+      });
+    } catch (error: any) {
+      console.error('[SettingsHandlers] Fetch models error:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
   console.log('[IPC] Settings handlers registered');
 }
