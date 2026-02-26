@@ -100,6 +100,10 @@ const api = {
   // Settings window APIs
   openSettings: () => safeInvoke('settings:open'),
   closeSettings: () => safeInvoke('settings:close'),
+
+  // Fetch models from provider API (bypass CORS)
+  fetchModels: (providerId: string, apiKey: string, baseUrl: string) =>
+    safeInvoke('settings:fetch-models', providerId, apiKey, baseUrl),
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to
