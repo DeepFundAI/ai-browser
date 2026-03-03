@@ -4,7 +4,7 @@
   "reload": "重新加载",
   "save_configuration": "保存配置",
   "title": "Agent 配置",
-  "subtitle": "配置 AI 代理和 MCP 工具以执行任务",
+  "subtitle": "配置 AI 智能体和 MCP 工具以执行任务",
   "browser_agent": "浏览器 Agent",
   "file_agent": "文件 Agent",
   "mcp_tools": "MCP 工具",
