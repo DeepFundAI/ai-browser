@@ -4,9 +4,8 @@
 
 import type { ProviderType, UserModelConfigs } from './model-config';
 import type { AgentConfig } from './agent-config';
-import type { McpToolSchema } from './mcp';
 import type { EkoResult } from '@jarvis-agent/core/dist/types';
-import type { AppSettings } from '@/models/settings';
+import type { AppSettings, McpToolInfo } from '@/models/settings';
 
 // Unified IPC response structure
 interface IpcResponse<T = void> {
@@ -41,9 +40,10 @@ declare global {
       // Agent configuration APIs
       getAgentConfig: () => Promise<IpcResponse<{ agentConfig: AgentConfig }>>
       saveAgentConfig: (config: AgentConfig) => Promise<IpcResponse<void>>
-      getMcpTools: () => Promise<IpcResponse<{ tools: McpToolSchema[] }>>
-      setMcpToolEnabled: (toolName: string, enabled: boolean) => Promise<IpcResponse<void>>
       reloadAgentConfig: () => Promise<IpcResponse<{ agentConfig: AgentConfig }>>
+
+      // MCP service APIs
+      fetchMcpTools: (url: string) => Promise<IpcResponse<{ tools: McpToolInfo[] }>>
 
       // Detail view APIs
       navigateDetailView: (url: string) => Promise<IpcResponse<{ url: string }>>

@@ -7,7 +7,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { isEqual } from 'lodash';
-import { AppSettings, GeneralSettings, ChatSettings, UISettings, NetworkSettings, AgentSettings, ProviderConfig } from '@/models/settings';
+import { AppSettings, GeneralSettings, ChatSettings, UISettings, NetworkSettings, AgentSettings, McpSettings, ProviderConfig } from '@/models/settings';
 import { getDefaultSettings } from '@/config/settings-defaults';
 
 export function useSettingsState() {
@@ -181,6 +181,21 @@ export function useSettingsState() {
   }, []);
 
   /**
+   * Update MCP settings
+   */
+  const updateMcp = useCallback((
+    newMcp: McpSettings | ((prev: McpSettings) => McpSettings)
+  ) => {
+    setCurrentConfigs(prev => {
+      if (!prev) return prev;
+      const mcp = typeof newMcp === 'function'
+        ? newMcp(prev.mcp)
+        : newMcp;
+      return { ...prev, mcp };
+    });
+  }, []);
+
+  /**
    * Update agent settings
    */
   const updateAgent = useCallback((
@@ -230,6 +245,7 @@ export function useSettingsState() {
     general: currentConfigs?.general ?? null,
     chat: currentConfigs?.chat ?? null,
     agent: currentConfigs?.agent ?? null,
+    mcp: currentConfigs?.mcp ?? null,
     ui: currentConfigs?.ui ?? null,
     network: currentConfigs?.network ?? null,
     loading,
@@ -242,6 +258,7 @@ export function useSettingsState() {
     updateGeneral,
     updateChat,
     updateAgent,
+    updateMcp,
     updateUI,
     updateNetwork,
     saveConfigs,

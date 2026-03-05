@@ -52,9 +52,10 @@ const api = {
   // Agent configuration APIs
   getAgentConfig: () => safeInvoke('agent:get-config'),
   saveAgentConfig: (config: any) => safeInvoke('agent:save-config', config),
-  getMcpTools: () => safeInvoke('agent:get-mcp-tools'),
-  setMcpToolEnabled: (toolName: string, enabled: boolean) => safeInvoke('agent:set-mcp-tool-enabled', toolName, enabled),
   reloadAgentConfig: () => safeInvoke('agent:reload-config'),
+
+  // MCP service APIs
+  fetchMcpTools: (url: string) => safeInvoke('settings:fetch-mcp-tools', url),
 
   // Detail view control APIs
   setDetailViewVisible: (visible: boolean) => safeInvoke('set-detail-view-visible', visible),

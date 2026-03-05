@@ -18,6 +18,7 @@ import { ScheduledTasksPanel } from './panels/ScheduledTasksPanel';
 import { UserInterfacePanel } from './panels/UserInterfacePanel';
 import { NetworkPanel } from './panels/NetworkPanel';
 import { AboutPanel } from './panels/AboutPanel';
+import { McpPanel } from './panels/McpPanel';
 import { useSettingsState } from '@/hooks/useSettingsState';
 import { getDefaultSettings } from '@/config/settings-defaults';
 import { logger } from '@/utils/logger';
@@ -29,6 +30,7 @@ export type SettingsTab =
   | 'providers'
   | 'chat'
   | 'agent'
+  | 'mcp'
   | 'scheduled-tasks'
   | 'user-interface'
   | 'network'
@@ -65,6 +67,7 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
     general,
     chat,
     agent,
+    mcp,
     ui,
     network,
     loading,
@@ -76,6 +79,7 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
     updateGeneral,
     updateChat,
     updateAgent,
+    updateMcp,
     updateUI,
     updateNetwork,
     saveConfigs,
@@ -87,7 +91,7 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
     if (typeof window !== 'undefined') {
       const hash = window.location.hash.replace('#', '');
       const validTabs: SettingsTab[] = [
-        'general', 'providers', 'chat', 'agent', 'scheduled-tasks',
+        'general', 'providers', 'chat', 'agent', 'mcp', 'scheduled-tasks',
         'user-interface', 'network', 'memory', 'about'
       ];
       if (hash && validTabs.includes(hash as SettingsTab)) {
@@ -107,6 +111,7 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
           'providers',
           'chat',
           'agent',
+          'mcp',
           'scheduled-tasks',
           'user-interface',
           'network',
@@ -332,8 +337,16 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
           <AgentPanel
             settings={agent}
             onSettingsChange={updateAgent}
+            mcpServices={mcp?.services ?? []}
           />
         ) : null;
+      case 'mcp':
+        return (
+          <McpPanel
+            settings={mcp ?? undefined}
+            onSettingsChange={updateMcp}
+          />
+        );
       case 'scheduled-tasks':
         return <ScheduledTasksPanel />;
       case 'user-interface':

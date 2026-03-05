@@ -1,5 +1,7 @@
 import { ipcMain, net, session } from 'electron';
+import { SimpleSseMcpClient } from '@jarvis-agent/core';
 import { openSettingsWindow, closeSettingsWindow } from '../ui/settings-window';
+import { successResponse, errorResponse } from '../utils/ipc-response';
 
 export function registerSettingsHandlers() {
   // Open settings window with optional panel parameter
@@ -181,6 +183,27 @@ export function registerSettingsHandlers() {
     } catch (error: any) {
       console.error('[SettingsHandlers] Fetch models error:', error);
       return { success: false, error: error.message };
+    }
+  });
+
+  // Fetch MCP tools from a remote SSE endpoint
+  ipcMain.handle('settings:fetch-mcp-tools', async (_event, url: string) => {
+    try {
+      console.log('[SettingsHandlers] Fetching MCP tools from:', url);
+      const client = new SimpleSseMcpClient(url);
+      await client.connect();
+      const tools = await client.listTools({
+        taskId: 'settings-fetch',
+        environment: 'browser',
+        agent_name: 'settings',
+        params: {},
+        prompt: ''
+      });
+      await client.close();
+      return successResponse({ tools });
+    } catch (error: unknown) {
+      console.error('[SettingsHandlers] Fetch MCP tools error:', error);
+      return errorResponse(error instanceof Error ? error : new Error(String(error)));
     }
   });
 

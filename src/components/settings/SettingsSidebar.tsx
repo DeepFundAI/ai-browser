@@ -4,6 +4,7 @@ import {
   CloudOutlined,
   MessageOutlined,
   RobotOutlined,
+  ApiOutlined,
   ClockCircleOutlined,
   BulbOutlined,
   SkinOutlined,
@@ -62,6 +63,11 @@ export const SettingsSidebar: React.FC<SettingsSidebarProps> = ({
       id: 'agent',
       labelKey: 'sidebar.agent',
       icon: <RobotOutlined />
+    },
+    {
+      id: 'mcp',
+      labelKey: 'sidebar.mcp',
+      icon: <ApiOutlined />
     },
     {
       id: 'scheduled-tasks',
