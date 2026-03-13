@@ -21,6 +21,7 @@ interface SelectSettingProps {
   disabled?: boolean;
   placeholder?: string;
   showSearch?: boolean;
+  allowClear?: boolean;
 }
 
 /**
@@ -36,7 +37,8 @@ export const SelectSetting: React.FC<SelectSettingProps> = ({
   onChange,
   disabled = false,
   placeholder = 'Select an option',
-  showSearch = false
+  showSearch = false,
+  allowClear = false
 }) => {
   // Build options for Select component
   const selectOptions = groupedOptions
@@ -60,7 +62,7 @@ export const SelectSetting: React.FC<SelectSettingProps> = ({
         )}
       </div>
       <Select
-        value={value}
+        value={value || undefined}
         onChange={onChange}
         options={selectOptions as any}
         disabled={disabled}
@@ -68,6 +70,7 @@ export const SelectSetting: React.FC<SelectSettingProps> = ({
         className="w-64"
         popupMatchSelectWidth={false}
         showSearch={showSearch}
+        allowClear={allowClear}
         filterOption={showSearch ? (input, option) =>
           (option?.label?.toString() || '').toLowerCase().includes(input.toLowerCase()) ||
           (option?.value?.toString() || '').toLowerCase().includes(input.toLowerCase())

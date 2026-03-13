@@ -25,6 +25,7 @@ import { HistoryModeHeader } from '@/components/chat/HistoryModeHeader';
 import { DetailPanel } from '@/components/chat/DetailPanel';
 import { PlaybackSpeedControl } from '@/components/chat/PlaybackSpeedControl';
 import { useHasValidProvider } from '@/hooks/useHasValidProvider';
+import { logger } from '@/utils/logger';
 
 
 export default function main() {
@@ -198,7 +199,7 @@ export default function main() {
     });
 
     // Use task execution hook
-    const { sendMessage } = useTaskExecution({
+    const { sendMessage, isPaused, pauseTask } = useTaskExecution({
         isHistoryMode,
         isTaskDetailMode,
         scheduledTaskIdFromUrl,
@@ -238,12 +239,12 @@ export default function main() {
         // Check if task has workflow
         if (!currentTask.workflow) {
             antdMessage.error(t('task_missing_context'));
-            console.error('Task missing workflow:', currentTask);
+            logger.error('Task missing workflow', undefined, 'MainPage', { currentTask });
             return;
         }
 
         // Restore task context
-        const result = await (window.api as any).ekoRestoreTask(
+        const result = await window.api.ekoRestoreTask(
             currentTask.workflow,
             currentTask.contextParams || {},
             currentTask.chainPlanRequest,
@@ -265,11 +266,11 @@ export default function main() {
 
         // Reset detail panel: hide playback screenshot
         setCurrentHistoryIndex(-1);
-        await (window.api as any).hideHistoryView?.();
+        await window.api.hideHistoryView();
 
         // Restore lastUrl and navigate detail view to initial address
         setShowDetail(false);
-        await (window.api as any).setDetailViewVisible?.(false);
+        await window.api.setDetailViewVisible(false);
 
         // Restore tool history
         setToolHistory(currentTask.toolHistory || []);
@@ -311,7 +312,7 @@ export default function main() {
         if (typeof window !== 'undefined') {
             const pendingMessage = sessionStorage.getItem('pendingMessage');
             if (pendingMessage) {
-                console.log('Detected pending message:', pendingMessage);
+                logger.debug('Detected pending message', 'MainPage', { pendingMessage });
                 // Clear message to avoid duplicate sending
                 sessionStorage.removeItem('pendingMessage');
                 // Automatically send message
@@ -449,6 +450,8 @@ export default function main() {
                                     await sendMessage(messageToSend);
                                 }}
                                 onCancel={handleCancelTask}
+                                isPaused={isPaused}
+                                onPause={pauseTask}
                             />
                         )}
                     </div>

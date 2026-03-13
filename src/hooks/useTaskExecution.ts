@@ -5,6 +5,7 @@ import { MessageProcessor } from '@/utils/messageTransform';
 import { Task } from '@/models';
 import { uuidv4 } from '@/utils/uuid';
 import { useTranslation } from 'react-i18next';
+import { logger } from '@/utils/logger';
 
 interface UseTaskExecutionOptions {
   isHistoryMode: boolean;
@@ -37,6 +38,7 @@ export const useTaskExecution = ({
   const { t } = useTranslation('main');
   const { message } = App.useApp();
   const [ekoRequest, setEkoRequest] = useState<Promise<any> | null>(null);
+  const [isPaused, setIsPaused] = useState(false);
 
   const sendMessage = useCallback(async (text: string): Promise<boolean> => {
     if (!text) {
@@ -101,18 +103,19 @@ export const useTaskExecution = ({
       if (taskIdRef.current) {
         updateTask(taskIdRef.current, { status: 'error' });
       }
-      console.error('[useTaskExecution] Failed to send message:', error);
+      logger.error('Failed to send message', error, 'useTaskExecution');
       message.error(t('failed_send_message'));
       return false;
     } finally {
       setEkoRequest(null);
+      setIsPaused(false);
 
       // Save task context for conversation continuation
-      if (result && taskIdRef.current && (window.api as any).ekoGetTaskContext) {
+      if (result && taskIdRef.current) {
         try {
-          const response = await (window.api as any).ekoGetTaskContext(taskIdRef.current);
-          if (response?.success && response.data) {
-            const { workflow, contextParams, chainPlanRequest, chainPlanResult } = response.data;
+          const response = await window.api.ekoGetTaskContext(taskIdRef.current);
+          if (response?.success && response.data?.taskContext) {
+            const { workflow, contextParams, chainPlanRequest, chainPlanResult } = response.data.taskContext;
             if (workflow && contextParams) {
               updateTask(taskIdRef.current, {
                 workflow,
@@ -123,7 +126,7 @@ export const useTaskExecution = ({
             }
           }
         } catch (error) {
-          console.error('[useTaskExecution] Failed to save task context:', error);
+          logger.error('Failed to save task context', error, 'useTaskExecution');
         }
       }
     }
@@ -135,8 +138,17 @@ export const useTaskExecution = ({
     createTask, updateTask, updateMessages, setCurrentTaskId, t, message
   ]);
 
+  const pauseTask = useCallback(async () => {
+    if (!taskIdRef.current) return;
+    const newPaused = !isPaused;
+    await window.api.ekoPauseTask(taskIdRef.current, newPaused);
+    setIsPaused(newPaused);
+  }, [isPaused, taskIdRef]);
+
   return {
     sendMessage,
     ekoRequest,
+    isPaused,
+    pauseTask,
   };
 };

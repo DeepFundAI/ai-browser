@@ -199,6 +199,17 @@ export class EkoService {
   }
 
   /**
+   * Build plan/compress LLM key arrays from chat settings
+   */
+  private buildOptionalLlmKeys(): { planLlms?: string[]; compressLlms?: string[] } {
+    const chatSettings = SettingsManager.getInstance().getAppSettings().chat;
+    const result: { planLlms?: string[]; compressLlms?: string[] } = {};
+    if (chatSettings.planModel) result.planLlms = ['plan'];
+    if (chatSettings.compressModel) result.compressLlms = ['compress'];
+    return result;
+  }
+
+  /**
    * Create Eko instance for a specific task with unique work directory
    */
   private createEkoForTask(taskId: string): Eko {
@@ -235,10 +246,11 @@ export class EkoService {
     return new Eko({
       llms,
       agents,
+      ...this.buildOptionalLlmKeys(),
       callback: this.createCallback(),
       globalConfig: {
-        streamFirstTimeout: networkSettings.requestTimeout * 1000,  // Convert seconds to milliseconds
-        streamTokenTimeout: networkSettings.streamTimeout * 1000,   // Convert seconds to milliseconds
+        streamFirstTimeout: networkSettings.requestTimeout * 1000,
+        streamTokenTimeout: networkSettings.streamTimeout * 1000,
         maxRetryNum: networkSettings.retryAttempts
       }
     });
@@ -266,10 +278,11 @@ export class EkoService {
     this.eko = new Eko({
       llms,
       agents: defaultAgents,
+      ...this.buildOptionalLlmKeys(),
       callback: this.createCallback(),
       globalConfig: {
-        streamFirstTimeout: networkSettings.requestTimeout * 1000,  // Convert seconds to milliseconds
-        streamTokenTimeout: networkSettings.streamTimeout * 1000,   // Convert seconds to milliseconds
+        streamFirstTimeout: networkSettings.requestTimeout * 1000,
+        streamTokenTimeout: networkSettings.streamTimeout * 1000,
         maxRetryNum: networkSettings.retryAttempts
       }
     });
@@ -314,10 +327,11 @@ export class EkoService {
     this.eko = new Eko({
       llms,
       agents: reloadAgents,
+      ...this.buildOptionalLlmKeys(),
       callback: this.createCallback(),
       globalConfig: {
-        streamFirstTimeout: networkSettings.requestTimeout * 1000,  // Convert seconds to milliseconds
-        streamTokenTimeout: networkSettings.streamTimeout * 1000,   // Convert seconds to milliseconds
+        streamFirstTimeout: networkSettings.requestTimeout * 1000,
+        streamTokenTimeout: networkSettings.streamTimeout * 1000,
         maxRetryNum: networkSettings.retryAttempts
       }
     });
@@ -396,6 +410,14 @@ export class EkoService {
     } finally {
       this.runningTaskIds.delete(taskId);
     }
+  }
+
+  /**
+   * Pause or resume a running task
+   */
+  pauseTask(taskId: string, pause: boolean): boolean {
+    if (!this.eko) return false;
+    return this.eko.pauseTask(taskId, pause);
   }
 
   async cancleTask(taskId: string): Promise<any> {

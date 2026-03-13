@@ -51,6 +51,20 @@ export function registerEkoHandlers() {
     }
   });
 
+  ipcMain.handle('eko:pause-task', async (event, taskId: string, pause: boolean) => {
+    try {
+      const context = windowContextManager.getContext(event.sender.id);
+      if (!context || !context.ekoService) {
+        return errorResponse('EkoService not found for this window');
+      }
+      const result = context.ekoService.pauseTask(taskId, pause);
+      return successResponse({ result });
+    } catch (error: any) {
+      console.error('[EkoHandlers] pause-task error:', error);
+      return errorResponse(error);
+    }
+  });
+
   ipcMain.handle('eko:cancel-task', async (event, taskId: string) => {
     try {
       console.log('[EkoHandlers] cancel-task received:', taskId);

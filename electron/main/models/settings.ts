@@ -136,6 +136,8 @@ export interface ChatSettings {
   showTokenUsage: boolean;
   autoSaveHistory: boolean;
   historyRetentionDays: number; // 1 - 365
+  planModel?: string;      // Model for task planning (optional)
+  compressModel?: string;  // Model for context compression (optional)
 }
 
 // MCP service definition

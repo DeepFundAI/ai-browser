@@ -1,24 +1,40 @@
 /**
  * Chat settings panel
- * INPUT: Settings from parent component
- * OUTPUT: Temperature, tokens, streaming, and other chat parameters
+ * INPUT: Settings and providers from parent component
+ * OUTPUT: Temperature, tokens, plan/compress model, and other chat parameters
  * POSITION: Third tab in settings window
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { MessageOutlined } from '@ant-design/icons';
 import { Typography } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { SliderSetting, ToggleSetting, InputSetting } from '../components';
+import { SliderSetting, ToggleSetting, InputSetting, SelectSetting } from '../components';
 import { SettingsDivider } from '@/components/ui';
-import { ChatSettings } from '@/models/settings';
+import { ChatSettings, ProviderConfig, SelectOptionGroup } from '@/models/settings';
 import { getDefaultChatSettings } from '@/config/settings-defaults';
 
 const { Title, Paragraph, Text } = Typography;
 
 interface ChatPanelProps {
   settings?: ChatSettings;
+  providers?: Record<string, ProviderConfig>;
   onSettingsChange?: (settings: ChatSettings) => void;
+}
+
+/**
+ * Build grouped model options from providers
+ */
+function buildModelOptions(providers: Record<string, ProviderConfig>): SelectOptionGroup[] {
+  return Object.values(providers)
+    .filter(p => p.enabled && p.models.length > 0)
+    .map(p => ({
+      label: p.name,
+      options: p.models
+        .filter(m => m.enabled)
+        .map(m => ({ label: m.name || m.id, value: `${p.id}:${m.id}` })),
+    }))
+    .filter(g => g.options.length > 0);
 }
 
 /**
@@ -26,6 +42,7 @@ interface ChatPanelProps {
  */
 export const ChatPanel: React.FC<ChatPanelProps> = ({
   settings = getDefaultChatSettings(),
+  providers = {},
   onSettingsChange
 }) => {
   const { t } = useTranslation('settings');
@@ -35,6 +52,8 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
       onSettingsChange({ ...settings, ...updates });
     }
   };
+
+  const modelOptions = useMemo(() => buildModelOptions(providers), [providers]);
 
   return (
     <div className="flex flex-col h-full">
@@ -79,6 +98,36 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
               max={128000}
               onChange={(value) => handleChange({ maxTokens: value || 8192 })}
               placeholder="1-128000 (depends on model limit)"
+            />
+          </div>
+        </div>
+
+        <SettingsDivider />
+
+        {/* Cost Optimization */}
+        <div>
+          <Text className="!text-text-01 dark:!text-text-01-dark text-lg font-semibold">{t('chat.cost_optimization')}</Text>
+          <div className="mt-4 space-y-4">
+            <SelectSetting
+              label={t('chat.plan_model')}
+              description={t('chat.plan_model_desc')}
+              value={settings.planModel || ''}
+              groupedOptions={modelOptions}
+              onChange={(value) => handleChange({ planModel: value || undefined })}
+              placeholder={t('chat.use_default_model')}
+              showSearch
+              allowClear
+            />
+
+            <SelectSetting
+              label={t('chat.compress_model')}
+              description={t('chat.compress_model_desc')}
+              value={settings.compressModel || ''}
+              groupedOptions={modelOptions}
+              onChange={(value) => handleChange({ compressModel: value || undefined })}
+              placeholder={t('chat.use_default_model')}
+              showSearch
+              allowClear
             />
           </div>
         </div>
