@@ -97,15 +97,20 @@ export function getDefaultSettings(): AppSettings {
     general: getDefaultGeneralSettings(),
     chat: getDefaultChatSettings(),
     agent: {
-      mcpTools: {},
       browserAgent: {
         enabled: true,
-        customPrompt: ''
+        customPrompt: '',
+        mcpServices: {}
       },
       fileAgent: {
         enabled: true,
-        customPrompt: ''
-      }
+        customPrompt: '',
+        mcpServices: {}
+      },
+      customAgents: []
+    },
+    mcp: {
+      services: []
     },
     ui: getDefaultUISettings(),
     network: getDefaultNetworkSettings()

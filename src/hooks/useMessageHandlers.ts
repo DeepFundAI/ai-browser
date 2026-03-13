@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { StreamCallbackMessage } from '@jarvis-agent/core/dist/types';
+import { StreamCallbackMessage } from '@jarvis-agent/core';
 import { Task, ToolAction } from '@/models';
 import { MessageProcessor } from '@/utils/messageTransform';
 import { useTranslation } from 'react-i18next';
@@ -235,7 +235,7 @@ export const useMessageHandlers = ({
       if (message.type === 'tool_result') {
         handleToolComplete({
           type: 'tool',
-          id: message.toolId,
+          id: message.toolCallId,
           toolName: message.toolName,
           status: 'completed',
           timestamp: new Date(),

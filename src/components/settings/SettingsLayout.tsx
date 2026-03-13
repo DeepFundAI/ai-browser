@@ -18,6 +18,7 @@ import { ScheduledTasksPanel } from './panels/ScheduledTasksPanel';
 import { UserInterfacePanel } from './panels/UserInterfacePanel';
 import { NetworkPanel } from './panels/NetworkPanel';
 import { AboutPanel } from './panels/AboutPanel';
+import { McpPanel } from './panels/McpPanel';
 import { useSettingsState } from '@/hooks/useSettingsState';
 import { getDefaultSettings } from '@/config/settings-defaults';
 import { logger } from '@/utils/logger';
@@ -29,11 +30,17 @@ export type SettingsTab =
   | 'providers'
   | 'chat'
   | 'agent'
+  | 'mcp'
   | 'scheduled-tasks'
   | 'user-interface'
   | 'network'
   | 'memory'
   | 'about';
+
+const VALID_SETTINGS_TABS: SettingsTab[] = [
+  'general', 'providers', 'chat', 'agent', 'mcp', 'scheduled-tasks',
+  'user-interface', 'network', 'memory', 'about'
+];
 
 interface SettingsLayoutProps {
   initialTab?: SettingsTab;
@@ -65,6 +72,7 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
     general,
     chat,
     agent,
+    mcp,
     ui,
     network,
     loading,
@@ -76,6 +84,7 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
     updateGeneral,
     updateChat,
     updateAgent,
+    updateMcp,
     updateUI,
     updateNetwork,
     saveConfigs,
@@ -86,11 +95,7 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const hash = window.location.hash.replace('#', '');
-      const validTabs: SettingsTab[] = [
-        'general', 'providers', 'chat', 'agent', 'scheduled-tasks',
-        'user-interface', 'network', 'memory', 'about'
-      ];
-      if (hash && validTabs.includes(hash as SettingsTab)) {
+      if (hash && VALID_SETTINGS_TABS.includes(hash as SettingsTab)) {
         logger.debug(`Initial navigation to panel: ${hash}`, 'SettingsLayout');
         setActiveTabState(hash as SettingsTab);
       }
@@ -102,18 +107,7 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
     const handleHashChange = () => {
       const hash = window.location.hash.replace('#', '');
       if (hash && hash !== activeTab) {
-        const validTabs: SettingsTab[] = [
-          'general',
-          'providers',
-          'chat',
-          'agent',
-          'scheduled-tasks',
-          'user-interface',
-          'network',
-          'memory',
-          'about'
-        ];
-        if (validTabs.includes(hash as SettingsTab)) {
+        if (VALID_SETTINGS_TABS.includes(hash as SettingsTab)) {
           logger.debug(`Navigating to panel: ${hash}`, 'SettingsLayout');
           setActiveTabState(hash as SettingsTab);
         }
@@ -125,32 +119,32 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, [activeTab]);
 
-  /**
-   * Handle save button click
-   */
-  const handleSave = async () => {
-    try {
-      // Check if language has changed
-      const oldLanguage = i18n.language;
-      const newLanguage = general?.language;
+  /** Save configs and apply language change */
+  const saveAndApplyLanguage = async () => {
+    const oldLanguage = i18n.language;
+    const newLanguage = general?.language;
 
-      await saveConfigs();
-      message.success(t('messages.saved_successfully'));
+    await saveConfigs();
+    message.success(t('messages.saved_successfully'));
 
-      // Apply language change if needed
-      if (newLanguage && newLanguage !== oldLanguage) {
-        await i18n.changeLanguage(newLanguage);
-        useLanguageStore.getState().setLanguage(newLanguage);
-        logger.info(`Language changed from ${oldLanguage} to ${newLanguage}`, 'SettingsLayout');
-      }
-    } catch (error: any) {
-      message.error(error.message || t('messages.save_failed'));
+    if (newLanguage && newLanguage !== oldLanguage) {
+      await i18n.changeLanguage(newLanguage);
+      useLanguageStore.getState().setLanguage(newLanguage);
+      logger.info(`Language changed from ${oldLanguage} to ${newLanguage}`, 'SettingsLayout');
     }
   };
 
-  /**
-   * Handle close button click with unsaved changes confirmation
-   */
+  /** Handle save button click */
+  const handleSave = async () => {
+    try {
+      await saveAndApplyLanguage();
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : t('messages.save_failed');
+      message.error(msg);
+    }
+  };
+
+  /** Handle close with unsaved changes confirmation */
   const handleClose = () => {
     if (hasChanges) {
       modal.confirm({
@@ -160,23 +154,11 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
         cancelText: t('unsaved_changes_dialog.discard'),
         onOk: async () => {
           try {
-            // Check if language has changed
-            const oldLanguage = i18n.language;
-            const newLanguage = general?.language;
-
-            await saveConfigs();
-            message.success(t('messages.saved_successfully'));
-
-            // Apply language change if needed
-            if (newLanguage && newLanguage !== oldLanguage) {
-              await i18n.changeLanguage(newLanguage);
-              useLanguageStore.getState().setLanguage(newLanguage);
-              logger.info(`Language changed from ${oldLanguage} to ${newLanguage}`, 'SettingsLayout');
-            }
-
+            await saveAndApplyLanguage();
             closeWindow();
-          } catch (error: any) {
-            message.error(error.message || t('messages.save_failed'));
+          } catch (error: unknown) {
+            const msg = error instanceof Error ? error.message : t('messages.save_failed');
+            message.error(msg);
           }
         },
         onCancel: () => {
@@ -193,8 +175,8 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
    * Close settings window
    */
   const closeWindow = () => {
-    if (typeof window !== 'undefined' && (window as any).api) {
-      (window as any).api.closeSettings();
+    if (typeof window !== 'undefined' && window.api) {
+      window.api.closeSettings();
     }
   };
 
@@ -205,8 +187,8 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.json';
-    input.onchange = async (e: any) => {
-      const file = e.target?.files?.[0];
+    input.onchange = async (e: Event) => {
+      const file = (e.target as HTMLInputElement)?.files?.[0];
       if (!file) return;
 
       try {
@@ -221,17 +203,18 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
           onOk: async () => {
             try {
               // Save imported config
-              if (typeof window !== 'undefined' && (window as any).api) {
-                await (window as any).api.saveAppSettings(importedConfig);
+              if (typeof window !== 'undefined' && window.api) {
+                await window.api.saveAppSettings(importedConfig);
                 message.success(t('messages.imported_successfully'));
                 window.location.reload(); // Reload to apply new settings
               }
-            } catch (error: any) {
-              message.error(error.message || t('messages.import_failed'));
+            } catch (error: unknown) {
+              const msg = error instanceof Error ? error.message : t('messages.import_failed');
+              message.error(msg);
             }
           }
         });
-      } catch (error: any) {
+      } catch (error: unknown) {
         message.error(t('messages.invalid_file_format'));
       }
     };
@@ -243,8 +226,8 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
    */
   const handleExport = async () => {
     try {
-      if (typeof window !== 'undefined' && (window as any).api) {
-        const response = await (window as any).api.getAppSettings();
+      if (typeof window !== 'undefined' && window.api) {
+        const response = await window.api.getAppSettings();
         const settings = response?.data || response || {};
 
         const dataStr = JSON.stringify(settings, null, 2);
@@ -258,8 +241,9 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
 
         message.success(t('messages.exported_successfully'));
       }
-    } catch (error: any) {
-      message.error(error.message || t('messages.export_failed'));
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : t('messages.export_failed');
+      message.error(msg);
     }
   };
 
@@ -275,17 +259,18 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
       cancelText: t('reset_dialog.cancel'),
       onOk: async () => {
         try {
-          if (typeof window !== 'undefined' && (window as any).api) {
+          if (typeof window !== 'undefined' && window.api) {
             // Get true default settings
             const defaultSettings = getDefaultSettings();
 
             // Save default settings
-            await (window as any).api.saveAppSettings(defaultSettings);
+            await window.api.saveAppSettings(defaultSettings);
             message.success(t('messages.reset_successfully'));
             window.location.reload(); // Reload to apply default settings
           }
-        } catch (error: any) {
-          message.error(error.message || t('messages.reset_failed'));
+        } catch (error: unknown) {
+          const msg = error instanceof Error ? error.message : t('messages.reset_failed');
+          message.error(msg);
         }
       }
     });
@@ -324,6 +309,7 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
         return chat ? (
           <ChatPanel
             settings={chat}
+            providers={providers ?? undefined}
             onSettingsChange={updateChat}
           />
         ) : null;
@@ -332,8 +318,16 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({
           <AgentPanel
             settings={agent}
             onSettingsChange={updateAgent}
+            mcpServices={mcp?.services ?? []}
           />
         ) : null;
+      case 'mcp':
+        return (
+          <McpPanel
+            settings={mcp ?? undefined}
+            onSettingsChange={updateMcp}
+          />
+        );
       case 'scheduled-tasks':
         return <ScheduledTasksPanel />;
       case 'user-interface':

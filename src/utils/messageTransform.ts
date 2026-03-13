@@ -191,11 +191,11 @@ export class MessageProcessor {
     }
 
     // Find or create corresponding tool action
-    let toolAction = agentGroup.messages.find(tool => tool.id === message.toolId);
+    let toolAction = agentGroup.messages.find(tool => tool.id === message.toolCallId);
     if (!toolAction) {
       toolAction = {
         type: 'tool',
-        id: message.toolId,
+        id: message.toolCallId,
         toolName: message.toolName || message.type,
         params: message.params,
         status: this.mapToolStatus(message.type),

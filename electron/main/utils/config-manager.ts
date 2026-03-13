@@ -110,11 +110,49 @@ export class ConfigManager {
     return tokenLimits[model] || (provider === 'openrouter' ? 8000 : 8192);
   }
 
+  /**
+   * Resolve provider type for jarvis-agent
+   */
+  private getProviderType(providerId: string): string {
+    const providerMap: Record<string, string> = {
+      google: 'google',
+      anthropic: 'anthropic',
+      deepseek: 'deepseek',
+      openrouter: 'openrouter',
+    };
+    return providerMap[providerId] || 'openai';
+  }
+
+  /**
+   * Build LLMConfig for a specific provider:model string
+   */
+  public buildLlmConfig(modelKey: string): any | null {
+    const [providerId, modelId] = modelKey.split(':');
+    if (!providerId || !modelId) return null;
+
+    const appSettings = SettingsManager.getInstance().getAppSettings();
+    const provider = appSettings.providers[providerId];
+    if (!provider?.enabled || !provider.apiKey) return null;
+
+    const providerType = this.getProviderType(providerId);
+    const llmConfig: any = {
+      provider: providerType,
+      model: modelId,
+      apiKey: provider.apiKey,
+      config: {}
+    };
+
+    if (provider.baseUrl && (providerType === 'openai' || providerType === 'deepseek' || providerType === 'qwen')) {
+      llmConfig.config.baseURL = provider.baseUrl;
+    }
+
+    return llmConfig;
+  }
+
   public getLLMsConfig(): any {
     // Read from unified settings
     const appSettings = SettingsManager.getInstance().getAppSettings();
     const chatSettings = appSettings.chat;
-    const networkSettings = appSettings.network;
 
     // Find the first enabled provider with selectedModel and apiKey
     const enabledProvider = Object.values(appSettings.providers).find(
@@ -139,21 +177,7 @@ export class ConfigManager {
     // Use user-configured maxTokens, but cap it at model's maximum
     const maxTokens = Math.min(chatSettings.maxTokens, modelMaxTokens);
 
-    // Determine provider type for jarvis-agent
-    // Most providers use OpenAI-compatible API, with some exceptions
-    let providerType: string;
-    if (providerId === 'google') {
-      providerType = 'google';
-    } else if (providerId === 'anthropic') {
-      providerType = 'anthropic';
-    } else if (providerId === 'deepseek') {
-      providerType = 'deepseek';
-    } else if (providerId === 'openrouter') {
-      providerType = 'openrouter';
-    } else {
-      // Custom providers and qwen default to OpenAI-compatible
-      providerType = 'openai';
-    }
+    const providerType = this.getProviderType(providerId);
 
     // Build LLM config with user settings
     const defaultLLM: any = {
@@ -161,7 +185,7 @@ export class ConfigManager {
       model: selectedModel,
       apiKey: apiKey || "",
       config: {
-        maxTokens,
+        maxOutputTokens: maxTokens,
         temperature: chatSettings.temperature
       }
     };
@@ -191,7 +215,19 @@ export class ConfigManager {
     logInfo(`Using provider: ${providerId}, model: ${selectedModel}`);
     logInfo(`Chat settings - temperature: ${chatSettings.temperature}, maxTokens: ${maxTokens} (user: ${chatSettings.maxTokens}, model limit: ${modelMaxTokens})`);
 
-    return { default: defaultLLM };
+    const llms: any = { default: defaultLLM };
+
+    // Add plan/compress LLM configs if configured
+    if (chatSettings.planModel) {
+      const planLlm = this.buildLlmConfig(chatSettings.planModel);
+      if (planLlm) llms.plan = planLlm;
+    }
+    if (chatSettings.compressModel) {
+      const compressLlm = this.buildLlmConfig(chatSettings.compressModel);
+      if (compressLlm) llms.compress = compressLlm;
+    }
+
+    return llms;
   }
 
   // Delegate to SettingsManager for backward compatibility
@@ -203,19 +239,7 @@ export class ConfigManager {
     SettingsManager.getInstance().saveAgentConfig(config);
   }
 
-  public getMcpToolConfig(toolName: string) {
-    return SettingsManager.getInstance().getMcpToolConfig(toolName);
-  }
-
-  public setMcpToolConfig(toolName: string, config: { enabled: boolean; config?: Record<string, any> }): void {
-    SettingsManager.getInstance().setMcpToolConfig(toolName, config);
-  }
-
-  public getAllMcpToolsConfig(availableTools: string[]) {
-    return SettingsManager.getInstance().getAllMcpToolsConfig(availableTools);
-  }
-
-  public getEnabledMcpTools(availableTools: string[]): string[] {
-    return SettingsManager.getInstance().getEnabledMcpTools(availableTools);
+  public getMcpSettings() {
+    return SettingsManager.getInstance().getMcpSettings();
   }
 }

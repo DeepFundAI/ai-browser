@@ -25,6 +25,7 @@ package-mac-signed.sh
 /playwright-report
 /test-results
 /e2e/screenshots
+.playwright-mcp
 
 # electron
 /release

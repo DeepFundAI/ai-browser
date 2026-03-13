@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { App } from 'antd';
-import { StreamCallbackMessage } from '@jarvis-agent/core/dist/types';
+import { StreamCallbackMessage } from '@jarvis-agent/core';
 import { Task } from '@/models';
 import { scheduledTaskStorage } from '@/services/scheduled-task-storage';
 import { useTranslation } from 'react-i18next';

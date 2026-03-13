@@ -44,7 +44,7 @@ export const useInteractionHandlers = ({
     });
 
     const historyTool = toolHistory.find(tool =>
-      (tool as any).toolId === (toolAction as any).toolId && tool.id === toolAction.id
+      (tool as any).toolCallId === (toolAction as any).toolCallId && tool.id === toolAction.id
     );
 
     if (historyTool?.toolSequence && historyTool.screenshot) {

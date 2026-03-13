@@ -52,5 +52,7 @@
   "preview": "Preview",
   "no_message_to_retry": "No message to retry",
   "no_provider_warning": "Please configure AI provider in Settings first",
-  "no_provider_tooltip": "Configure AI provider first"
+  "no_provider_tooltip": "Configure AI provider first",
+  "pause_task": "Pause",
+  "resume_task": "Resume"
 }

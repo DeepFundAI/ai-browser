@@ -43,7 +43,7 @@ export const ToolDisplay: React.FC<ToolDisplayProps> = ({
     // Convert ToolAction to HumanRequestMessage format
     const humanMessage: HumanRequestMessage = {
       type: 'human_interaction',
-      requestId: message.id, // Use toolId as requestId
+      requestId: message.id, // Use toolCallId as requestId
       taskId: params.taskId,
       agentName: message.agentName,
       interactType: (params.interactType as any) || 'request_help',

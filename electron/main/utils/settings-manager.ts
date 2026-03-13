@@ -6,7 +6,7 @@
  */
 
 import { store } from './store';
-import type { AppSettings, GeneralSettings, ChatSettings, AgentConfig, CustomToolConfig, ProviderConfig } from '../models';
+import type { AppSettings, GeneralSettings, ChatSettings, AgentConfig, ProviderConfig } from '../models';
 import { BUILTIN_PROVIDER_IDS, createBuiltinProviderConfig } from '../models/settings';
 
 /**
@@ -40,15 +40,19 @@ const getDefaultAppSettings = (): AppSettings => {
       historyRetentionDays: 30
     },
     agent: {
-      mcpTools: {},
       browserAgent: {
         enabled: true,
-        customPrompt: ''
+        customPrompt: '',
+        mcpServices: {}
       },
       fileAgent: {
         enabled: true,
-        customPrompt: ''
+        customPrompt: '',
+        mcpServices: {}
       }
+    },
+    mcp: {
+      services: []
     },
     ui: {
       theme: 'dark',
@@ -119,19 +123,20 @@ export class SettingsManager {
 
   public getAgentConfig(): AgentConfig {
     const agentConfig = this.getAppSettings().agent;
-    // Ensure browserAgent field exists for backward compatibility
     if (!agentConfig.browserAgent) {
-      agentConfig.browserAgent = {
-        enabled: true,
-        customPrompt: ''
-      };
+      agentConfig.browserAgent = { enabled: true, customPrompt: '', mcpServices: {} };
     }
-    // Ensure fileAgent field exists for backward compatibility
+    if (!agentConfig.browserAgent.mcpServices) {
+      agentConfig.browserAgent.mcpServices = {};
+    }
     if (!agentConfig.fileAgent) {
-      agentConfig.fileAgent = {
-        enabled: true,
-        customPrompt: ''
-      };
+      agentConfig.fileAgent = { enabled: true, customPrompt: '', mcpServices: {} };
+    }
+    if (!agentConfig.fileAgent.mcpServices) {
+      agentConfig.fileAgent.mcpServices = {};
+    }
+    if (!agentConfig.customAgents) {
+      agentConfig.customAgents = [];
     }
     return agentConfig;
   }
@@ -141,26 +146,11 @@ export class SettingsManager {
   }
 
   /**
-   * MCP tools helpers
+   * Get MCP settings
    */
-  public getMcpToolConfig(toolName: string): { enabled: boolean; config?: Record<string, any> } {
-    return this.getAgentConfig().mcpTools[toolName] || { enabled: true };
-  }
-
-  public getAllMcpToolsConfig(availableTools: string[]): Record<string, { enabled: boolean; config?: Record<string, any> }> {
-    const agentConfig = this.getAgentConfig();
-    const result: Record<string, { enabled: boolean; config?: Record<string, any> }> = {};
-    availableTools.forEach(toolName => {
-      result[toolName] = agentConfig.mcpTools[toolName] || { enabled: true };
-    });
-    return result;
-  }
-
-  public getEnabledMcpTools(availableTools: string[]): string[] {
-    const allConfigs = this.getAllMcpToolsConfig(availableTools);
-    return Object.entries(allConfigs)
-      .filter(([_, config]) => config.enabled)
-      .map(([name]) => name);
+  public getMcpSettings() {
+    const settings = this.getAppSettings();
+    return settings.mcp || { services: [] };
   }
 
   /**
@@ -169,18 +159,6 @@ export class SettingsManager {
   public saveAgentConfig(agentConfig: AgentConfig): void {
     const settings = this.getAppSettings();
     settings.agent = agentConfig;
-    this.saveAppSettings(settings);
-  }
-
-  /**
-   * Set MCP tool configuration
-   */
-  public setMcpToolConfig(toolName: string, config: { enabled: boolean; config?: Record<string, any> }): void {
-    const settings = this.getAppSettings();
-    if (!settings.agent.mcpTools) {
-      settings.agent.mcpTools = {};
-    }
-    settings.agent.mcpTools[toolName] = config;
     this.saveAppSettings(settings);
   }
 }

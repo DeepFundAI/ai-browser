@@ -1,3 +1,9 @@
+/**
+ * INPUT: antd Icon component, React SVG primitives
+ * OUTPUT: Custom icon components (DeepThinking, SendMessage, CancleTask, PauseTask, ResumeTask, etc.)
+ * POSITION: Centralized custom SVG icon library for the application
+ */
+
 import React from 'react';
 import Icon from '@ant-design/icons';
 import type { GetProps } from 'antd';
@@ -252,6 +258,23 @@ const CancleTaskSvg = () => (
 )
 
 
+// Pause task - two vertical bars
+const PauseTaskSvg = () => (
+<svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
+    <rect x="0" y="0" width="24" height="24" fill="none"/>
+    <rect fill="#FFFFFF" x="7" y="7" width="3.5" height="10" rx="1"/>
+    <rect fill="#FFFFFF" x="13.5" y="7" width="3.5" height="10" rx="1"/>
+</svg>
+);
+
+// Resume task - play triangle
+const ResumeTaskSvg = () => (
+<svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24" version="1.1">
+    <rect x="0" y="0" width="24" height="24" fill="none"/>
+    <path fill="#FFFFFF" d="M8 6.82v10.36c0 .79.87 1.27 1.54.84l8.14-5.18c.62-.39.62-1.29 0-1.69L9.54 5.98C8.87 5.55 8 6.03 8 6.82z"/>
+</svg>
+);
+
 // Exported icon components
 export const DeepThinking = (props: Partial<CustomIconComponentProps>) => (
   <Icon component={DeepThinkingSvg} {...props} />
@@ -303,7 +326,15 @@ export const SendMessage = (props: Partial<CustomIconComponentProps>) => (
 
 export const CancleTask = (props: Partial<CustomIconComponentProps>) => (
     <Icon component={CancleTaskSvg} {...props} />
-)
+);
+
+export const PauseTask = (props: Partial<CustomIconComponentProps>) => (
+    <Icon component={PauseTaskSvg} {...props} />
+);
+
+export const ResumeTask = (props: Partial<CustomIconComponentProps>) => (
+    <Icon component={ResumeTaskSvg} {...props} />
+);
 
 // Atlas icon
 const AtlasSvg = () => (

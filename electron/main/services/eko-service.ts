@@ -1,6 +1,5 @@
-import { Eko, SimpleSseMcpClient, type LLMs, type StreamCallbackMessage, type AgentContext } from "@jarvis-agent/core";
+import { Agent, Eko, SimpleSseMcpClient, type IMcpClient, type LLMs, type StreamCallbackMessage, type AgentContext, type EkoResult } from "@jarvis-agent/core";
 import { BrowserAgent, FileAgent } from "@jarvis-agent/electron";
-import type { EkoResult } from "@jarvis-agent/core/types";
 import { BrowserWindow, app } from "electron";
 import path from "node:path";
 import fs from "node:fs";
@@ -8,13 +7,13 @@ import { randomUUID } from "node:crypto";
 import { ConfigManager } from "../utils/config-manager";
 import { SettingsManager } from "../utils/settings-manager";
 import { TabManager } from "./tab-manager";
+import type { AgentMcpConfig, McpServiceConfig } from "../models/settings";
 import type { HumanRequestMessage, HumanResponseMessage, HumanInteractionContext } from "../../../src/models/human-interaction";
 
 export class EkoService {
   private eko: Eko | null = null;
   private mainWindow: BrowserWindow;
   private tabManager: TabManager;
-  private mcpClient!: SimpleSseMcpClient;
   private browserAgent: BrowserAgent | null = null;
 
   // Store pending human interaction requests
@@ -23,11 +22,11 @@ export class EkoService {
     reject: (reason?: any) => void;
   }>();
 
-  // Map toolId to requestId for human interactions
-  private toolIdToRequestId = new Map<string, string>();
+  // Map toolCallId to requestId for human interactions
+  private toolCallIdToRequestId = new Map<string, string>();
 
-  // Store current human_interact toolId
-  private currentHumanInteractToolId: string | null = null;
+  // Store current human_interact toolCallId
+  private currentHumanInteractToolCallId: string | null = null;
 
   // Track running task IDs for accurate status checking
   private runningTaskIds: Set<string> = new Set();
@@ -48,8 +47,8 @@ export class EkoService {
           return Promise.resolve();
         }
 
-        if (message.type === 'tool_use' && message.toolName === 'human_interact' && message.toolId) {
-          this.currentHumanInteractToolId = message.toolId;
+        if (message.type === 'tool_use' && message.toolName === 'human_interact' && message.toolCallId) {
+          this.currentHumanInteractToolCallId = message.toolCallId;
         }
 
         return new Promise((resolve) => {
@@ -157,6 +156,33 @@ export class EkoService {
   }
 
   /**
+   * Build custom Agent instances from config
+   */
+  private buildCustomAgents(agentConfig: ReturnType<ConfigManager['getAgentConfig']>): Agent[] {
+    return (agentConfig?.customAgents ?? [])
+      .filter(c => c.enabled)
+      .map(c => new Agent({
+        name: c.name,
+        description: c.description,
+        planDescription: c.planDescription,
+        tools: [],
+        mcpClients: this.buildMcpClients(c.mcpServices),
+      }));
+  }
+
+  /**
+   * Build MCP clients for a specific agent based on its config
+   */
+  private buildMcpClients(agentMcpConfig: AgentMcpConfig): IMcpClient[] {
+    const mcpSettings = ConfigManager.getInstance().getMcpSettings();
+    const services: McpServiceConfig[] = mcpSettings?.services ?? [];
+
+    return services
+      .filter(service => agentMcpConfig[service.id]?.enabled)
+      .map(service => new SimpleSseMcpClient(service.url));
+  }
+
+  /**
    * Get base work path for file storage
    */
   private getBaseWorkPath(): string {
@@ -170,6 +196,17 @@ export class EkoService {
    */
   private getTaskWorkPath(taskId: string): string {
     return path.join(this.getBaseWorkPath(), taskId);
+  }
+
+  /**
+   * Build plan/compress LLM key arrays from chat settings
+   */
+  private buildOptionalLlmKeys(): { planLlms?: string[]; compressLlms?: string[] } {
+    const chatSettings = SettingsManager.getInstance().getAppSettings().chat;
+    const result: { planLlms?: string[]; compressLlms?: string[] } = {};
+    if (chatSettings.planModel) result.planLlms = ['plan'];
+    if (chatSettings.compressModel) result.compressLlms = ['compress'];
+    return result;
   }
 
   /**
@@ -192,11 +229,15 @@ export class EkoService {
       fs.mkdirSync(taskWorkPath, { recursive: true });
       const activeView = this.tabManager.getActiveView();
       if (activeView) {
+        const fileMcpClients = this.buildMcpClients(agentConfig.fileAgent.mcpServices);
         agents.push(
-          new FileAgent(activeView, taskWorkPath, this.mcpClient, agentConfig.fileAgent.customPrompt)
+          new FileAgent(activeView, taskWorkPath, fileMcpClients, agentConfig.fileAgent.customPrompt)
         );
       }
     }
+
+    // Create custom agents
+    agents.push(...this.buildCustomAgents(agentConfig));
 
     // Get network settings for timeout and retry configuration
     const settingsManager = SettingsManager.getInstance();
@@ -205,10 +246,11 @@ export class EkoService {
     return new Eko({
       llms,
       agents,
+      ...this.buildOptionalLlmKeys(),
       callback: this.createCallback(),
       globalConfig: {
-        streamFirstTimeout: networkSettings.requestTimeout * 1000,  // Convert seconds to milliseconds
-        streamTokenTimeout: networkSettings.streamTimeout * 1000,   // Convert seconds to milliseconds
+        streamFirstTimeout: networkSettings.requestTimeout * 1000,
+        streamTokenTimeout: networkSettings.streamTimeout * 1000,
         maxRetryNum: networkSettings.retryAttempts
       }
     });
@@ -219,15 +261,15 @@ export class EkoService {
     const llms: LLMs = configManager.getLLMsConfig();
     const agentConfig = configManager.getAgentConfig();
 
-    this.mcpClient = new SimpleSseMcpClient("http://localhost:5173/api/mcp/sse");
-
     // Only create BrowserAgent once (no file storage involved)
     if (agentConfig?.browserAgent?.enabled) {
-      this.browserAgent = new BrowserAgent(this.tabManager, this.mcpClient, agentConfig.browserAgent.customPrompt);
+      const browserMcpClients = this.buildMcpClients(agentConfig.browserAgent.mcpServices);
+      this.browserAgent = new BrowserAgent(this.tabManager, browserMcpClients, agentConfig.browserAgent.customPrompt);
     }
 
-    // Create default Eko instance with only BrowserAgent for restore/modify scenarios
-    const defaultAgents = this.browserAgent ? [this.browserAgent] : [];
+    // Create default Eko instance with BrowserAgent + custom agents for restore/modify
+    const defaultAgents: any[] = this.browserAgent ? [this.browserAgent] : [];
+    defaultAgents.push(...this.buildCustomAgents(agentConfig));
 
     // Get network settings for timeout and retry configuration
     const settingsManager = SettingsManager.getInstance();
@@ -236,10 +278,11 @@ export class EkoService {
     this.eko = new Eko({
       llms,
       agents: defaultAgents,
+      ...this.buildOptionalLlmKeys(),
       callback: this.createCallback(),
       globalConfig: {
-        streamFirstTimeout: networkSettings.requestTimeout * 1000,  // Convert seconds to milliseconds
-        streamTokenTimeout: networkSettings.streamTimeout * 1000,   // Convert seconds to milliseconds
+        streamFirstTimeout: networkSettings.requestTimeout * 1000,
+        streamTokenTimeout: networkSettings.streamTimeout * 1000,
         maxRetryNum: networkSettings.retryAttempts
       }
     });
@@ -267,13 +310,15 @@ export class EkoService {
 
     // Recreate BrowserAgent with new config
     if (agentConfig?.browserAgent?.enabled) {
-      this.browserAgent = new BrowserAgent(this.tabManager, this.mcpClient, agentConfig.browserAgent.customPrompt);
+      const browserMcpClients = this.buildMcpClients(agentConfig.browserAgent.mcpServices);
+      this.browserAgent = new BrowserAgent(this.tabManager, browserMcpClients, agentConfig.browserAgent.customPrompt);
     } else {
       this.browserAgent = null;
     }
 
-    // Create default Eko instance
-    const defaultAgents = this.browserAgent ? [this.browserAgent] : [];
+    // Create default Eko instance with custom agents
+    const reloadAgents: any[] = this.browserAgent ? [this.browserAgent] : [];
+    reloadAgents.push(...this.buildCustomAgents(agentConfig));
 
     // Get network settings for timeout and retry configuration
     const settingsManager = SettingsManager.getInstance();
@@ -281,11 +326,12 @@ export class EkoService {
 
     this.eko = new Eko({
       llms,
-      agents: defaultAgents,
+      agents: reloadAgents,
+      ...this.buildOptionalLlmKeys(),
       callback: this.createCallback(),
       globalConfig: {
-        streamFirstTimeout: networkSettings.requestTimeout * 1000,  // Convert seconds to milliseconds
-        streamTokenTimeout: networkSettings.streamTimeout * 1000,   // Convert seconds to milliseconds
+        streamFirstTimeout: networkSettings.requestTimeout * 1000,
+        streamTokenTimeout: networkSettings.streamTimeout * 1000,
         maxRetryNum: networkSettings.retryAttempts
       }
     });
@@ -329,6 +375,12 @@ export class EkoService {
     }
 
     try {
+      // Reset aborted context before modify to avoid stale abort signal
+      const context = this.eko.getTask(taskId);
+      if (context?.controller?.signal?.aborted) {
+        context.reset();
+      }
+
       await this.eko.modify(taskId, message);
       this.runningTaskIds.add(taskId);
       return await this.eko.execute(taskId);
@@ -358,6 +410,14 @@ export class EkoService {
     } finally {
       this.runningTaskIds.delete(taskId);
     }
+  }
+
+  /**
+   * Pause or resume a running task
+   */
+  pauseTask(taskId: string, pause: boolean): boolean {
+    if (!this.eko) return false;
+    return this.eko.pauseTask(taskId, pause);
   }
 
   async cancleTask(taskId: string): Promise<any> {
@@ -471,9 +531,9 @@ export class EkoService {
     return new Promise((resolve, reject) => {
       this.pendingHumanRequests.set(requestId, { resolve, reject });
 
-      if (this.currentHumanInteractToolId) {
-        this.toolIdToRequestId.set(this.currentHumanInteractToolId, requestId);
-        this.currentHumanInteractToolId = null;
+      if (this.currentHumanInteractToolCallId) {
+        this.toolCallIdToRequestId.set(this.currentHumanInteractToolCallId, requestId);
+        this.currentHumanInteractToolCallId = null;
       }
 
       agentContext?.context?.controller?.signal?.addEventListener('abort', () => {
@@ -496,7 +556,7 @@ export class EkoService {
     let actualRequestId = response.requestId;
 
     if (!pending) {
-      const mappedRequestId = this.toolIdToRequestId.get(response.requestId);
+      const mappedRequestId = this.toolCallIdToRequestId.get(response.requestId);
       if (mappedRequestId) {
         pending = this.pendingHumanRequests.get(mappedRequestId);
         actualRequestId = mappedRequestId;
@@ -506,7 +566,7 @@ export class EkoService {
     if (!pending) return false;
 
     this.pendingHumanRequests.delete(actualRequestId);
-    this.toolIdToRequestId.delete(response.requestId);
+    this.toolCallIdToRequestId.delete(response.requestId);
 
     if (response.success) {
       pending.resolve(response.result);
@@ -534,8 +594,8 @@ export class EkoService {
     }
 
     this.pendingHumanRequests.clear();
-    this.toolIdToRequestId.clear();
-    this.currentHumanInteractToolId = null;
+    this.toolCallIdToRequestId.clear();
+    this.currentHumanInteractToolCallId = null;
   }
 
   destroy() {
