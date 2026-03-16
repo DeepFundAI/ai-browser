@@ -118,7 +118,13 @@ export default function main() {
 
     // Other local state
     const [query, setQuery] = useState('');
-    const [taskMode, setTaskMode] = useState<TaskMode>('chat');
+    const [taskMode, setTaskMode] = useState<TaskMode>(() => {
+        if (typeof window !== 'undefined') {
+            const saved = localStorage.getItem('taskMode');
+            if (saved === 'chat' || saved === 'explore') return saved;
+        }
+        return 'chat';
+    });
     const [currentUrl, setCurrentUrl] = useState<string>('');
     const [currentTool, setCurrentTool] = useState<{
         toolName: string;
@@ -312,26 +318,17 @@ export default function main() {
         setTerminateCurrentTaskFn(terminateCurrentTask);
     }, [terminateCurrentTask]);
 
-    // Handle implicit message and mode passing from home page
+    // Handle pending message from home page
     useEffect(() => {
-        if (typeof window !== 'undefined') {
-            // Restore mode from sessionStorage
-            const pendingMode = sessionStorage.getItem('pendingMode');
-            if (pendingMode === 'chat' || pendingMode === 'explore') {
-                sessionStorage.removeItem('pendingMode');
-                setTaskMode(pendingMode);
-            }
+        if (typeof window === 'undefined') return;
 
-            const pendingMessage = sessionStorage.getItem('pendingMessage');
-            if (pendingMessage) {
-                logger.debug('Detected pending message', 'MainPage', { pendingMessage });
-                sessionStorage.removeItem('pendingMessage');
-                setTimeout(() => {
-                    sendMessage(pendingMessage);
-                }, 100);
-            }
+        const pendingMessage = sessionStorage.getItem('pendingMessage');
+        if (pendingMessage) {
+            sessionStorage.removeItem('pendingMessage');
+            setTimeout(() => sendMessage(pendingMessage), 100);
         }
-    }, [sendMessage]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     // Monitor history task selection from Zustand store
     useEffect(() => {
@@ -452,7 +449,7 @@ export default function main() {
                                 isCurrentTaskRunning={isCurrentTaskRunning}
                                 hasValidProvider={hasValidProvider}
                                 taskMode={taskMode}
-                                onModeChange={setTaskMode}
+                                onModeChange={(mode: TaskMode) => { setTaskMode(mode); localStorage.setItem('taskMode', mode); }}
                                 onQueryChange={setQuery}
                                 onSend={async () => {
                                     const messageToSend = query.trim();

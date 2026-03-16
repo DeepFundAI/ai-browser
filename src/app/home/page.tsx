@@ -4,8 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Header from '@/components/Header'
 import { Input, Button, App } from 'antd'
-import { AudioOutlined, AudioMutedOutlined } from '@ant-design/icons'
-import { SendMessage } from '@/icons/deepfundai-icons'
+import { SendMessage, MicOn, MicOff } from '@/icons/deepfundai-icons'
 import { ScheduledTaskModal, ScheduledTaskListPanel } from '@/components/scheduled-task'
 import { useScheduledTaskStore } from '@/stores/scheduled-task-store'
 import { ModelSelector } from '@/components/ModelSelector'
@@ -13,12 +12,19 @@ import { ChromeBrowserBackground } from '@/components/fellou/ChromeBrowserBackgr
 import { useTranslation } from 'react-i18next'
 import { useVoiceInput } from '@/hooks/useVoiceInput'
 import { useHasValidProvider } from '@/hooks/useHasValidProvider'
+import { logger } from '@/utils/logger'
 import { ModeSwitch } from '@/components/chat/ModeSwitch'
 import { TaskMode } from '@/models'
 
 export default function Home() {
     const [query, setQuery] = useState('')
-    const [taskMode, setTaskMode] = useState<TaskMode>('chat')
+    const [taskMode, setTaskMode] = useState<TaskMode>(() => {
+        if (typeof window !== 'undefined') {
+            const saved = localStorage.getItem('taskMode');
+            if (saved === 'chat' || saved === 'explore') return saved;
+        }
+        return 'chat';
+    })
     const router = useRouter()
     const { t } = useTranslation('home')
     const { message: antdMessage } = App.useApp()
@@ -32,7 +38,7 @@ export default function Home() {
         },
         onError: (error) => {
             antdMessage.error(t('voice_input_error'));
-            console.error('Voice input error:', error);
+            logger.error('Voice input error', error, 'Home');
         },
     })
 
@@ -67,13 +73,8 @@ export default function Home() {
         }
 
         if (query.trim()) {
-            // Use sessionStorage to implicitly pass message and mode
-            if (typeof window !== 'undefined') {
-                sessionStorage.setItem('pendingMessage', query.trim())
-                sessionStorage.setItem('pendingMode', taskMode)
-            }
-            // Directly navigate to main page without URL parameters
-            router.push('/main')
+            sessionStorage.setItem('pendingMessage', query.trim());
+            router.push('/main');
         }
     }, [hasValidProvider, query, router, antdMessage, t])
 
@@ -112,10 +113,10 @@ export default function Home() {
                                 {/* Model Selector and Mode Switch at bottom-left */}
                                 <div className='absolute bottom-3 left-3 flex items-center gap-1'>
                                     <ModelSelector />
-                                    <ModeSwitch mode={taskMode} onChange={setTaskMode} />
+                                    <ModeSwitch mode={taskMode} onChange={(mode) => { setTaskMode(mode); localStorage.setItem('taskMode', mode); }} />
                                 </div>
                                 {/* Action buttons at bottom-right */}
-                                <div className='absolute bottom-3 right-3 flex items-center gap-2'>
+                                <div className='absolute bottom-3 right-3 flex items-center gap-0.5'>
                                     {/* Voice input button */}
                                     <Button
                                         type='text'
@@ -124,24 +125,24 @@ export default function Home() {
                                             e.stopPropagation();
                                             toggleRecording();
                                         }}
-                                        className={`!p-0 !w-9 !h-9 !min-w-0 flex items-center justify-center text-lg cursor-pointer rounded-lg transition-all duration-200
+                                        className={`!p-0 !w-8 !h-8 !min-w-0 flex items-center justify-center text-lg cursor-pointer rounded-lg transition-all duration-200
                                             ${isRecording
                                                 ? '!bg-red-500/20 !text-red-500 hover:!bg-red-500/30'
-                                                : 'hover:!bg-gray-100 dark:hover:!bg-white/10 !text-gray-500 dark:!text-gray-400 hover:!text-primary dark:hover:!text-purple-400'
+                                                : 'hover:!bg-white/10 !text-white/50 hover:!text-white/80'
                                             }`}
                                         title={isRecording ? t('voice_input_stop') : t('voice_input_start')}
                                     >
-                                        {isRecording ? <AudioOutlined /> : <AudioMutedOutlined />}
+                                        {isRecording ? <MicOn /> : <MicOff />}
                                     </Button>
                                     {/* Send button */}
                                     <Button
                                         type='text'
                                         onClick={handleSendMessage}
                                         disabled={!query.trim() || !hasValidProvider}
-                                        className={`!p-0 !w-9 !h-9 !min-w-0 flex items-center justify-center text-lg rounded-lg transition-all duration-200
+                                        className={`!p-0 !w-8 !h-8 !min-w-0 flex items-center justify-center text-lg rounded-lg transition-all duration-200
                                             ${(!query.trim() || !hasValidProvider)
-                                                ? '!text-gray-300 dark:!text-gray-600 cursor-not-allowed'
-                                                : 'cursor-pointer hover:!bg-primary/10 dark:hover:!bg-purple-500/20 !text-primary dark:!text-purple-400 hover:!text-primary-hover dark:hover:!text-purple-300'
+                                                ? '!text-white/40 cursor-not-allowed'
+                                                : 'cursor-pointer hover:!bg-white/10 !text-white/50 hover:!text-white/80'
                                             }`}
                                         title={!hasValidProvider ? (t('no_provider_tooltip') || 'Configure AI provider first') : ''}
                                     >

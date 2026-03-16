@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { App } from 'antd';
 import { EkoResult } from '@jarvis-agent/core';
 import { MessageProcessor } from '@/utils/messageTransform';
@@ -44,6 +44,10 @@ export const useTaskExecution = ({
   const [ekoRequest, setEkoRequest] = useState<Promise<any> | null>(null);
   const [isPaused, setIsPaused] = useState(false);
 
+  // Use ref to always read latest taskMode inside callbacks
+  const taskModeRef = useRef(taskMode);
+  taskModeRef.current = taskMode;
+
   const sendMessage = useCallback(async (text: string): Promise<boolean> => {
     if (!text) {
       message.warning(t('enter_question'));
@@ -61,6 +65,8 @@ export const useTaskExecution = ({
 
     const updatedMessages = messageProcessorRef.current.addUserMessage(text.trim());
 
+    const currentMode = taskModeRef.current;
+
     // Create temporary task immediately to prevent blank screen
     if (!taskIdRef.current) {
       const tempTaskId = `temp-${newExecutionId}`;
@@ -72,7 +78,7 @@ export const useTaskExecution = ({
         messages: updatedMessages,
         status: 'running',
         taskType: isTaskDetailMode ? 'scheduled' : 'normal',
-        taskMode,
+        taskMode: currentMode,
         scheduledTaskId: isTaskDetailMode ? scheduledTaskIdFromUrl : undefined,
         startTime: new Date(),
       });
@@ -82,7 +88,7 @@ export const useTaskExecution = ({
     }
 
     if (ekoRequest) {
-      if (taskMode === 'chat') {
+      if (currentMode === 'chat') {
         await window.api.ekoChatCancel(taskIdRef.current);
       } else {
         await window.api.ekoCancelTask(taskIdRef.current);
@@ -91,7 +97,7 @@ export const useTaskExecution = ({
     }
 
     try {
-      if (taskMode === 'chat') {
+      if (currentMode === 'chat') {
         // Chat mode: use stable chatId (not temp-), ChatAgent manages multi-turn
         const isTemporaryTask = taskIdRef.current.startsWith('temp-');
         const chatId = isTemporaryTask ? uuidv4() : taskIdRef.current;
@@ -136,7 +142,7 @@ export const useTaskExecution = ({
       setIsPaused(false);
 
       // Save task context for explore mode conversation continuation
-      if (taskMode === 'explore' && taskIdRef.current) {
+      if (currentMode === 'explore' && taskIdRef.current) {
         try {
           const response = await window.api.ekoGetTaskContext(taskIdRef.current);
           if (response?.success && response.data?.taskContext) {
@@ -158,7 +164,7 @@ export const useTaskExecution = ({
 
     return true;
   }, [
-    isHistoryMode, isTaskDetailMode, scheduledTaskIdFromUrl, taskMode,
+    isHistoryMode, isTaskDetailMode, scheduledTaskIdFromUrl,
     taskIdRef, executionIdRef, messageProcessorRef, ekoRequest,
     createTask, updateTask, updateMessages, setCurrentTaskId, replaceTaskId, t, message
   ]);
