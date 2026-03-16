@@ -42,6 +42,12 @@ export class WindowContextManager {
     }
   }
 
+  /** Partially update an existing window context */
+  updateWindowContext(webContentsId: number, updates: Partial<WindowContext>): void {
+    const context = this.contexts.get(webContentsId);
+    if (context) Object.assign(context, updates);
+  }
+
   getAllContexts(): WindowContext[] {
     return Array.from(this.contexts.values());
   }

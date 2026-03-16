@@ -1,5 +1,5 @@
 import { taskWindowManager } from "./task-window-manager";
-import { ipcMain } from "electron";
+import { ipcMain, BrowserWindow } from "electron";
 import { successResponse, errorResponse } from "../utils/ipc-response";
 
 interface QueuedTask {
@@ -138,14 +138,24 @@ export class TaskScheduler {
     steps: Array<{ id: string; name: string; content: string; order: number }>,
     executionId: string
   ): Promise<void> {
+    let taskWindow: BrowserWindow | undefined;
+
     try {
       const { window, ekoService } = await taskWindowManager.createTaskWindow(taskId, executionId);
+      taskWindow = window;
 
       this.runningTasks.set(executionId, {
         taskId,
         executionId,
         startTime: new Date()
       });
+
+      // Wait for page load + React mount before sending any messages
+      if (window.webContents.isLoading()) {
+        await new Promise<void>(resolve => window.webContents.once('did-finish-load', () => resolve()));
+      }
+      // Brief delay for React hydration
+      await new Promise(resolve => setTimeout(resolve, 500));
 
       window.webContents.send('task-execution-start', {
         taskId,
@@ -155,24 +165,35 @@ export class TaskScheduler {
       });
 
       const taskPrompt = this.buildTaskPrompt(steps);
-      const result = await ekoService.run(taskPrompt);
+      const result = await ekoService.run(taskPrompt, true);
 
-      window.webContents.send('task-execution-complete', {
-        taskId,
-        taskName,
-        executionId,
+      this.sendCompletionEvent(window, {
+        taskId, taskName, executionId,
         status: result?.stopReason || 'done',
-        endTime: new Date()
       });
-
-      this.runningTasks.delete(executionId);
-      this.processQueue();
-
     } catch (error) {
       console.error('[TaskScheduler] Task execution failed:', error);
+      if (taskWindow) {
+        this.sendCompletionEvent(taskWindow, {
+          taskId, taskName, executionId, status: 'error',
+        });
+      }
+    } finally {
       this.runningTasks.delete(executionId);
       this.processQueue();
     }
+  }
+
+  /** Notify frontend of task completion */
+  private sendCompletionEvent(
+    window: BrowserWindow,
+    event: { taskId: string; taskName: string; executionId: string; status: string }
+  ): void {
+    if (window.isDestroyed()) return;
+    window.webContents.send('task-execution-complete', {
+      ...event,
+      endTime: new Date(),
+    });
   }
 
   private buildTaskPrompt(steps: Array<{ id: string; name: string; content: string; order: number }>): string {

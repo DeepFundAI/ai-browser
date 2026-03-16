@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { App } from 'antd';
 import type { StreamCallbackMessage, ChatStreamMessage } from '@jarvis-agent/core';
 import { Task } from '@/models';
@@ -35,6 +35,10 @@ export const useEventListeners = ({
 }: UseEventListenersOptions) => {
   const { t } = useTranslation('main');
   const { message } = App.useApp();
+
+  // Keep stable ref for tasks to avoid re-registering IPC listeners
+  const tasksRef = useRef(tasks);
+  tasksRef.current = tasks;
 
   // Sync detail panel visibility with Electron main process
   useEffect(() => {
@@ -128,20 +132,20 @@ export const useEventListeners = ({
   useEffect(() => {
     if (!isTaskDetailMode || !window.api) return;
 
-    const handleTaskExecutionComplete = async (event: any) => {
+    const handleTaskExecutionComplete = async (event: { taskId: string; status: string; endTime?: string }) => {
       const { taskId, status, endTime } = event;
 
       try {
         const endTimeDate = endTime ? new Date(endTime) : new Date();
 
         if (taskIdRef.current) {
-          const currentTask = tasks.find(t => t.id === taskIdRef.current);
+          const currentTask = tasksRef.current.find(t => t.id === taskIdRef.current);
           const startTime = currentTask?.startTime || currentTask?.createdAt;
 
           updateTask(taskIdRef.current, {
             endTime: endTimeDate,
             duration: startTime ? endTimeDate.getTime() - startTime.getTime() : undefined,
-            status: status as any,
+            status: status as Task['status'],
           });
         }
 
@@ -164,7 +168,7 @@ export const useEventListeners = ({
     return () => {
       (window.api as any).removeAllListeners?.('task-execution-complete');
     };
-  }, [isTaskDetailMode, tasks, updateTask, scheduledTaskIdFromUrl, taskIdRef, t, message]);
+  }, [isTaskDetailMode, updateTask, scheduledTaskIdFromUrl, taskIdRef, t, message]);
 
   // Monitor EkoService stream messages
   useEffect(() => {

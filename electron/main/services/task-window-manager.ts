@@ -1,13 +1,13 @@
-import { BrowserWindow, WebContentsView } from "electron";
+import { BrowserWindow } from "electron";
 import { EkoService } from "./eko-service";
+import { TabManager } from "./tab-manager";
 import { windowContextManager, type WindowContext } from "./window-context-manager";
 import { createWindow } from '../ui/window';
-import { createView } from "../ui/view";
 import { showCloseConfirmModal } from "../ui/modal";
 
 interface TaskWindowContext {
   window: BrowserWindow;
-  view: WebContentsView;
+  tabManager: TabManager;
   ekoService: EkoService;
   taskId: string;
   executionId: string;
@@ -22,15 +22,25 @@ export class TaskWindowManager {
     const existingContext = this.taskWindows.get(taskId);
 
     if (existingContext) {
-      if (existingContext.executionId) {
-        try {
-          await existingContext.ekoService.cancelTask(existingContext.executionId);
-        } catch (error) {
-          console.error('[TaskWindowManager] Failed to terminate old task:', error);
-        }
+      // Fully destroy old EkoService (aborts tasks, closes MCP connections)
+      try {
+        await existingContext.ekoService.destroy();
+      } catch (error) {
+        console.error('[TaskWindowManager] Failed to destroy old EkoService:', error);
       }
 
+      // Rebuild EkoService with fresh state
+      const newEkoService = new EkoService(existingContext.window, existingContext.tabManager);
+      existingContext.ekoService = newEkoService;
       existingContext.executionId = executionId;
+
+      // Update window context registry
+      const wcId = existingContext.window.webContents.id;
+      windowContextManager.updateWindowContext(wcId, {
+        ekoService: newEkoService,
+        currentExecutionId: executionId,
+      });
+
       existingContext.window.loadURL(`http://localhost:5173/main?taskId=${taskId}&executionId=${executionId}`);
       existingContext.window.show();
       existingContext.window.focus();
@@ -43,33 +53,20 @@ export class TaskWindowManager {
     }
 
     const taskWindow = await createWindow(`http://localhost:5173/main?taskId=${taskId}&executionId=${executionId}`)
-    const detailView = createView(`https://www.google.com`, "view", '2');
 
-    taskWindow.contentView.addChildView(detailView);
-    detailView.setBounds({ x: 818, y: 264, width: 748, height: 560 });
-    detailView.setVisible(false);
+    // Create TabManager for this task window (same bounds as main window)
+    const tabManager = new TabManager(taskWindow, { x: 818, y: 264, width: 748, height: 560 });
+    tabManager.createTab("https://www.google.com");
+    tabManager.setVisible(false);
 
-    detailView.webContents.setWindowOpenHandler(({url}) => {
-      detailView.webContents.loadURL(url);
-      return { action: "deny" }
-    });
-
-    detailView.webContents.on('did-navigate', (_event, url) => {
-      taskWindow?.webContents.send('url-changed', url);
-    });
-
-    detailView.webContents.on('did-navigate-in-page', (_event, url) => {
-      taskWindow?.webContents.send('url-changed', url);
-    });
-
-    const ekoService = new EkoService(taskWindow, detailView);
+    const ekoService = new EkoService(taskWindow, tabManager);
 
     taskWindow.show();
     taskWindow.focus();
 
     const context: TaskWindowContext = {
       window: taskWindow,
-      view: detailView,
+      tabManager,
       ekoService,
       taskId,
       executionId,
@@ -80,7 +77,7 @@ export class TaskWindowManager {
 
     const windowContext: WindowContext = {
       window: taskWindow,
-      detailView,
+      tabManager,
       historyView: null,
       ekoService,
       webContentsId: taskWindow.webContents.id,
@@ -100,38 +97,35 @@ export class TaskWindowManager {
         return;
       }
 
-      const hasRunningTask = ekoService.hasRunningTask();
+      // Read current ekoService from context (may have been replaced on reuse)
+      const currentContext = this.taskWindows.get(taskId);
+      const currentEkoService = currentContext?.ekoService ?? ekoService;
 
-      if (hasRunningTask) {
-        event.preventDefault();
+      if (!currentEkoService.hasRunningTask()) return;
 
-        // Prevent multiple modals
-        if (isShowingModal) return;
-        isShowingModal = true;
+      event.preventDefault();
 
-        // Show modal dialog window
-        const confirmed = await showCloseConfirmModal(taskWindow);
-        isShowingModal = false;
+      // Prevent multiple modals
+      if (isShowingModal) return;
+      isShowingModal = true;
 
-        if (confirmed) {
-          const allTaskIds = ekoService['eko']?.getAllTaskId() || [];
-          await ekoService.abortAllTasks();
+      const confirmed = await showCloseConfirmModal(taskWindow);
+      isShowingModal = false;
 
-          allTaskIds.forEach((tid: string) => {
-            if (!taskWindow.isDestroyed()) {
-              taskWindow.webContents.send('task-aborted-by-system', {
-                taskId: tid,
-                reason: 'User closed scheduled task window, task terminated',
-                timestamp: new Date().toISOString()
-              });
-            }
+      if (confirmed) {
+        await currentEkoService.destroy();
+
+        if (!taskWindow.isDestroyed()) {
+          taskWindow.webContents.send('task-aborted-by-system', {
+            taskId,
+            reason: 'User closed scheduled task window',
+            timestamp: new Date().toISOString()
           });
-
-          await new Promise(resolve => setTimeout(resolve, 500));
-
-          closeConfirmed = true;
-          taskWindow.destroy();
         }
+
+        await new Promise(resolve => setTimeout(resolve, 300));
+        closeConfirmed = true;
+        taskWindow.destroy();
       }
     });
 
