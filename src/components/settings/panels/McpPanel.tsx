@@ -10,54 +10,19 @@ import {
   ApiOutlined,
   PlusOutlined,
   DeleteOutlined,
-  SyncOutlined
+  SyncOutlined,
+  ImportOutlined
 } from '@ant-design/icons';
 import { Typography, Input, App, Popconfirm, Tag } from 'antd';
 import { useTranslation } from 'react-i18next';
 import type { McpSettings, McpServiceConfig, McpToolInfo } from '@/models/settings';
 import { SelectableCard, ActionButton } from '@/components/ui';
 import { AddMcpServiceModal } from './AddMcpServiceModal';
+import { McpHeadersEditor } from './McpHeadersEditor';
+import { ImportMcpConfigModal } from './ImportMcpConfigModal';
 import { logger } from '@/utils/logger';
 
 const { Title, Paragraph, Text } = Typography;
-
-/** Service list item in left sidebar */
-const ServiceListItem: React.FC<{
-  service: McpServiceConfig;
-  isSelected: boolean;
-  onClick: () => void;
-}> = ({ service, isSelected, onClick }) => {
-  return (
-    <SelectableCard
-      selected={isSelected}
-      onClick={onClick}
-      hoverScale={false}
-      className="w-full mb-2 px-4 py-3"
-    >
-      <div className="flex items-center gap-3 text-left">
-        <ApiOutlined className="text-lg text-text-12 dark:text-text-12-dark" />
-        <span className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-200 truncate">
-          {service.name}
-        </span>
-        {service.tools.length > 0 && (
-          <div className="w-2 h-2 rounded-full flex-shrink-0 bg-green-500" />
-        )}
-      </div>
-    </SelectableCard>
-  );
-};
-
-/** Tool list item */
-const ToolListItem: React.FC<{ tool: McpToolInfo }> = ({ tool }) => {
-  return (
-    <div className="flex items-center justify-between px-4 py-3 rounded-lg bg-white dark:bg-white/5 border border-gray-100 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-white/10 hover:border-gray-200 dark:hover:border-white/10 transition-all duration-200 mb-2">
-      <div className="flex-1 min-w-0">
-        <div className="text-text-01 dark:text-text-01-dark font-medium text-sm">{tool.name}</div>
-        <div className="text-text-12 dark:text-text-12-dark text-xs mt-0.5 truncate">{tool.description}</div>
-      </div>
-    </div>
-  );
-};
 
 interface McpPanelProps {
   settings?: McpSettings;
@@ -77,6 +42,7 @@ export const McpPanel: React.FC<McpPanelProps> = ({
     settings.services[0]?.id ?? null
   );
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
   const [fetchingTools, setFetchingTools] = useState(false);
 
   const currentService = settings.services.find(s => s.id === selectedServiceId);
@@ -97,6 +63,21 @@ export const McpPanel: React.FC<McpPanelProps> = ({
     setSelectedServiceId(newService.id);
     setShowAddModal(false);
     message.success(t('mcp.service_added'));
+  };
+
+  /** Batch import MCP services from JSON */
+  const handleImportServices = (imported: Array<{ name: string; url: string; type?: 'sse' | 'http'; headers?: Record<string, string> }>) => {
+    const newServices: McpServiceConfig[] = imported.map((s, i) => ({
+      id: `mcp-${Date.now()}-${i}-${Math.random().toString(36).slice(2, 8)}`,
+      name: s.name,
+      url: s.url,
+      type: s.type,
+      headers: s.headers,
+      tools: [],
+    }));
+    updateSettings([...settings.services, ...newServices]);
+    if (newServices.length > 0) setSelectedServiceId(newServices[0].id);
+    message.success(t('mcp.import_success', { count: newServices.length }));
   };
 
   /** Delete an MCP service */
@@ -124,14 +105,15 @@ export const McpPanel: React.FC<McpPanelProps> = ({
 
     setFetchingTools(true);
     try {
-      const result = await window.api.fetchMcpTools(currentService.url);
+      const result = await window.api.fetchMcpTools(currentService.url, currentService.headers);
       if (result?.success && result.data?.tools) {
         const tools: McpToolInfo[] = result.data.tools.map((tool: McpToolInfo) => ({
           name: tool.name,
           description: tool.description,
           inputSchema: tool.inputSchema
         }));
-        handleUpdateService({ tools });
+        const detectedType = result.data.type as 'sse' | 'http' | undefined;
+        handleUpdateService({ tools, ...(detectedType && { type: detectedType }) });
         message.success(t('mcp.fetch_success', { count: tools.length }));
       } else {
         message.error(result?.error || t('mcp.fetch_failed'));
@@ -152,21 +134,26 @@ export const McpPanel: React.FC<McpPanelProps> = ({
         <div className="flex items-center gap-3">
           <ApiOutlined className="text-3xl text-primary dark:text-purple-400" />
           <div>
-            <Title level={2} className="!text-text-01 dark:!text-text-01-dark !mb-0">
-              {t('mcp.title')}
-            </Title>
-            <Paragraph className="!text-text-12 dark:!text-text-12-dark !mb-0 text-sm mt-1">
-              {t('mcp.description')}
-            </Paragraph>
+            <Title level={2} className="!text-text-01 dark:!text-text-01-dark !mb-0">{t('mcp.title')}</Title>
+            <Paragraph className="!text-text-12 dark:!text-text-12-dark !mb-0 text-sm mt-1">{t('mcp.description')}</Paragraph>
           </div>
         </div>
-        <ActionButton
-          variant="primary"
-          icon={<PlusOutlined />}
-          onClick={() => setShowAddModal(true)}
-        >
-          {t('mcp.add_service')}
-        </ActionButton>
+        <div className="flex gap-2">
+          <ActionButton
+            variant="secondary"
+            icon={<ImportOutlined />}
+            onClick={() => setShowImportModal(true)}
+          >
+            {t('mcp.import_config')}
+          </ActionButton>
+          <ActionButton
+            variant="primary"
+            icon={<PlusOutlined />}
+            onClick={() => setShowAddModal(true)}
+          >
+            {t('mcp.add_service')}
+          </ActionButton>
+        </div>
       </div>
 
       {/* Main content: Service list + Details */}
@@ -174,18 +161,19 @@ export const McpPanel: React.FC<McpPanelProps> = ({
         {/* Left: Service list */}
         <div className="w-64 overflow-y-auto pr-2 flex-shrink-0">
           {settings.services.map((service) => (
-            <ServiceListItem
-              key={service.id}
-              service={service}
-              isSelected={selectedServiceId === service.id}
-              onClick={() => setSelectedServiceId(service.id)}
-            />
+            <SelectableCard key={service.id} selected={selectedServiceId === service.id} onClick={() => setSelectedServiceId(service.id)} hoverScale={false} className="w-full mb-2 px-4 py-3">
+              <div className="flex items-center gap-3 text-left">
+                <ApiOutlined className="text-lg text-text-12 dark:text-text-12-dark" />
+                <span className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-200 truncate">{service.name}</span>
+                {service.tools.length > 0 && <div className="w-2 h-2 rounded-full flex-shrink-0 bg-green-500" />}
+              </div>
+            </SelectableCard>
           ))}
           {settings.services.length === 0 && (
-            <div className="text-center py-12 text-text-12 dark:text-text-12-dark">
+            <div className="text-center py-12 text-text-12 dark:text-text-12-dark text-xs">
               <div className="text-4xl mb-3">🔌</div>
               <div className="font-medium mb-1">{t('mcp.empty_title')}</div>
-              <div className="text-xs">{t('mcp.empty_desc')}</div>
+              <div>{t('mcp.empty_desc')}</div>
             </div>
           )}
         </div>
@@ -196,21 +184,15 @@ export const McpPanel: React.FC<McpPanelProps> = ({
             <div className="p-6 overflow-y-auto flex-1">
               <div className="space-y-6">
                 {/* Service header */}
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <Text className="!text-text-01 dark:!text-text-01-dark text-xl font-semibold">
-                        {currentService.name}
-                      </Text>
+                <div className="flex items-center justify-between">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-3">
+                      <Text className="!text-text-01 dark:!text-text-01-dark text-xl font-semibold">{currentService.name}</Text>
                       {currentService.tools.length > 0 && (
-                        <Tag color="green" className="!border-green-500/30">
-                          {t('mcp.tool_count', { count: currentService.tools.length })}
-                        </Tag>
+                        <Tag color="green" className="!border-green-500/30">{t('mcp.tool_count', { count: currentService.tools.length })}</Tag>
                       )}
                     </div>
-                    <Paragraph className="!text-text-12 dark:text-text-12-dark !mb-0 text-sm">
-                      {currentService.url}
-                    </Paragraph>
+                    <Text className="!text-text-12 dark:!text-text-12-dark text-xs mt-1 block truncate">{currentService.url}</Text>
                   </div>
                   <Popconfirm
                     title={t('mcp.delete_confirm_title')}
@@ -253,6 +235,17 @@ export const McpPanel: React.FC<McpPanelProps> = ({
                   />
                 </div>
 
+                {/* Headers */}
+                <div>
+                  <Text className="!text-text-01 dark:!text-text-01-dark font-medium block mb-2">
+                    {t('mcp.headers')}
+                  </Text>
+                  <McpHeadersEditor
+                    headers={currentService.headers}
+                    onChange={(headers) => handleUpdateService({ headers })}
+                  />
+                </div>
+
                 {/* Tools section */}
                 <div className="pt-4 border-t border-gray-200 dark:border-white/10">
                   <div className="flex items-center justify-between mb-4">
@@ -272,14 +265,17 @@ export const McpPanel: React.FC<McpPanelProps> = ({
                   {currentService.tools.length > 0 ? (
                     <div className="max-h-80 overflow-y-auto">
                       {currentService.tools.map((tool) => (
-                        <ToolListItem key={tool.name} tool={tool} />
+                        <div key={tool.name} className="px-4 py-3 rounded-lg bg-white dark:bg-white/5 border border-gray-100 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-white/10 transition-all duration-200 mb-2">
+                          <div className="text-text-01 dark:text-text-01-dark font-medium text-sm">{tool.name}</div>
+                          <div className="text-text-12 dark:text-text-12-dark text-xs mt-0.5 truncate">{tool.description}</div>
+                        </div>
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-8 text-text-12 dark:text-text-12-dark">
+                    <div className="text-center py-8 text-text-12 dark:text-text-12-dark text-sm">
                       <div className="text-3xl mb-2">🔧</div>
                       <div className="font-medium mb-1">{t('mcp.no_tools_title')}</div>
-                      <div className="text-sm">{t('mcp.no_tools_desc')}</div>
+                      <div>{t('mcp.no_tools_desc')}</div>
                     </div>
                   )}
                 </div>
@@ -298,6 +294,13 @@ export const McpPanel: React.FC<McpPanelProps> = ({
         open={showAddModal}
         onClose={() => setShowAddModal(false)}
         onAdd={handleAddService}
+      />
+
+      <ImportMcpConfigModal
+        open={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        onImport={handleImportServices}
+        existingUrls={settings.services.map(s => s.url)}
       />
     </div>
   );

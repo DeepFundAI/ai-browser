@@ -1,4 +1,4 @@
-import { Agent, Eko, ChatAgent, SimpleSseMcpClient, resetWorkflowXml, global as ekoGlobal, type IMcpClient, type LLMs, type StreamCallbackMessage, type AgentContext, type EkoResult, type EkoDialogueConfig, type ChatStreamCallback, type ChatStreamMessage } from "@jarvis-agent/core";
+import { Agent, Eko, ChatAgent, SimpleSseMcpClient, SimpleHttpMcpClient, resetWorkflowXml, global as ekoGlobal, type IMcpClient, type LLMs, type StreamCallbackMessage, type AgentContext, type EkoResult, type EkoDialogueConfig, type ChatStreamCallback, type ChatStreamMessage } from "@jarvis-agent/core";
 import { BrowserAgent, FileAgent } from "@jarvis-agent/electron";
 import { BrowserWindow, app } from "electron";
 import path from "node:path";
@@ -267,7 +267,10 @@ export class EkoService {
 
     return services
       .filter(service => agentMcpConfig[service.id]?.enabled && service.url)
-      .map(service => new SimpleSseMcpClient(service.url));
+      .map(service => service.type === 'http'
+        ? new SimpleHttpMcpClient(service.url, undefined, service.headers)
+        : new SimpleSseMcpClient(service.url, undefined, service.headers)
+      );
   }
 
   /**

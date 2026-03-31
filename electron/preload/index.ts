@@ -62,7 +62,7 @@ const api = {
   reloadAgentConfig: () => safeInvoke('agent:reload-config'),
 
   // MCP service APIs
-  fetchMcpTools: (url: string) => safeInvoke('settings:fetch-mcp-tools', url),
+  fetchMcpTools: (url: string, headers?: Record<string, string>) => safeInvoke('settings:fetch-mcp-tools', url, headers),
 
   // Detail view control APIs
   setDetailViewVisible: (visible: boolean) => safeInvoke('set-detail-view-visible', visible),

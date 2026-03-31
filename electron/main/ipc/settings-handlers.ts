@@ -1,5 +1,5 @@
 import { ipcMain, net, session } from 'electron';
-import { SimpleSseMcpClient } from '@jarvis-agent/core';
+import { SimpleSseMcpClient, SimpleHttpMcpClient } from '@jarvis-agent/core';
 import { openSettingsWindow, closeSettingsWindow } from '../ui/settings-window';
 import { successResponse, errorResponse } from '../utils/ipc-response';
 
@@ -186,21 +186,64 @@ export function registerSettingsHandlers() {
     }
   });
 
-  // Fetch MCP tools from a remote SSE endpoint
-  ipcMain.handle('settings:fetch-mcp-tools', async (_event, url: string) => {
+  // Fetch MCP tools: try Streamable HTTP first, fallback to SSE
+  ipcMain.handle('settings:fetch-mcp-tools', async (_event, url: string, headers?: Record<string, string>) => {
     try {
-      console.log('[SettingsHandlers] Fetching MCP tools from:', url);
-      const client = new SimpleSseMcpClient(url);
-      await client.connect();
-      const tools = await client.listTools({
+      if (!url?.trim()) return errorResponse(new Error('URL is required'));
+      const trimmedUrl = url.trim();
+      console.log('[SettingsHandlers] Fetching MCP tools from:', trimmedUrl, 'headers:', headers ? Object.keys(headers) : 'none');
+
+      const taskContext = {
         taskId: 'settings-fetch',
-        environment: 'browser',
+        environment: 'browser' as const,
         agent_name: 'settings',
         params: {},
         prompt: ''
-      });
-      await client.close();
-      return successResponse({ tools });
+      };
+
+      // Try Streamable HTTP first (newer protocol)
+      let httpClient: SimpleHttpMcpClient | undefined;
+      try {
+        console.log('[SettingsHandlers] Trying Streamable HTTP protocol...');
+        httpClient = new SimpleHttpMcpClient(trimmedUrl, undefined, headers);
+        await httpClient.connect();
+        const tools = await httpClient.listTools(taskContext);
+        await httpClient.close();
+        console.log('[SettingsHandlers] Streamable HTTP succeeded');
+        return successResponse({ tools, type: 'http' });
+      } catch (httpError: unknown) {
+        await httpClient?.close().catch(() => {});
+        const msg = httpError instanceof Error ? httpError.message : String(httpError);
+        console.log('[SettingsHandlers] Streamable HTTP failed, trying SSE...', msg);
+      }
+
+      // Fallback to SSE protocol
+      const sseClient = new SimpleSseMcpClient(trimmedUrl, undefined, headers);
+      try {
+        await sseClient.connect();
+        const maxWait = 8000;
+        const interval = 400;
+        let tools;
+        for (let elapsed = 0; elapsed < maxWait; elapsed += interval) {
+          try {
+            tools = await sseClient.listTools(taskContext);
+            break;
+          } catch (err: unknown) {
+            const errMsg = err instanceof Error ? err.message : String(err);
+            if (elapsed + interval < maxWait && errMsg.includes('Failed to parse URL')) {
+              await new Promise(r => setTimeout(r, interval));
+              continue;
+            }
+            throw err;
+          }
+        }
+        if (!tools) throw new Error('SSE endpoint not ready after timeout');
+        await sseClient.close();
+        return successResponse({ tools, type: 'sse' });
+      } catch (sseError) {
+        await sseClient.close().catch(() => {});
+        throw sseError;
+      }
     } catch (error: unknown) {
       console.error('[SettingsHandlers] Fetch MCP tools error:', error);
       return errorResponse(error instanceof Error ? error : new Error(String(error)));

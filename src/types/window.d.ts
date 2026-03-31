@@ -64,7 +64,7 @@ declare global {
       reloadAgentConfig: () => Promise<IpcResponse<{ agentConfig: AgentConfig }>>
 
       // MCP service APIs
-      fetchMcpTools: (url: string) => Promise<IpcResponse<{ tools: McpToolInfo[] }>>
+      fetchMcpTools: (url: string, headers?: Record<string, string>) => Promise<IpcResponse<{ tools: McpToolInfo[]; type?: 'sse' | 'http' }>>
 
       // Detail view APIs
       setDetailViewVisible: (visible: boolean) => Promise<IpcResponse<void>>
