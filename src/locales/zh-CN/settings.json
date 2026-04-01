@@ -164,6 +164,9 @@
   "agent": {
     "title": "智能体",
     "description": "配置 AI 智能体和 MCP 工具以执行任务",
+    "chat_agent": "Chat 智能体",
+    "chat_agent_desc": "为 Chat 模式配置 MCP 服务。启用的工具可在对话中直接使用，无需通过子智能体调用。",
+    "chat_mcp_desc": "选择 Chat 模式中可直接使用的 MCP 服务和工具",
     "browser_agent": "浏览器智能体",
     "file_agent": "文件智能体",
     "mcp_tools": "MCP 工具",

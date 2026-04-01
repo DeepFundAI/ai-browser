@@ -11,6 +11,7 @@ import { AppChatService } from "./app-chat-service";
 import { AppBrowserService } from "./app-browser-service";
 import { SkillService } from "./skill-service";
 import { MemoryService, buildMemoryTools } from "./memory";
+import { buildMcpDialogueTools } from "./mcp-dialogue-tools";
 import type { AgentMcpConfig, McpServiceConfig } from "../models/settings";
 import type { HumanRequestMessage, HumanResponseMessage, HumanInteractionContext } from "../../../src/models/human-interaction";
 
@@ -48,6 +49,7 @@ export class EkoService {
 
   // ChatAgent instance for chat mode
   private chatAgent: ChatAgent | null = null;
+  private chatMcpClients: IMcpClient[] = [];
   private chatAbortControllers = new Map<string, AbortController>();
 
   // Global services for eko-core
@@ -831,17 +833,32 @@ export class EkoService {
   }
 
   /** Create ChatAgent with current config */
-  private createChatAgent(chatId: string): ChatAgent {
+  private async createChatAgent(chatId: string): Promise<ChatAgent> {
+    // Close previous MCP clients
+    await this.closeChatMcpClients();
+
     const configManager = ConfigManager.getInstance();
     const llms = configManager.getLLMsConfig();
+    const agentConfig = configManager.getAgentConfig();
     const config: EkoDialogueConfig = {
       llms,
       agents: this.buildChatAgents(),
       ...this.buildOptionalLlmKeys(),
       globalConfig: this.buildGlobalConfig(),
     };
+
+    // Build MCP DialogueTools for chat mode
+    this.chatMcpClients = this.buildMcpClients(agentConfig?.chatAgent?.mcpServices ?? {});
+    const mcpTools = await buildMcpDialogueTools(this.chatMcpClients);
     const memoryTools = buildMemoryTools(this.memoryService);
-    return new ChatAgent(config, chatId, undefined, memoryTools);
+
+    return new ChatAgent(config, chatId, undefined, [...mcpTools, ...memoryTools]);
+  }
+
+  /** Close chat MCP clients */
+  private async closeChatMcpClients(): Promise<void> {
+    await Promise.allSettled(this.chatMcpClients.map(c => c.close()));
+    this.chatMcpClients = [];
   }
 
   /** Build agents for ChatAgent (browser + custom) */
@@ -870,7 +887,7 @@ export class EkoService {
   async chatRun(chatId: string, messageId: string, text: string): Promise<{ chatId: string; result: string | null; error?: string }> {
     try {
       if (!this.chatAgent || this.chatAgent.getChatContext().getChatId() !== chatId) {
-        this.chatAgent = this.createChatAgent(chatId);
+        this.chatAgent = await this.createChatAgent(chatId);
       }
 
       this.runningTaskIds.add(chatId);
@@ -974,6 +991,7 @@ export class EkoService {
     await this.memoryService.flush();
 
     this.rejectAllHumanRequests(new Error('EkoService destroyed'));
+    await this.closeChatMcpClients();
     this.eko = null;
     this.browserAgent = null;
     this.chatAgent = null;

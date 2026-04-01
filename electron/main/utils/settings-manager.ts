@@ -146,6 +146,12 @@ export class SettingsManager {
     if (!agentConfig.fileAgent.mcpServices) {
       agentConfig.fileAgent.mcpServices = {};
     }
+    if (!agentConfig.chatAgent) {
+      agentConfig.chatAgent = { mcpServices: {} };
+    }
+    if (!agentConfig.chatAgent.mcpServices) {
+      agentConfig.chatAgent.mcpServices = {};
+    }
     if (!agentConfig.customAgents) {
       agentConfig.customAgents = [];
     }

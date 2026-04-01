@@ -164,6 +164,9 @@
   "agent": {
     "title": "Agent",
     "description": "Configure AI agents and MCP tools for task execution",
+    "chat_agent": "Chat Agent",
+    "chat_agent_desc": "Configure MCP services for Chat mode. Enabled tools are directly available during conversations without going through sub-agents.",
+    "chat_mcp_desc": "Select MCP services and tools available directly in Chat mode",
     "browser_agent": "Browser Agent",
     "file_agent": "File Agent",
     "mcp_tools": "MCP Tools",
