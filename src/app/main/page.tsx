@@ -123,7 +123,7 @@ export default function main() {
             const saved = localStorage.getItem('taskMode');
             if (saved === 'chat' || saved === 'explore') return saved;
         }
-        return 'chat';
+        return 'explore';
     });
     const [currentUrl, setCurrentUrl] = useState<string>('');
     const [currentTool, setCurrentTool] = useState<{

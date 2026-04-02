@@ -164,6 +164,9 @@
   "agent": {
     "title": "Agent",
     "description": "Configure AI agents and MCP tools for task execution",
+    "chat_agent": "Chat Agent",
+    "chat_agent_desc": "Configure MCP services for Chat mode. Enabled tools are directly available during conversations without going through sub-agents.",
+    "chat_mcp_desc": "Select MCP services and tools available directly in Chat mode",
     "browser_agent": "Browser Agent",
     "file_agent": "File Agent",
     "mcp_tools": "MCP Tools",
@@ -248,7 +251,21 @@
     "invalid_url": "Please enter a valid URL (http:// or https://)",
     "sse_url_hint": "The SSE endpoint URL of your MCP server",
     "empty_title": "No MCP Services",
-    "empty_desc": "Add an MCP service to extend your agents with external tools"
+    "empty_desc": "Add an MCP service to extend your agents with external tools",
+    "import_config": "Import",
+    "import_title": "Import MCP Configuration",
+    "import_paste_hint": "Paste JSON configuration from MCP platforms",
+    "import_placeholder": "{\"mcpServers\": { ... }}",
+    "import_parse_error": "Invalid JSON format",
+    "import_no_servers": "No mcpServers found in JSON",
+    "import_duplicate": "Duplicate",
+    "import_no_new": "All services already exist (duplicate URLs)",
+    "import_preview": "Services to import",
+    "import_success": "Imported {{count}} service(s)",
+    "headers": "Headers",
+    "add_header": "Add Header",
+    "header_key_placeholder": "e.g. Authorization",
+    "header_value_placeholder": "e.g. Bearer your-token"
   },
   "skills": {
     "title": "Skills",

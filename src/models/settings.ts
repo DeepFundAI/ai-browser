@@ -131,6 +131,8 @@ export interface McpServiceConfig {
   id: string;
   name: string;
   url: string;
+  type?: 'sse' | 'http';
+  headers?: Record<string, string>;
   tools: McpToolInfo[];
 }
 

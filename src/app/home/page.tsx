@@ -26,7 +26,7 @@ export default function Home() {
             const saved = localStorage.getItem('taskMode');
             if (saved === 'chat' || saved === 'explore') return saved;
         }
-        return 'chat';
+        return 'explore';
     })
     const router = useRouter()
     const { t } = useTranslation('home')

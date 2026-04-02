@@ -164,6 +164,9 @@
   "agent": {
     "title": "智能体",
     "description": "配置 AI 智能体和 MCP 工具以执行任务",
+    "chat_agent": "Chat 智能体",
+    "chat_agent_desc": "为 Chat 模式配置 MCP 服务。启用的工具可在对话中直接使用，无需通过子智能体调用。",
+    "chat_mcp_desc": "选择 Chat 模式中可直接使用的 MCP 服务和工具",
     "browser_agent": "浏览器智能体",
     "file_agent": "文件智能体",
     "mcp_tools": "MCP 工具",
@@ -248,7 +251,21 @@
     "invalid_url": "请输入有效的 URL（http:// 或 https://）",
     "sse_url_hint": "MCP 服务器的 SSE 端点 URL",
     "empty_title": "暂无 MCP 服务",
-    "empty_desc": "添加 MCP 服务以使用外部工具扩展智能体能力"
+    "empty_desc": "添加 MCP 服务以使用外部工具扩展智能体能力",
+    "import_config": "导入",
+    "import_title": "导入 MCP 配置",
+    "import_paste_hint": "粘贴 MCP 平台提供的 JSON 配置",
+    "import_placeholder": "{\"mcpServers\": { ... }}",
+    "import_parse_error": "JSON 格式无效",
+    "import_no_servers": "未找到 mcpServers 配置",
+    "import_duplicate": "重复",
+    "import_no_new": "所有服务已存在（URL 重复）",
+    "import_preview": "待导入服务",
+    "import_success": "已导入 {{count}} 个服务",
+    "headers": "请求头",
+    "add_header": "添加请求头",
+    "header_key_placeholder": "例如：Authorization",
+    "header_value_placeholder": "例如：Bearer your-token"
   },
   "skills": {
     "title": "技能",

@@ -10,6 +10,7 @@ import {
   RobotOutlined,
   GlobalOutlined,
   FolderOutlined,
+  MessageOutlined,
   ApiOutlined,
   PlusOutlined,
   DeleteOutlined
@@ -258,6 +259,15 @@ export const AgentPanel: React.FC<AgentPanelProps> = ({
     });
   };
 
+  /** Update chat agent's settings */
+  const updateChatAgent = (updates: Partial<AgentConfig['chatAgent']>) => {
+    if (!settings || !onSettingsChange) return;
+    onSettingsChange({
+      ...settings,
+      chatAgent: { mcpServices: {}, ...settings.chatAgent, ...updates }
+    });
+  };
+
   /** Update a custom agent's settings */
   const updateCustomAgent = (id: string, updates: Partial<CustomAgentConfig>) => {
     if (!settings || !onSettingsChange) return;
@@ -468,6 +478,42 @@ export const AgentPanel: React.FC<AgentPanelProps> = ({
     );
   };
 
+  /** Render chat agent detail */
+  const renderChatAgentContent = () => {
+    if (!settings) return null;
+    const chatSettings = settings.chatAgent ?? { mcpServices: {} };
+
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-3">
+          <Text className="!text-text-01 dark:!text-text-01-dark font-medium text-base">
+            {t('agent.chat_agent')}
+          </Text>
+          <Tag color="purple">{t('agent.builtin_tag')}</Tag>
+        </div>
+
+        <Text className="!text-text-12 dark:!text-text-12-dark text-sm block">
+          {t('agent.chat_agent_desc')}
+        </Text>
+
+        {/* MCP services */}
+        <div className="pt-4 border-t border-gray-200 dark:border-white/10">
+          <Text className="!text-text-01 dark:!text-text-01-dark font-medium text-base block mb-1">
+            {t('agent.mcp_services_title')}
+          </Text>
+          <Text className="!text-text-12 dark:!text-text-12-dark text-sm block mb-4">
+            {t('agent.chat_mcp_desc')}
+          </Text>
+          <McpServiceSelector
+            services={mcpServices}
+            agentMcpConfig={chatSettings.mcpServices}
+            onConfigChange={(mcpConfig) => updateChatAgent({ mcpServices: mcpConfig })}
+          />
+        </div>
+      </div>
+    );
+  };
+
   /** Render detail panel content */
   const renderContent = () => {
     if (!settings) {
@@ -478,6 +524,7 @@ export const AgentPanel: React.FC<AgentPanelProps> = ({
       );
     }
 
+    if (activeTab === 'chat') return renderChatAgentContent();
     if (activeTab === 'browser') return renderBuiltinAgentContent('browserAgent', 'browser');
     if (activeTab === 'file') return renderBuiltinAgentContent('fileAgent', 'file');
 
@@ -517,6 +564,14 @@ export const AgentPanel: React.FC<AgentPanelProps> = ({
           {/* Left sidebar */}
           <div className="w-56 flex-shrink-0 overflow-y-auto">
             {/* Built-in agents */}
+            <AgentListItem
+              label={t('agent.chat_agent')}
+              icon={<MessageOutlined />}
+              isSelected={activeTab === 'chat'}
+              tagLabel={t('agent.builtin_tag')}
+              tagColor="purple"
+              onClick={() => setActiveTab('chat')}
+            />
             <AgentListItem
               label={t('agent.browser_agent')}
               icon={<GlobalOutlined />}

@@ -27,5 +27,8 @@ export interface AgentConfig {
     customPrompt?: string
     mcpServices: AgentMcpConfig
   }
+  chatAgent?: {
+    mcpServices: AgentMcpConfig
+  }
   customAgents: CustomAgentConfig[]
 }
