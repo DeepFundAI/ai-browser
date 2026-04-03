@@ -29,7 +29,7 @@ export const EditableStepNode: React.FC<EditableStepNodeProps> = ({
 
   const nodeText = typeof node === 'string'
     ? node
-    : (node?.text ?? String(node ?? ''));
+    : (node?.text ?? node?.description ?? (typeof node === 'object' ? JSON.stringify(node) : String(node ?? '')));
 
   // Auto-edit mode for newly added empty nodes
   const [editing, setEditing] = useState(!!node?._isNew);

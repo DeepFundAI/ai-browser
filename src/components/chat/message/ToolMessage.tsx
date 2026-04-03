@@ -26,6 +26,7 @@ export const ToolDisplay: React.FC<ToolDisplayProps> = ({
   onFileClick
 }) => {
   const { t } = useTranslation('chat');
+  const [expanded, setExpanded] = useState(false);
 
   // Special handling for human_interact tool
   if (message.toolName === 'human_interact' && message.params) {
@@ -139,7 +140,6 @@ export const ToolDisplay: React.FC<ToolDisplayProps> = ({
     onFileClick(fileAttachment);
   };
 
-  const [expanded, setExpanded] = useState(false);
   const hasDetail = message.status === 'completed' && (message.params || message.result);
 
   // Format detail content for display
